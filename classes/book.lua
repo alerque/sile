@@ -87,14 +87,41 @@ end)
 book.registerCommands = function()
   plain.registerCommands()
 SILE.doTexlike([[%
+\define[command=book:part:pre]{Part }%
+\define[command=book:part:post]{\par}%
 \define[command=book:chapter:pre]{Chapter }%
 \define[command=book:chapter:post]{\par}%
 \define[command=book:section:post]{ }%
 \define[command=book:subsection:post]{ }%
+\define[command=book:subparagraph:post]{ }%
 \define[command=book:left-running-head-font]{\font[size=9pt]}%
 \define[command=book:right-running-head-font]{\font[size=9pt,style=italic]}%
 ]])
 end
+
+SILE.registerCommand("part", function (options, content)
+  SILE.call("open-double-page")
+  SILE.call("noindent")
+  SILE.scratch.headers.right = nil
+  SILE.call("set-counter", {id = "footnote", value = 1})
+  SILE.call("book:partfont", {}, function()
+    SILE.call("book:sectioning", {
+      numbering = options.numbering,
+      level = 1,
+      prenumber = "book:part:pre",
+      postnumber = "book:part:post"
+    }, content)
+  end)
+  SILE.Commands["book:partfont"]({}, content);
+  SILE.Commands["left-running-head"]({}, function()
+    SILE.settings.temporarily(function()
+      SILE.call("book:left-running-head-font")
+      SILE.process(content)
+    end)
+  end)
+  SILE.call("bigskip")
+  SILE.call("nofoliosthispage")
+end, "Begin a new part");
 
 SILE.registerCommand("chapter", function (options, content)
   SILE.call("open-double-page")
@@ -169,6 +196,30 @@ SILE.registerCommand("subsection", function (options, content)
   SILE.call("novbreak")
 end, "Begin a new subsection")
 
+SILE.registerCommand("subparagraph", function (options, content)
+  SILE.typesetter:leaveHmode()
+  SILE.call("goodbreak")
+  SILE.call("noindent")
+  SILE.call("medskip")
+  SILE.Commands["book:subparagraphfont"]({}, function()
+    SILE.call("book:sectioning", {
+          numbering = options.numbering,
+          level = 3,
+          postnumber = "book:subparagraph:post"
+        }, content)
+    SILE.process(content)
+  end)
+  SILE.typesetter:leaveHmode()
+  SILE.call("novbreak")
+  SILE.call("medskip")
+  SILE.call("novbreak")
+end, "Begin a new subparagraph")
+
+SILE.registerCommand("book:partfont", function (options, content)
+  SILE.settings.temporarily(function()
+    SILE.Commands["font"]({weight=800, size="36pt"}, content)
+  end)
+end)
 SILE.registerCommand("book:chapterfont", function (options, content)
   SILE.settings.temporarily(function()
     SILE.Commands["font"]({weight=800, size="22pt"}, content)
@@ -179,10 +230,14 @@ SILE.registerCommand("book:sectionfont", function (options, content)
     SILE.Commands["font"]({weight=800, size="15pt"}, content)
   end)
 end)
-
 SILE.registerCommand("book:subsectionfont", function (options, content)
   SILE.settings.temporarily(function()
     SILE.Commands["font"]({weight=800, size="12pt"}, content)
+  end)
+end)
+SILE.registerCommand("book:subparagraphfont", function (options, content)
+  SILE.settings.temporarily(function()
+    SILE.Commands["font"]({weight=800, size="10pt"}, content)
   end)
 end)
 
