@@ -215,10 +215,8 @@ SILE.defaultTypesetter = std.object {
       vboxes[#vboxes+1] = v
       for i=1,#migrating do vboxes[#vboxes+1] = migrating[i] end
       self.state.previousVbox = v
-      if pageBreakPenalty > 0 then
-        SU.debug("typesetter", "adding penalty of "..pageBreakPenalty.." after "..v)
-        vboxes[#vboxes+1] = SILE.nodefactory.newPenalty({ penalty = pageBreakPenalty})
-      end
+      SU.debug("typesetter", "adding penalty of "..pageBreakPenalty.." after "..v)
+      vboxes[#vboxes+1] = SILE.nodefactory.newPenalty({ penalty = pageBreakPenalty})
     end
     return vboxes
   end,
