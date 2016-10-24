@@ -17,10 +17,14 @@ SILE.registerCommand("footnotemark", function(options, content)
 end)
 
 SILE.registerCommand("footnote:separator", function(options, content)
-  SILE.settings.pushState()
-  local material = SILE.Commands["vbox"]({}, content)
-  SILE.scratch.insertions.classes.footnote.topBox = material
-  SILE.settings.popState()
+  if content then
+    SILE.settings.pushState()
+    local material = SILE.Commands["vbox"]({}, content)
+    SILE.scratch.insertions.classes.footnote.topBox = material
+    SILE.settings.popState()
+  else
+    SILE.scratch.insertions.classes.footnote.topBox = nil
+  end
 end)
 
 SILE.registerCommand("footnote:options", function(options, content)
