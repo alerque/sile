@@ -1,7 +1,6 @@
 SILE = {}
 SILE.version = "0.9.5-unreleased"
 SILE.utilities = require("core/utilities")
-SU = SILE.utilities
 SILE.inputs = {}
 SILE.Commands = {}
 SILE.debugFlags = {}
@@ -20,6 +19,11 @@ SILE.scratch = {
   classes = {},
   packages = {},
 }
+
+-- Shorthand convenience aliases for common global variables
+SU = SILE.utilities
+SS = SILE.scratch
+
 SILE.length = require("core/length")
 require("core/parserbits")
 require("core/measurements")
