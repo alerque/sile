@@ -15,7 +15,11 @@ lfs = require("lfs")
 if (os.getenv("SILE_COVERAGE")) then require("luacov") end
 
 SILE.documentState = std.object {}
-SILE.scratch = {}
+SILE.scratch = {
+  core = {},
+  classes = {},
+  packages = {},
+}
 SILE.length = require("core/length")
 require("core/parserbits")
 require("core/measurements")
