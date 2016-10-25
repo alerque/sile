@@ -18,6 +18,7 @@ SILE.scratch = {
   core = {},
   classes = {},
   packages = {},
+  document = {},
 }
 
 -- Shorthand convenience aliases for common global variables
