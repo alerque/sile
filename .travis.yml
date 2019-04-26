@@ -21,6 +21,13 @@ addons:
    - libexpat1-dev
    - libipc-run-perl
    - libharfbuzz-dev
+   - lua-cliargs-dev
+   - lua-expat-dev
+   - lua-filesystem-dev
+   - lua-lpeg-dev
+   - lua-sec-dev
+   - lua-socket-dev
+   - lua-zlib-dev
 env:
   global:
    - LUAROCKS=2.4.2
@@ -60,13 +67,6 @@ before_install:
  - export LD_RUN_PATH=$LUA_HOME_DIR/lib:$LD_RUN_PATH
  - export PATH=.travis:$PATH
 install:
- - luarocks install lpeg
- - luarocks install lua-zlib
- - luarocks install luaexpat
- - luarocks install luafilesystem
- - luarocks install luasocket
- - luarocks install luasec
- - luarocks install lua_cliargs 2.3-3
  - luarocks install busted
  - luarocks install luacov 0.8-1
  - luarocks install luacov-coveralls
