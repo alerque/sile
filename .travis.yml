@@ -20,10 +20,10 @@ addons:
    - libpng-dev
    - libexpat1-dev
    - libipc-run-perl
+   - libharfbuzz-dev
 env:
   global:
    - LUAROCKS=2.4.2
-   - HARFBUZZ_BASE=harfbuzz-1.7.1
    - GRAPHITE=true
    - COVERAGE=false
    - MAKEFLAGS="-j 4"
@@ -52,18 +52,6 @@ before_install:
  #      tar xvf silefonts.tar.gz ;
  #      popd ;
  #   fi
- - if [ ! -f ~/local/include/harfbuzz/hb.h ]; then
-      mkdir ~/local/ || true;
-      mkdir ~/builddeps / || true;
-      pushd ~/builddeps/ ;
-      wget http://www.freedesktop.org/software/harfbuzz/release/$HARFBUZZ_BASE.tar.bz2 ;
-      tar xfj $HARFBUZZ_BASE.tar.bz2 ;
-      cd $HARFBUZZ_BASE ;
-      ./configure --with$($GRAPHITE || echo 'out')-graphite2 --prefix=$HOME/local/ ;
-      make ;
-      make install ;
-      popd ;
-   fi
  - export LUA_HOME_DIR=$TRAVIS_BUILD_DIR/install/lua
  - export LUA=~/.lua/lua
  - export LUA_INCLUDE=-I$LUA_HOME_DIR/include
