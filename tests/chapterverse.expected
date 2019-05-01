@@ -4,16 +4,16 @@ Mx 	20.0695
 My 	42.0943
 Set font 	Gentium Plus;10;400;;normal;;LTR
 T	73 82 82	(foo)
-Mx 	152.0892
-My 	17.0138
+Mx 	135.9969
+My 	16.8950
 Set font 	Gentium;10;400;;normal;;LTR
-T	39 78	(Gn)
-Mx 	166.0795
-T	17	(1)
-Mx 	170.7719
-T	12	(,)
-Mx 	175.7045
-T	18	(2)
+T	42 81	(Gn)
+Mx 	155.1969
+T	20	(1)
+Mx 	161.1969
+T	15	(,)
+Mx 	174.3969
+T	21	(2)
 Mx 	96.5574
 My 	262.9405
 Set font 	Gentium Plus;10;400;;normal;;LTR

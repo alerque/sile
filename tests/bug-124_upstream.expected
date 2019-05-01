@@ -1,29 +1,27 @@
-<tests/bug-124_upstream.sil>
 Set paper size 	419.5275636	595.275597
 Begin page
-Mx 	359.43009
-My 	66.75597
-Set font 	Noto Naskh Arabic;40;200;regular;normal;;RTL
-T		(ألمّ)
-Mx 	318.29717
-Set font 	Scheherazade;40;200;regular;normal;;RTL
-T	120	(—)
-Mx 	279.00019
-T		(ألمّ)
-Mx 	369.54728
-My 	113.95128
-T	120	(—)
-Mx 	315.50548
-T		(إِنْ)
-Mx 	369.54728
-My 	163.33409
-T	120	(—)
-Mx 	286.88698
-T		(السُّــرورُ)
-[1] Mx 	207.41759
-My 	553.73265
-Set font 	Gentium;10;200;regular;normal;;LTR
-T	17	(1)
+Mx 	359.4301
+My 	66.1505
+Set font 	Noto Naskh Arabic;40;400;;normal;;RTL
+T	81 493 491 35	(ألمّ)
+Mx 	318.2972
+Set font 	Scheherazade;40;400;;normal;;RTL
+T	121	(—)
+Mx 	279.0002
+T	724 1081 1039 273 1087	(ألمّ)
+Mx 	369.5473
+My 	114.1505
+T	121	(—)
+Mx 	315.5055
+T	496 1082 273 1088 1079	(إِنْ)
+Mx 	369.5473
+My 	162.1505
+T	121	(—)
+Mx 	286.8870
+T	328 1076 281 564 519 519 815 1081 1076 1039 273	(السُّــرورُ)
+Mx 	207.4176
+My 	553.7327
+Set font 	Gentium Plus;10;400;;normal;;LTR
+T	20	(1)
 End page
 Finish
-

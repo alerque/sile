@@ -1,35 +1,36 @@
 Set paper size 	419.5275636	595.275597
 Begin page
 Mx 	40.9764
-My 	38.1310
+My 	39.7478
 Set font 	Lateef;16;400;;normal;;LTR
-T	60 93 74 87 77 74 91 77	(Standard)
-Mx 	88.3578
-T	42 91 74 75 82 76	(Arabic)
-Mx 	125.6455
+T	54 87 68 81 71 68 85 71	(Standard)
+Mx 	131.6913
+T	36 85 68 69 76 70	(Arabic)
+Mx 	203.2063
 Set font 	Lateef;16;400;;normal;;RTL
-T	640 778 905	(ههه)
-Mx 	141.1143
+T	4103 4105 4104	(ههه)
+Mx 	232.0063
 Set font 	Lateef;16;400;;normal;;LTR
-T	36	(;)
-Mx 	148.8551
-T	60 82 87 77 82	(Sindi)
-Mx 	178.7209
+T	30	(;)
+Mx 	255.5213
+T	54 76 81 71 76	(Sindi)
+Mx 	317.4362
 Set font 	Lateef;16;400;;normal;;RTL
-T	642 780 905	(ههه)
-Mx 	197.1662
+T	4103 4105 4104	(ههه)
+Mx 	346.2362
 Set font 	Lateef;16;400;;normal;;LTR
-T	36	(;)
-Mx 	204.9071
-T	74 87 77	(and)
-Mx 	226.7104
-T	62 91 77 94	(Urdu)
-Mx 	255.9825
+T	30	(;)
+Mx 	369.7512
+T	68 81 71	(and)
+Mx 	20.9764
+My 	58.9478
+T	56 85 71 88	(Urdu)
+Mx 	71.0352
 Set font 	Lateef;16;400;;normal;;RTL
-T	643 779 906	(ههه)
-Mx 	272.0137
+T	4103 4105 4104	(ههه)
+Mx 	99.8352
 Set font 	Lateef;16;400;;normal;;LTR
-T	22	(.)
+T	17	(.)
 Mx 	207.4176
 My 	553.7327
 Set font 	Gentium Plus;10;400;;normal;;LTR

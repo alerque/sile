@@ -1,7 +1,7 @@
 Set paper size 	419.5275636	595.275597
 Begin page
 Mx 	40.9764
-My 	44.3185
+My 	44.0378
 Set font 	Gentium Plus;18;400;;normal;;LTR
 T	43 72 79 79 82	(Hello)
 Mx 	84.6614
@@ -10,11 +10,11 @@ Mx 	116.0911
 T	4	(!)
 Mx 	125.7800
 Set font 	Noto Sans Kannada;18;400;;normal;;LTR
-T	39 44 163 57 97 46	(ನಮಸ್ಕಾರ)
-Mx 	201.3613
-T	422	(:)
-Mx 	206.1865
-T	405	())
+T	41 46 163 59 95 48	(ನಮಸ್ಕಾರ)
+Mx 	201.3668
+T	428	(:)
+Mx 	206.1908
+T	411	())
 Mx 	207.4176
 My 	553.7327
 Set font 	Gentium Plus;10;400;;normal;;LTR
