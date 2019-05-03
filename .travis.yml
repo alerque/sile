@@ -26,6 +26,7 @@ env:
    - HARFBUZZ_BASE=harfbuzz-1.7.1
    - GRAPHITE=true
    - COVERAGE=false
+   - MAKEFLAGS="-j 4"
   matrix:
    - LUA=lua5.3 COVERAGE=true
    #- LUA=lua5.3 GRAPHITE=false
