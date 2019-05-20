@@ -183,6 +183,7 @@ SILE.defaultTypesetter = std.object {
   -- Actual typesetting functions
   typeset = function (self, text)
     if text:match("^%\r?\n$") then return end
+    if text:len() == 0 then SU.warn("Asked to typeset empty string"); return end
     for token in SU.gtoke(text,SILE.settings.get("typesetter.parseppattern")) do
       if (token.separator) then
         self:endline()
