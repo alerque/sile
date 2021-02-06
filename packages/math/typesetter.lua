@@ -2,8 +2,9 @@
 local b = require("packages/math/base-elements")
 local tex = require("packages/math/texlike")
 
+local ConvertMathML
 
-local convertChildren = function(tree)
+local function convertChildren(tree)
   local mboxes = {}
   for _, n in ipairs(tree) do
     local box = ConvertMathML(n)
@@ -13,7 +14,7 @@ local convertChildren = function(tree)
 end
 
 -- convert MathML into mbox
-local function ConvertMathML(content)
+function ConvertMathML(content)
   if content == nil or content.command == nil then return nil end
   if content.command == 'math' or content.command == 'mathml' then -- toplevel
     return b.stackbox('V', convertChildren(content))
