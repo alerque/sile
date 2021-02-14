@@ -214,9 +214,9 @@ end
 
 local function scaleWidth(length, line)
   local number = length.length
-  if line.ratio and line.ratio < 0 and length.shrink > 0 then
+  if line.ratio and line.ratio < 0 and length.shrink:tonumber() > 0 then
     number = number + length.shrink * line.ratio
-  elseif line.ratio and line.ratio > 0 and length.stretch > 0 then
+  elseif line.ratio and line.ratio > 0 and length.stretch:tonumber() > 0 then
     number = number + length.stretch * line.ratio
   end
   return number
@@ -564,7 +564,7 @@ elements.subscript = pl.class({
     end
     if self.sub and self.sup then
       local gap = self.sub.relY - self.sub.height - self.sup.relY - self.sup.depth
-      if gap.length < constants.subSuperscriptGapMin * scaleDown then
+      if gap.length:tonumber() < constants.subSuperscriptGapMin * scaleDown then
         -- The following adjustment comes directly from Appendix G of he
         -- TeXbook (rule 18e).
         self.sub.relY = constants.subSuperscriptGapMin * scaleDown
