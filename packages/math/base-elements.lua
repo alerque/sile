@@ -571,7 +571,7 @@ elements.subscript = pl.class({
           + self.sub.height + self.sup.relY + self.sup.depth
         local psi = constants.superscriptBottomMaxWithSubscript*scaleDown
           + self.sup.relY + self.sup.depth
-        if psi > 0 then
+        if psi:tonumber() > 0 then
           self.sup.relY = self.sup.relY - psi
           self.sub.relY = self.sub.relY - psi
         end
