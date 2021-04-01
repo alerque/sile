@@ -19,7 +19,7 @@
   "homepage": "http://sile-typesetter.org",
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
-    "@commitlint/config-conventional": "^11.0.0",
+    "@commitlint/config-conventional": "^12.0.1",
     "@commitlint/prompt": "^11.0.0",
     "commitizen": "^4.2.3",
     "conventional-changelog-cli": "^2.1.1",
