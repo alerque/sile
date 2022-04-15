@@ -140,6 +140,9 @@ book.registerCommands = function (_)
     SILE.process({ " " })
   end)
 
+  SILE.registerCommand("book:section:post", function (_, _)
+  end)
+
   SILE.registerCommand("book:subsection:post", function (_, _)
     SILE.process({ " " })
   end)
