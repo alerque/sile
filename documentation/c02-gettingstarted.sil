@@ -108,7 +108,7 @@ The Nix package manager is also available on many other Linux distributions, as 
 If you have flakes support\footnote{\url{https://nixos.wiki/wiki/Flakes#Installing_flakes}} enabled, you can run sile with:
 
 \begin{terminal}
-nix run github:sile-typesetter/sile <sile arguments>
+nix run github:sile-typesetter/sile#sile -- <sile arguments>
 \end{terminal}
 
 \subsection{Void Linux}
@@ -259,7 +259,7 @@ SILE may be built on Windows using CMake and Visual Studio. There is not an
 installer (yet), but Windows executables are generated using Azure for every
 commit. You may download these executables by selecting the latest build from
 \url{https://simoncozens-github.visualstudio.com/sile/_build} and downloading
-the "sile" artifact from the Artifacts drop down.
+the “sile” artifact from the Artifacts drop down.
 
 \section{Running SILE}
 

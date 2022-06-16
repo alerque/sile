@@ -121,7 +121,7 @@ local otFeatures = pl.class(pl.Map)
 
 function otFeatures:_init ()
   self:super()
-  local str = SILE.settings.get("font.features")
+  local str = SILE.settings:get("font.features")
   local tbl = featurestring:match(str)
   if not tbl then
     SU.error("Unparsable Opentype feature string '"..str.."'")
@@ -176,49 +176,56 @@ function otFeatures:unloadOptions (options)
   self:loadOptions(options, true)
 end
 
-SILE.registerCommand("add-font-feature", function (options, _)
-  local otfeatures = otFeatures()
-  otfeatures:loadOptions(options)
-  SILE.settings.set("font.features", tostring(otfeatures))
-end)
-
-SILE.registerCommand("remove-font-feature", function(options, _)
-  local otfeatures = otFeatures()
-  otfeatures:unloadOptions(options)
-  SILE.settings.set("font.features", tostring(otfeatures))
-end)
-
 local fontfn = SILE.Commands.font
-SILE.registerCommand("font", function (options, content)
-  local otfeatures = otFeatures()
-  -- It is guaranteed that future releases of SILE will not implement non-OT \font
-  -- features with capital letters.
-  -- Cf. https://github.com/sile-typesetter/sile/issues/992#issuecomment-665575353
-  -- So, we reserve 'em all. ⍩⃝
-  for k, v in pairs(options) do
-    if k:match('^[A-Z]') then
-      otfeatures:loadOption(k, v)
-      options[k] = nil
-    end
-  end
-  SU.debug("features", "Font features parsed as:", otfeatures)
-  options.features = (options.features and options.features .. ";" or "") .. tostring(otfeatures)
-  return fontfn(options, content)
-end, SILE.Help.font .. " (overridden)")
 
-return { documentation = [[\begin{document}
+local function registerCommands (_)
+
+  SILE.registerCommand("add-font-feature", function (options, _)
+    local otfeatures = otFeatures()
+    otfeatures:loadOptions(options)
+    SILE.settings:set("font.features", tostring(otfeatures))
+  end)
+
+  SILE.registerCommand("remove-font-feature", function(options, _)
+    local otfeatures = otFeatures()
+    otfeatures:unloadOptions(options)
+    SILE.settings:set("font.features", tostring(otfeatures))
+  end)
+
+  SILE.registerCommand("font", function (options, content)
+    local otfeatures = otFeatures()
+    -- It is guaranteed that future releases of SILE will not implement non-OT \font
+    -- features with capital letters.
+    -- Cf. https://github.com/sile-typesetter/sile/issues/992#issuecomment-665575353
+    -- So, we reserve 'em all. ⍩⃝
+    for k, v in pairs(options) do
+      if k:match('^[A-Z]') then
+        otfeatures:loadOption(k, v)
+        options[k] = nil
+      end
+    end
+    SU.debug("features", "Font features parsed as:", otfeatures)
+    options.features = (options.features and options.features .. ";" or "") .. tostring(otfeatures)
+    return fontfn(options, content)
+  end, tostring(SILE.Help.font) .. " (overridden)")
+
+end
+
+return {
+  registerCommands = registerCommands,
+  documentation = [[\begin{document}
 As mentioned in Chapter 3, SILE automatically applies ligatures defined by the fonts
 that you use. These ligatures are defined by tables of \em{features} within
 the font file. As well as ligatures (multiple glyphs displayed as a single glyph),
 the features tables also declare other glyph substitutions.
 
-The \code{features} package provides an interface to selecting the features that you
+The \autodoc:package{features} package provides an interface to selecting the features that you
 want SILE to apply to a font. The features available will be specific to the font file;
 some fonts come with documentation explaining their supported features. Discussion
 of OpenType features is beyond the scope of this manual.
 
 These features can be turned on and off by passing ‘raw’ feature names to the
-\code{\\font} command like so:
+\autodoc:command{\font} command like so:
 
 \begin{verbatim}
 \line
@@ -226,13 +233,13 @@ These features can be turned on and off by passing ‘raw’ feature names to th
 \line
 \end{verbatim}
 
-However, this is unwieldy and requires memorizing the feature codes. \code{features}
-provides two commands, \code{\\add-font-feature} and \code{\\remove-font-feature},
+However, this is unwieldy and requires memorizing the feature codes. \autodoc:package{features}
+provides two commands, \autodoc:command{\add-font-feature} and \autodoc:command{\remove-font-feature},
 which make it easier to access OpenType features. The interface is patterned on the
 TeX package \code{fontspec}; for full documentation of the OpenType features supported,
 see the documentation for that package.\footnote{\code{http://texdoc.net/texmf-dist/doc/latex/fontspec/fontspec.pdf}}
 
-Here is how you would turn on discretionary and historic ligatures with the \code{features}
+Here is how you would turn on discretionary and historic ligatures with the \autodoc:package{features}
 package:
 
 \begin{verbatim}

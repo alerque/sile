@@ -1,21 +1,20 @@
 -- Interpret a MathML or TeX-like AST, typeset it and add it to the output.
-local b = require("packages/math/base-elements")
-local tex = require("packages/math/texlike")
-local syms = require("packages/math/unicode-symbols")
+local b = require("packages.math.base-elements")
+local syms = require("packages.math.unicode-symbols")
 
 local ConvertMathML
 
-local function convertChildren(tree)
+local function convertChildren (tree)
   local mboxes = {}
   for _, n in ipairs(tree) do
-    local box = ConvertMathML(n)
+    local box = ConvertMathML(nil, n)
     if box then table.insert(mboxes, box) end
   end
   return mboxes
 end
 
 -- convert MathML into mbox
-function ConvertMathML(content)
+function ConvertMathML (_, content)
   if content == nil or content.command == nil then return nil end
   if content.command == 'math' or content.command == 'mathml' then -- toplevel
     return b.stackbox('V', convertChildren(content))
@@ -38,7 +37,7 @@ function ConvertMathML(content)
     local attributes = {}
     if syms.symbolDefaults[text] then
       for attribute,value in pairs(syms.symbolDefaults[text]) do
-        SU.debug("math", "attribute = "..attribute..", value = "..value)
+        SU.debug("math", "attribute = " .. attribute .. ", value = " .. tostring(value))
         attributes[attribute] = value
       end
     end
@@ -104,7 +103,7 @@ function ConvertMathML(content)
   end
 end
 
-local function handleMath(mbox, mode)
+local function handleMath (_, mbox, mode)
   if mode == 'display' then
     mbox.mode = b.mathMode.display
   elseif mode == 'text' then
@@ -118,35 +117,20 @@ local function handleMath(mbox, mode)
 
   if mode == "display" then
     SILE.typesetter:endline()
-    SILE.typesetter:pushExplicitVglue(SILE.settings.get("math.displayskip"))
+    SILE.typesetter:pushExplicitVglue(SILE.settings:get("math.displayskip"))
     SILE.call("center", {}, function()
       SILE.typesetter:pushHorizontal(mbox)
     end)
     SILE.typesetter:endline()
-    SILE.typesetter:pushExplicitVglue(SILE.settings.get("math.displayskip"))
+    SILE.typesetter:pushExplicitVglue(SILE.settings:get("math.displayskip"))
   else
     SILE.typesetter:pushHorizontal(mbox)
   end
 end
 
-SILE.registerCommand("mathml", function (options, content)
-  local mode = (options and options.mode) and options.mode or 'text'
-
-  local mbox
-  xpcall(function()
-      mbox = ConvertMathML(content, mbox)
-  end, function(err) print(err); print(debug.traceback()) end)
-
-  handleMath(mbox, mode)
-end)
-
-SILE.registerCommand("math", function(options, content)
-  local mode = (options and options.mode) and options.mode or "text"
-
-  local mbox
-  xpcall(function()
-    mbox = ConvertMathML(tex.compileToMathML({}, tex.convertTexlike(content)))
-  end, function(err) print(err); print(debug.traceback()) end)
-
-  handleMath(mbox, mode)
-end)
+return {
+  exports = {
+    ConvertMathML = ConvertMathML,
+    handleMath = handleMath
+  }
+}

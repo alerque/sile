@@ -23,17 +23,22 @@ Let’s begin \code{diglot.lua} as usual by setting up the class and declaring o
 
 \begin{verbatim}
 \line
-local plain = SILE.require("plain", "classes");
-local diglot = plain \{ id = "diglot" \}
-SILE.require("packages/counters");
-SILE.scratch.counters.folio = \{ value = 1, display = "arabic" \};
-SILE.scratch.diglot = \{\}
-diglot:declareFrame("a",    \{left = "8.3\%pw", right = "48\%pw",
-            top = "11.6\%ph", bottom = "80\%ph" \});
-diglot:declareFrame("b",    \{left = "52\%pw",  right = "100\% - left(a)",
-            top = "top(a)", bottom = "bottom(a)" \});
-diglot:declareFrame("folio",\{left = "left(a)", right = "right(b)",
-            top = "bottom(a)+3\%ph",bottom = "bottom(a)+8\%ph" \});
+local plain = require("classes.plain");
+local diglot = pl.class(plain)
+diglot._name = "diglot"
+
+function diglot:_init (options)
+  plain._init(self, options)
+  self:loadPackage("counters")
+    SILE.scratch.counters.folio = \{ value = 1, display = "arabic" \};
+    diglot:declareFrame("a",    \{left = "8.3\%pw", right = "48\%pw",
+                top = "11.6\%ph", bottom = "80\%ph" \});
+    diglot:declareFrame("b",    \{left = "52\%pw",  right = "100\% - left(a)",
+                top = "top(a)", bottom = "bottom(a)" \});
+    diglot:declareFrame("folio",\{left = "left(a)", right = "right(b)",
+                top = "bottom(a)+3\%ph",bottom = "bottom(a)+8\%ph" \});
+  return self
+end
 \end{verbatim}
 
 Now we create two new typesetters, one for each column, and we tell each one how to find the other:
@@ -69,13 +74,13 @@ as we will be handling the paragraphing manually using the \code{\\sync} command
 
 \begin{verbatim}
 SILE.registerCommand("left", function(options, content)
-  SILE.settings.set("typesetter.parseppattern", -1)
+  SILE.settings:set("typesetter.parseppattern", -1)
   SILE.typesetter = diglot.leftTypesetter;
   SILE.call("font", SILE.scratch.diglot.leftfont, \{\})
 end, "Begin entering text on the left side")
 
 SILE.registerCommand("right", function(options, content)
-  SILE.settings.set("typesetter.parseppattern", -1)
+  SILE.settings:set("typesetter.parseppattern", -1)
   SILE.typesetter = diglot.rightTypesetter;
   SILE.call("font", SILE.scratch.diglot.rightfont, \{\})
 end, "Begin entering text on the right side")
@@ -110,7 +115,7 @@ do not get in the way), and go back to handling paragraphing as normal:
 \begin{verbatim}
   diglot.rightTypesetter:leaveHmode();
   diglot.leftTypesetter:leaveHmode();
-  SILE.settings.set("typesetter.parseppattern", "\\n\\n+")
+  SILE.settings:set("typesetter.parseppattern", "\\n\\n+")
 end)
 \end{verbatim}
 
@@ -119,10 +124,10 @@ we need to ensure, at the start of each document and the start of each page,
 that each typesetter is linked to the appropriate frame:
 
 \begin{verbatim}
-diglot.init = function(self)
-  diglot.leftTypesetter:init(SILE.getFrame("a"))
-  diglot.rightTypesetter:init(SILE.getFrame("b"))
-  return SILE.baseClass.init(self)
+function diglot:_init (options)
+  self.leftTypesetter:init(SILE.getFrame("a"))
+  self.rightTypesetter:init(SILE.getFrame("b"))
+  return plain.init(self)
 end
 \end{verbatim}
 
@@ -166,7 +171,7 @@ tall glue to the other typesetter’s queue to help the process along:
 
 \begin{verbatim}
 diglot.finish = function(self)
-  table.insert(SILE.typesetter.other.state.outputQueue, SILE.nodefactory.vfillGlue)
+  table.insert(SILE.typesetter.other.state.outputQueue, SILE.nodefactory.vfillglue())
   SILE.typesetter.other:chuck()
   plain.finish(self)
 end
@@ -285,7 +290,7 @@ discovery.init = function()
                  SILE.getFrame("rGutter") or SILE.getFrame("lGutter")
   discovery.innerTypesetter:init(gutter)
   ...
-  return SILE.baseClass:init()
+  return SILE.classes.base:init()
 end
 
 discovery.newPage = function ()
@@ -295,7 +300,7 @@ discovery.newPage = function ()
                  SILE.getFrame("rGutter") or SILE.getFrame("lGutter")
   discovery.innerTypesetter:init(gutter)
   ...
-  return SILE.baseClass.newPage(discovery);
+  return SILE.classes.base.newPage(discovery);
 end
 \line
 \end{verbatim}
@@ -361,14 +366,14 @@ typesetter has gone further down the page than the verse it refers to. Now we
 can output the cross-reference itself.
 
 \begin{verbatim}
-  SILE.settings.temporarily(function()
-    SILE.settings.set("document.baselineskip", SILE.nodefactory.newVglue("7pt"))
+  SILE.settings:temporarily(function()
+    SILE.settings:set("document.baselineskip", SILE.nodefactory.vglue("7pt"))
     SILE.call("font", \{size = "6pt", family="Helvetica", weight="800"\}, \{\})
     discovery.innerTypesetter:typeset(SILE.scratch.chapter..":"..SILE.scratch.verse.." ")
     SILE.call("font", \{size = "6pt", family="Helvetica", weight="200"\}, \{\})
     discovery.innerTypesetter:typeset(xref)
     discovery.innerTypesetter:leaveHmode()
-    discovery.innerTypesetter:pushVglue(\{ height = SILE.length.new(\{length = 4\}) \})
+    discovery.innerTypesetter:pushVglue(\{ height = SILE.length(\{length = 4\}) \})
   end)
 end
 \line
@@ -399,7 +404,7 @@ Here’s how to do it.
 
 \begin{verbatim}
 \line
-require("core/sile")
+require("core.sile")
 SILE.outputFilename = "byhand.pdf"
 local plain = require("plain", "classes")
 SILE.documentState.documentClass = plain;

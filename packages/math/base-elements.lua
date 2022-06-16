@@ -1,7 +1,7 @@
-local nodefactory = require("core/nodefactory")
+local nodefactory = require("core.nodefactory")
 local hb = require("justenoughharfbuzz")
-local ot = require("core/opentype-parser")
-local syms = require("packages/math/unicode-symbols")
+local ot = require("core.opentype-parser")
+local syms = require("packages.math.unicode-symbols")
 
 local atomType = syms.atomType
 local symbolDefaults = syms.symbolDefaults
@@ -93,13 +93,6 @@ local mathScriptConversionTable = {
   }
 }
 
-SILE.settings.declare({parameter = "math.font.family", type = "string", default = "Libertinus Math"})
-SILE.settings.declare({parameter = "math.font.filename", type = "string", default = ""})
-SILE.settings.declare({parameter = "math.font.size", type = "integer", default = 10})
--- Whether to show debug boxes around mboxes
-SILE.settings.declare({parameter = "math.debug.boxes", type = "boolean", default = false})
-SILE.settings.declare({parameter = "math.displayskip", type = "VGlue", default = SILE.nodefactory.vglue("2ex plus 1pt")})
-
 local function retrieveMathTable(options)
   print("options.family = " .. options.family)
   local face = SILE.font.cache(options, SILE.shaper.getFace)
@@ -136,10 +129,10 @@ local mathCache
 local function getMathMetrics()
   if mathCache then return mathCache end
   local options = {
-    family=SILE.settings.get("math.font.family"),
-    size=SILE.settings.get("math.font.size")
+    family=SILE.settings:get("math.font.family"),
+    size=SILE.settings:get("math.font.size")
   }
-  local filename = SILE.settings.get("math.font.filename")
+  local filename = SILE.settings:get("math.font.filename")
   if filename and filename ~= "" then options.filename = filename end
   mathCache = retrieveMathTable(options)
   return mathCache
@@ -257,10 +250,10 @@ elements.mbox = pl.class({
     self.mode = mathMode.display
     self.atom = atomType.ordinary
     local options = {
-      family=SILE.settings.get("math.font.family"),
-      size=SILE.settings.get("math.font.size")
+      family=SILE.settings:get("math.font.family"),
+      size=SILE.settings:get("math.font.size")
     }
-    local filename = SILE.settings.get("math.font.filename")
+    local filename = SILE.settings:get("math.font.filename")
     if filename and filename ~= "" then options.filename = filename end
     self.options = SILE.font.loadDefaults(options)
   end,
@@ -312,7 +305,7 @@ elements.mbox = pl.class({
   -- Output the node and all its descendants
   outputTree = function(self, x, y, line)
     self:output(x, y, line)
-    local debug = SILE.settings.get("math.debug.boxes")
+    local debug = SILE.settings:get("math.debug.boxes")
     if debug and not (self:is_a(elements.space)) then
       SILE.outputter:setCursor(scaleWidth(x, line), y.length)
       SILE.outputter:debugHbox(
@@ -801,7 +794,7 @@ elements.text = pl.class({
       end
     end
     for attribute,value in pairs(attributes) do
-      SU.debug("math", "attribute = "..attribute..", value = "..value)
+      SU.debug("math", "attribute = " .. attribute .. ", value = " .. tostring(value))
       self[attribute] = value
     end
   end,
@@ -814,7 +807,7 @@ elements.text = pl.class({
     -- Use bigger variants for big operators in display style
     if isDisplayMode(self.mode) and self.largeop then
       -- We copy the glyph list to avoid modifying the shaper's cache. Yes.
-      glyphs = std.tree.clone(glyphs)
+      glyphs = pl.tablex.deepcopy(glyphs)
       local constructions = mathMetrics.mathVariants
         .vertGlyphConstructions[glyphs[1].gid]
       if constructions then
@@ -895,12 +888,12 @@ elements.text = pl.class({
     -- required.  TODO: implement assembly of stretchable glyphs form
     -- their parts for cases when the biggest variant is not big enough.
     -- We copy the glyph list to avoid modifying the shaper's cache. Yes.
-    local glyphs = std.tree.clone(self.value.items)
+    local glyphs = pl.tablex.deepcopy(self.value.items)
     local constructions = getMathMetrics().mathVariants
       .vertGlyphConstructions[glyphs[1].gid]
     if constructions then
       local variants = constructions.mathGlyphVariantRecord
-      SU.debug("math", "stretch: variants = " .. variants)
+      SU.debug("math", "stretch: variants = " .. tostring(variants))
       local closest
       local closestI
       local m = requiredAdvance - (self.depth+self.height):tonumber() * upem/sz
@@ -914,7 +907,7 @@ elements.text = pl.class({
           m = diff
         end
       end
-      SU.debug("math", "stretch: closestI = " .. closestI)
+      SU.debug("math", "stretch: closestI = " .. tostring(closestI))
       if closest then
         -- Now we have to re-shape the glyph chain. We will assume there
         -- is only one glyph.
@@ -965,35 +958,20 @@ elements.fraction = pl.class({
     elements.mbox._init(self)
     self.numerator = numerator
     self.denominator = denominator
-    if self.numerator then table.insert(self.children, self.numerator)
-    end
-    if self.denominator then table.insert(self.children, self.denominator)
-    end
+    table.insert(self.children, numerator)
+    table.insert(self.children, denominator)
   end,
   styleChildren = function(self)
-    if not (self.numerator or self.denominator) then
-      SU.error("Fraction cannot have both no numerator and no denominator")
-    end
-    if self.numerator then
-      self.numerator.mode = getNumeratorMode(self.mode)
-    end
-    if self.denominator then
-      self.denominator.mode = getDenominatorMode(self.mode)
-    end
+    self.numerator.mode = getNumeratorMode(self.mode)
+    self.denominator.mode = getDenominatorMode(self.mode)
   end,
   shape = function(self)
     -- Determine relative abscissas and width
     local widest, other
-    if self.numerator and self.denominator then
-      if self.denominator.width > self.numerator.width then
-        widest, other = self.denominator, self.numerator
-      else
-        widest, other = self.numerator, self.denominator
-      end
-    elseif self.numerator then widest, other = self.numerator, nil
-    elseif self.denominator then widest, other = self.denominator, nil
+    if self.denominator.width > self.numerator.width then
+      widest, other = self.denominator, self.numerator
     else
-      error("Fraction cannot have both no numerator and no denominator")
+      widest, other = self.numerator, self.denominator
     end
     widest.relX = SILE.length(0)
     other.relX = (widest.width - other.width) / 2
@@ -1004,44 +982,34 @@ elements.fraction = pl.class({
     local scaleDown = self:getScaleDown()
     self.axisHeight = constants.axisHeight * scaleDown
     self.ruleThickness = constants.fractionRuleThickness * scaleDown
-    if self.numerator then
-      if isDisplayMode(self.mode) then
-        self.numerator.relY = -self.axisHeight - self.ruleThickness/2 - SILE.length(math.max(
-          (constants.fractionNumDisplayStyleGapMin*scaleDown + self.numerator.depth):tonumber(),
-          constants.fractionNumeratorDisplayStyleShiftUp * scaleDown
-            - self.axisHeight - self.ruleThickness/2))
-      else
-        self.numerator.relY = -self.axisHeight - self.ruleThickness/2 - SILE.length(math.max(
-          (constants.fractionNumeratorGapMin*scaleDown + self.numerator.depth):tonumber(),
-          constants.fractionNumeratorShiftUp * scaleDown - self.axisHeight
-            - self.ruleThickness/2))
-      end
-    end
-    if self.denominator then
-      if isDisplayMode(self.mode) then
-        self.denominator.relY = -self.axisHeight + self.ruleThickness/2 + SILE.length(math.max(
-          (constants.fractionDenomDisplayStyleGapMin * scaleDown
-            + self.denominator.height):tonumber(),
-          constants.fractionDenominatorDisplayStyleShiftDown * scaleDown
-            + self.axisHeight - self.ruleThickness/2))
-      else
-        self.denominator.relY = -self.axisHeight + self.ruleThickness/2 + SILE.length(math.max(
-          (constants.fractionDenominatorGapMin * scaleDown
-            + self.denominator.height):tonumber(),
-          constants.fractionDenominatorShiftDown * scaleDown
-           + self.axisHeight - self.ruleThickness/2))
-      end
-    end
-    if self.numerator then
-      self.height = 0 - self.numerator.relY + self.numerator.height
+    if isDisplayMode(self.mode) then
+      self.numerator.relY = -self.axisHeight - self.ruleThickness/2 - SILE.length(math.max(
+        (constants.fractionNumDisplayStyleGapMin*scaleDown + self.numerator.depth):tonumber(),
+        constants.fractionNumeratorDisplayStyleShiftUp * scaleDown
+          - self.axisHeight - self.ruleThickness/2))
     else
-      self.height = self.axisHeight + self.ruleThickness / 2
+      self.numerator.relY = -self.axisHeight - self.ruleThickness/2 - SILE.length(math.max(
+        (constants.fractionNumeratorGapMin*scaleDown + self.numerator.depth):tonumber(),
+        constants.fractionNumeratorShiftUp * scaleDown - self.axisHeight
+          - self.ruleThickness/2))
     end
-    if self.denominator then
-      self.depth = self.denominator.relY + self.denominator.depth
+
+    if isDisplayMode(self.mode) then
+      self.denominator.relY = -self.axisHeight + self.ruleThickness/2 + SILE.length(math.max(
+        (constants.fractionDenomDisplayStyleGapMin * scaleDown
+          + self.denominator.height):tonumber(),
+        constants.fractionDenominatorDisplayStyleShiftDown * scaleDown
+          + self.axisHeight - self.ruleThickness/2))
     else
-      self.depth = SILE.length(0)
+      self.denominator.relY = -self.axisHeight + self.ruleThickness/2 + SILE.length(math.max(
+        (constants.fractionDenominatorGapMin * scaleDown
+          + self.denominator.height):tonumber(),
+        constants.fractionDenominatorShiftDown * scaleDown
+         + self.axisHeight - self.ruleThickness/2))
     end
+
+    self.height = self.numerator.height - self.numerator.relY
+    self.depth = self.denominator.relY + self.denominator.depth
   end,
   output = function(self, x, y, line)
     SILE.outputter:drawRule(
@@ -1237,7 +1205,6 @@ elements.atomType = atomType
 elements.scriptType = scriptType
 elements.mathVariantToScriptType = mathVariantToScriptType
 elements.symbolDefaults = symbolDefaults
-elements.newStandardHspace = newStandardHspace
 elements.newSubscript = newSubscript
 elements.newUnderOver = newUnderOver
 elements.newStandardHspace = newStandardHspace

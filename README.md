@@ -112,9 +112,9 @@ $ alias sile='docker run -it --volume "$(pwd):/data" --user "$(id -u):$(id -g)" 
 $ sile input.sil
 ```
 
-One notable issue with using SILE from a Docker container is that it will not have access to your system's fonts by default.
+One notable issue with using SILE from a Docker container is that it will not have access to your system’s fonts by default.
 You can map a folder of fonts (any tree usable by fontconfig) into the container.
-This could be your system's default font directory, your user one, a project specific folder, or anything of your choosing.
+This could be your system’s default font directory, your user one, a project specific folder, or anything of your choosing.
 You can see where fonts are found on your system using `fc-list`.
 The path of your choosing from the host system should be passed as a volume mounted on `/fonts` inside the container like this:
 
@@ -129,7 +129,7 @@ $ docker run -it --volume "/usr/share/fonts:/fonts" --volume "$(pwd):/data" --us
 If you have [flakes support][nix-flakes] enabled, you can run sile with:
 
 ```console
-$ nix run github:sile-typesetter/sile <sile arguments>
+$ nix run github:sile-typesetter/sile#sile <sile arguments>
 ```
 
 ### From Source
@@ -161,7 +161,7 @@ Note that OpenSSL development headers will be required for one of the Lua module
 If your system has all the required packages already you may add `--with-system-luarocks` to the `./configure` command to avoid bundling them.
 
 ¹ <sub>OpenSSL development headers are required to build *luasec*, please make sure they are setup _BEFORE_ trying to build SILE!
-If you use your system's Luarocks packages this will be done for you, otherwise make sure you can compile luasec.
+If you use your system’s Luarocks packages this will be done for you, otherwise make sure you can compile luasec.
 You can try just this step in isolation before building SILE using `luarocks --tree=/tmp install luasec`.</sub>
 
 If you are building from a a git clone, start by running the script to setup your environment (if you are using the source tarball this is unnecessary):
@@ -186,6 +186,33 @@ $ sudo ldconfig
 ```
 
 … before trying to execute `sile` to make the system aware of the newly installed libraries.
+
+### Default Font
+
+Since SILE v0.9.5, the default font has been Gentium Plus which is freely available from [SIL’s site][gentium].
+It is not required that you install it, but if this font is not installed on your system, you won't be able to use the examples without modification.
+(Previously we used Gentium Basic, but that's getting harder to get hold of.)
+
+### Testing
+
+If all goes well after installation you should be able to compile a sample documents. Try creating a file `test.sil` with this content:
+
+```sil
+\begin{document}
+Hello world!
+\end{document}
+```
+
+And render it to a PDF like this:
+
+```console
+$ sile test.sil
+SILE v0.12.5 (Lua 5.4)
+<test.sil>
+[1]
+```
+
+You should now have `test.pdf` ready for review.
 
 ### Use as a CI job
 
@@ -213,25 +240,6 @@ jobs:
 Add to your repository as `.github/workflows/sile.yaml`.
 This work flow assumes your project has a source file `my-document.sil` and will leave behind a `my-document.pdf`.
 Note the comments in [the section about Docker](#docker) regarding version tags.
-
-### Default Font
-
-Since SILE v0.9.5, the default font has been Gentium Plus which is freely available from [SIL’s site][gentium].
-It is not required that you install it, but if this font is not installed on your system, you won't be able to use the examples without modification.
-(Previously we used Gentium Basic, but that's getting harder to get hold of.)
-
-### Testing
-
-If all goes well you should be able to compile one of the sample documents like this:
-
-```console
-$ sile examples/book.sil
-SILE v0.10.10 (Lua 5.4)
-<examples/book.sil>
-[1] [2] [3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19] [20] [21] [22] [23] [24] [25] [26] [27] [28] [29] [30] [31]
-```
-
-You should now have `examples/book.pdf` ready for review.
 
 ## Finding Out More
 

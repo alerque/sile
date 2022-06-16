@@ -1,5 +1,3 @@
-SILE.require("packages/tate")
-
 local showHanmenYoko = function (frame)
   local g = frame:top()
   while g < frame:bottom() do
@@ -30,19 +28,6 @@ local showHanmenTate = function (frame)
   end
 end
 
-
-SILE.registerCommand("show-hanmen", function (_, _)
-  local frame = SILE.typesetter.frame
-  if not frame.hanmen then SU.error("show-hanmen called on a frame with no hanmen") end
-  SILE.outputter:pushColor({r = 1, g= 0.9, b = 0.9 })
-  if frame:writingDirection() == "TTB" then
-    showHanmenTate(frame)
-  else
-    showHanmenYoko(frame)
-  end
-  SILE.outputter:popColor()
-end)
-
 local declareHanmenFrame = function (self, id, spec)
   if spec then
     spec.id = id
@@ -65,8 +50,8 @@ local declareHanmenFrame = function (self, id, spec)
                   spec.hanmen.linegap * ( spec.hanmen.linecount -1 )
   end
   local skip = spec.hanmen.linegap + spec.hanmen.gridsize
-  SILE.settings.set("document.baselineskip", SILE.nodefactory.vglue(skip))
-  SILE.settings.set("document.parskip", SILE.nodefactory.vglue())
+  SILE.settings:set("document.baselineskip", SILE.nodefactory.vglue(skip))
+  SILE.settings:set("document.parskip", SILE.nodefactory.vglue())
   local frame = SILE.newFrame(spec, spec.tate and SILE.tateFramePrototype or SILE.framePrototype)
   if spec.id then
     self.pageTemplate.frames[spec.id] = frame
@@ -74,8 +59,31 @@ local declareHanmenFrame = function (self, id, spec)
   return frame
 end
 
+local function init (class, _)
+
+  class:loadPackage("tate")
+
+end
+
+local function registerCommands (_)
+
+  SILE.registerCommand("show-hanmen", function (_, _)
+    local frame = SILE.typesetter.frame
+    if not frame.hanmen then SU.error("show-hanmen called on a frame with no hanmen") end
+    SILE.outputter:pushColor({r = 1, g= 0.9, b = 0.9 })
+    if frame:writingDirection() == "TTB" then
+      showHanmenTate(frame)
+    else
+      showHanmenYoko(frame)
+    end
+    SILE.outputter:popColor()
+  end)
+
+end
+
 return {
-  init = function () end,
+  init = init,
+  registerCommands = registerCommands,
   exports = {
     declareHanmenFrame = declareHanmenFrame
   },
@@ -83,12 +91,11 @@ return {
 \begin{document}
 Japanese documents are traditionally typeset on a grid layout called a
 \code{hanmen}, with each character essentially monospaced inside the
-grid. (It’s like writing on graph paper.) The \code{hanmenkyoshi} package
+grid. (It’s like writing on graph paper.) The \autodoc:package{hanmenkyoshi} package
 provides tools to Japanese class designers for creating hanmen frames with
-correctly spaced grids. It also provides the \code{\\show-hanmen}
+correctly spaced grids. It also provides the \autodoc:command{\show-hanmen}
 command for debugging the grid.
 
-The name \code{hanmenkyoshi} is a terrible pun.
+The name \em{hanmenkyoshi} is a terrible pun.
 \end{document}
-  ]]
-}
+]]}

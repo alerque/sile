@@ -341,18 +341,18 @@ local parsePerGlyphTable = function(offset, type, fd)
 end
 
 local parseMathVariants = function(offset, fd)
-  local parseGlyphAssembly = function(_offset, _fd)
-    local assembly = vstruct.read(">@".._offset.." italicsCorrection:{ &MathValueRecord } partCount:u2", _fd)
-    assembly.italicsCorrection = fetchMathValueRecord(assembly.italicsCorrection, _offset, _fd)
-    assembly.partRecords = vstruct.read("> "..assembly.partCount.."*{ &GlyphPartRecord }", _fd)
+  local parseGlyphAssembly = function(inner_offset, inner_fd)
+    local assembly = vstruct.read(">@"..inner_offset.." italicsCorrection:{ &MathValueRecord } partCount:u2", inner_fd)
+    assembly.italicsCorrection = fetchMathValueRecord(assembly.italicsCorrection, inner_offset, inner_fd)
+    assembly.partRecords = vstruct.read("> "..assembly.partCount.."*{ &GlyphPartRecord }", inner_fd)
     assembly.partCount = nil
     return assembly
   end
-  local parseMathGlyphConstruction = function(_offset, _fd)
-    local construction = vstruct.read(">@".._offset.." glyphAssemblyOffset:u2 variantCount:u2", _fd)
-    local mathGlyphVariantRecord = vstruct.read("> "..construction.variantCount.."*{ &MathGlyphVariantRecord }", _fd)
+  local parseMathGlyphConstruction = function(inner_offset, inner_fd)
+    local construction = vstruct.read(">@"..inner_offset.." glyphAssemblyOffset:u2 variantCount:u2", inner_fd)
+    local mathGlyphVariantRecord = vstruct.read("> "..construction.variantCount.."*{ &MathGlyphVariantRecord }", inner_fd)
     return {
-      glyphAssembly = construction.glyphAssemblyOffset ~= 0 and parseGlyphAssembly(_offset + construction.glyphAssemblyOffset, _fd) or nil,
+      glyphAssembly = construction.glyphAssemblyOffset ~= 0 and parseGlyphAssembly(inner_offset + construction.glyphAssemblyOffset, inner_fd) or nil,
       mathGlyphVariantRecord = mathGlyphVariantRecord
     }
   end
@@ -395,7 +395,7 @@ local function parseMath(s)
   if s:len() <= 0 then return end
   local fd = vstruct.cursor(s)
   local header = vstruct.read(">majorVersion:u2 minorVersion:u2 mathConstantsOffset:u2 mathGlyphInfoOffset:u2 mathVariantsOffset:u2", fd)
-  SU.debug("opentype-parser", "header = "..header)
+  SU.debug("opentype-parser", "header = " .. tostring(header))
   if header.majorVersion > 1 then return end
   vstruct.compile("MathValueRecord", "value:i2 deviceTableOffset:u2")
   vstruct.compile("RangeRecord", "startGlyphID:u2 endGlyphID:u2 startCoverageIndex:u2")
@@ -409,7 +409,7 @@ local function parseMath(s)
                                      " extendedShapeCoverageOffset:u2"..
                                      " mathKernInfoOffset:u2", fd)
   SU.debug("opentype-parser", "mathGlyphInfoOffset = "..header.mathGlyphInfoOffset)
-  SU.debug("opentype-parser", "mathGlyphInfo = "..mathGlyphInfo)
+  SU.debug("opentype-parser", "mathGlyphInfo = " .. tostring(mathGlyphInfo))
   local mathItalicsCorrection = parseIfPresent(header.mathGlyphInfoOffset, mathGlyphInfo.mathItalicsCorrectionInfoOffset, function(offset)
     return parsePerGlyphTable(offset, "&MathValueRecord", fd)
   end)
@@ -433,6 +433,18 @@ local function parseMath(s)
   }
 end
 
+local function parsePost(s)
+  if s:len() <= 0 then return end
+  local fd = vstruct.cursor(s)
+  local header = vstruct.read(">majorVersion:u2 minorVersion:u2 italicAngle:i4 underlinePosition:i2 underlineThickness:i2 isFixedPitch:u4", fd)
+  local italicAngle = header.italicAngle / 65536 -- 1 << 16
+  return {
+    italicAngle = italicAngle,
+    underlinePosition = header.underlinePosition,
+    underlineThickness = header.underlineThickness
+  }
+end
+
 local parseFont = function(face)
   if not face.font then
     local font = {}
@@ -443,6 +455,7 @@ local parseFont = function(face)
     font.cpal = parseCpal(hb.get_table(face.data, face.index, "CPAL"))
     font.svg  = parseSvg(hb.get_table(face.data, face.index, "SVG"))
     font.math = parseMath(hb.get_table(face.data, face.index, "MATH"))
+    font.post = parsePost(hb.get_table(face.data, face.index, "post"))
     face.font = font
   end
   return face.font

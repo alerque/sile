@@ -33,8 +33,8 @@ local cwd = executable:gsub("(.*/)(.*)", "%1")
 if cwd ~= "./" then extendPath(cwd) end
 extendPath(".")
 
-SILE = require("core/sile")
-SILE.version = "v@VERSION@"
+SILE = require("core.sile")
+
 io.stdout:setvbuf 'no'
 SILE.parseArguments()
 if not os.getenv 'LUA_REPL_RLWRAP' then
@@ -53,11 +53,11 @@ if SILE.masterFilename then
       SILE.require(preamble, "classes")
     end
   end
-  if SU.debugging("profile") and pcall(function () require("ProFi") end) then
+  if SU.debugging("profile") and pcall(require, "ProFi") then
     ProFi = require 'ProFi'
     ProFi:start()
   end
-  local main, err = xpcall(function() SILE.readFile(SILE.inputFile) end, SILE.errorHandler)
+  local main, err = xpcall(function() return SILE.readFile(SILE.inputFile) end, SILE.errorHandler)
   if not main then
     if type(err) == "string" and err:match(": interrupted!") then
       SILE.outputter:finish()
@@ -67,7 +67,7 @@ if SILE.masterFilename then
     os.exit(1)
   end
   SILE.finish()
-  if SU.debugging("profile") and pcall(function () require("ProFi") end) then
+  if SU.debugging("profile") and pcall(require, "ProFi") then
     ProFi:stop()
     ProFi:writeReport( 'sile-profile.txt' )
   end

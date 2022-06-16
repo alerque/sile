@@ -1,8 +1,68 @@
-require("packages/math/typesetter")
+local function init (class, _)
+  class:loadPackage("math.typesetter")
+  class:loadPackage("math.texlike")
+end
+
+local function declareSettings (_)
+
+  SILE.settings:declare({
+      parameter = "math.font.family",
+      type = "string",
+      default = "Libertinus Math"
+    })
+  SILE.settings:declare({
+      parameter = "math.font.filename",
+      type = "string",
+      default = ""
+    })
+  SILE.settings:declare({
+      parameter = "math.font.size",
+      type = "integer",
+      default = 10
+    })
+  -- Whether to show debug boxes around mboxes
+  SILE.settings:declare({
+      parameter = "math.debug.boxes",
+      type = "boolean",
+      default = false
+    })
+  SILE.settings:declare({
+      parameter = "math.displayskip",
+      type = "VGlue",
+      default = SILE.nodefactory.vglue("2ex plus 1pt")
+    })
+
+end
+
+local function registerCommands (class)
+
+  SILE.registerCommand("mathml", function (options, content)
+    local mode = (options and options.mode) and options.mode or 'text'
+    local mbox
+    xpcall(function()
+      mbox = class:ConvertMathML(content, mbox)
+    end, function(err) print(err); print(debug.traceback()) end)
+    class:handleMath(mbox, mode)
+  end)
+
+  SILE.registerCommand("math", function (options, content)
+    local mode = (options and options.mode) and options.mode or "text"
+    local mbox
+    xpcall(function()
+      mbox = class:ConvertMathML(class:compileToMathML({}, class:convertTexlike(content)))
+    end, function(err) print(err); print(debug.traceback()) end)
+    class:handleMath(mbox, mode)
+  end)
+
+end
 
 return {
+  init = init,
+  declareSettings = declareSettings,
+  registerCommands = registerCommands,
   documentation = [[
 \begin{document}
+\script[src=packages/math]
 
 \set[parameter=math.font.family, value=Libertinus Math]
 \set[parameter=math.font.size, value=11]
@@ -22,7 +82,7 @@ system\footnote{A list of freely available math fonts can be found at
 \href[src=https://www.ctan.org/pkg/unicode-math]{https://www.ctan.org/pkg/unicode-math}}.
 By default, this package uses Libertinus Math, so it will fail if Libertinus
 Math can’t be found. Another font may be specified via the setting
-\code{math.font.family}.
+\autodoc:setting{math.font.family}.
 
 The first way to typeset math formulas is to enter them in the MathML format.
 MathML is a standard for encoding mathematical notation for the Web and for
@@ -66,7 +126,7 @@ To render an equation encoded in MathML, one simply has to put it in a
 \end{verbatim}
 
 \noindent By default, formulas are integrated into the flow of text. To typeset
-them on their own line, one may use the \code{[mode=display]} option:
+them on their own line, one may use the \autodoc:parameter{mode=display} option:
 
 \mathml[mode=display]{
     \mrow{

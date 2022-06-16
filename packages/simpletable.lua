@@ -1,16 +1,25 @@
-SILE.scratch.simpletable = { tables = {} }
+local tableTag, trTag, tdTag
 
-return {
-  exports = {},
-  init = function (_, args)
-    args = args or {
-      tableTag = "table",
-      trTag = "tr",
-      tdTag = "td"
-    }
-    local tableTag = SU.required(args, "tableTag", "setting up table class")
-    local trTag = SU.required(args, "trTag", "setting up table class")
-    local tdTag = SU.required(args, "tdTag", "setting up table class")
+local function init (class, args)
+
+  if not SILE.scratch.simpletable then
+    SILE.scratch.simpletable = { tables = {} }
+  end
+
+  args = args or {
+    tableTag = "table",
+    trTag = "tr",
+    tdTag = "td"
+  }
+
+  tableTag = SU.required(args, "tableTag", "setting up table class")
+  trTag = SU.required(args, "trTag", "setting up table class")
+  tdTag = SU.required(args, "tdTag", "setting up table class")
+
+  -- This is a post init calback instead of the usual early command registration
+  -- method using our package loader because we don't know what commands to register
+  -- until we've been instantiated.
+  class:registerPostinit(function (_)
 
     SILE.registerCommand(trTag, function(_, content)
       local tbl = SILE.scratch.simpletable.tables[#(SILE.scratch.simpletable.tables)]
@@ -29,10 +38,10 @@ return {
     end)
 
     SILE.registerCommand(tableTag, function(_, content)
-      SILE.scratch.simpletable.tables[#(SILE.scratch.simpletable.tables)+1] = {}
-      local tbl = SILE.scratch.simpletable.tables[#(SILE.scratch.simpletable.tables)]
-      SILE.settings.temporarily(function ()
-        SILE.settings.set("document.parindent", SILE.nodefactory.glue())
+      local tbl = {}
+      table.insert(SILE.scratch.simpletable.tables, tbl)
+      SILE.settings:temporarily(function ()
+        SILE.settings:set("document.parindent", SILE.nodefactory.glue())
         SILE.process(content)
       end)
       SILE.typesetter:leaveHmode()
@@ -54,8 +63,8 @@ return {
         col = col + 1
       until not stuffInThisColumn
       -- Now set each row at the given column width
-      SILE.settings.temporarily(function ()
-        SILE.settings.set("document.parindent", SILE.nodefactory.glue())
+      SILE.settings:temporarily(function ()
+        SILE.settings:set("document.parindent", SILE.nodefactory.glue())
         for row = 1, #tbl do
           for colno = 1, #(tbl[row]) do
             local hbox = tbl[row][colno].hbox
@@ -67,10 +76,15 @@ return {
         end
       end)
       SILE.typesetter:leaveHmode()
-      SILE.scratch.simpletable.tables[#(SILE.scratch.simpletable.tables)] = nil
+      table.remove(SILE.scratch.simpletable.tables)
     end)
 
-  end,
+  end)
+
+end
+
+return {
+  init = init,
   documentation = [[
 \begin{document}
 this implements (badly) a very simple table formatting class.
@@ -86,10 +100,9 @@ myclass:loadpackage("simpletable", \{
 \end{verbatim}
 
 this will define commands \code{\\a}, \code{\\b} and \code{\\c} which
-are equivalent to the \code{<table>, \code{<tr>} and \code{td} tags.
+are equivalent to the \code{<table>, \code{<tr>} and \code{<td>} tags.
 
 this is not a complete table implementation, and should be replaced by
 one which implements the css2.1 two-pass table formatting algorithm.
 \end{document}
-]]
-}
+]]}

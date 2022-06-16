@@ -1,7 +1,5 @@
 local lfs = require('lfs')
 
-SILE.scratch.converters = {}
-
 local register = function (sourceExt, targetExt, command)
   table.insert(SILE.scratch.converters, {
     sourceExt = sourceExt,
@@ -53,59 +51,75 @@ local checkConverters = function (source)
   return source -- No conversion needed.
 end
 
-SILE.registerCommand("converters:register", function (options, _)
-  register(options.from, options.to, options.command)
-end)
-
-SILE.registerCommand("converters:check", function (options, _)
-  checkConverters(options.source)
-end)
-
-local function extendCommand(name, f)
+-- TODO Make this a standard utility function
+local function extendCommand(name, func)
   -- Wrap an existing command
   local original = SILE.Commands[name]
-  if(original) then
+  if original then
     SILE.Commands[name] = function (options, content)
-      f(options, content, original)
+      func(options, content, original)
     end
   else
     SU.debug("converters", "Can not extend command "..name)
   end
 end
 
-extendCommand("include", function (options, content, original)
-  local result = checkConverters(options.src)
-  if(result~=nil) then
-    options["src"] = result
-    original(options, content)
-  end
-end)
+local function init (_, _)
 
-extendCommand("img", function (options, content, original)
-  local result = checkConverters(options.src)
-  if(result~=nil) then
-    options["src"] = result
-    original(options, content)
+  if not SILE.scratch.converters then
+    SILE.scratch.converters = {}
   end
-end)
+
+  extendCommand("include", function (options, content, original)
+    local result = checkConverters(options.src)
+    if not result then
+      options["src"] = result
+      original(options, content)
+    end
+  end)
+
+  extendCommand("img", function (options, content, original)
+    local result = checkConverters(options.src)
+    if not result then
+      options["src"] = result
+      original(options, content)
+    end
+  end)
+
+end
+
+local function registerCommands (_)
+
+  SILE.registerCommand("converters:register", function (options, _)
+    register(options.from, options.to, options.command)
+  end)
+
+  SILE.registerCommand("converters:check", function (options, _)
+    checkConverters(options.source)
+  end)
+
+end
+
 
 return {
+  init = init,
+  registerCommands = registerCommands,
   exports = {
-    register= register,
-    check= checkConverters
+    register = register,
+    check = checkConverters
   },
   documentation= [[
 \begin{document}
-The \code{converters} package allows you to register additional handlers
+The \autodoc:package{converters} package allows you to register additional handlers
 to process included files and images. That sounds a bit abstract, so it’s
 best explained by example. Suppose you have a GIF image that you would
 like to include in your document. You read the documentation for the
-\code{image} package and you discover that sadly GIF images are not supported.
-What \code{converters} does is allow you to teach SILE how to get the GIF
+\autodoc:package{image} package and you discover that sadly GIF images are not supported.
+What \autodoc:package{converters} does is allow you to teach SILE how to get the GIF
 format into something that \em{is} supported. We can use the ImageMagick
 toolkit to turn a GIF into a JPG, and JPGs are supported.
 
-We do this by registering a converter with the \code{converters:register}
+We do this by registering a converter with the \autodoc:command{\converters:register}
 command:
 
 \begin{verbatim}

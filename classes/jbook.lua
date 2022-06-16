@@ -1,7 +1,8 @@
-local book = SILE.require("book", "classes")
-local jbook = book { id = "jbook" }
+local book = require("classes.book")
+local jplain = require("classes.jplain")
 
-jbook:declareOption("layout", "yoko")
+local jbook = pl.class(book)
+jbook._name = "jbook"
 
 jbook.defaultFrameset = {
   runningHead = {
@@ -32,18 +33,15 @@ jbook.defaultFrameset = {
   }
 }
 
-function jbook:init ()
-  SILE.call("bidi-off")
-  self:loadPackage("hanmenkyoshi")
-  self.defaultFrameset.content.tate = self.options.layout() == "tate"
-  self.defaultFrameset.content = self:declareHanmenFrame("content", self.defaultFrameset.content)
-  SILE.settings.set("document.parindent", SILE.nodefactory.glue("10pt"))
-  return book.init(self)
+function jbook:_init (options)
+  if self._legacy and not self._deprecated then return self:_deprecator(jbook) end
+  book._init(self, options)
+  jplain._j_common(self)
+  return self
 end
 
-jbook.registerCommands = function(_)
-  book:registerCommands()
-  SILE.call("language", { main = "ja" })
-end
+jbook.declareOptions = jplain.declareOptions
+
+jbook.setOptions = jplain.setOptions
 
 return jbook

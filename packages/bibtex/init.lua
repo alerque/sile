@@ -1,6 +1,8 @@
 local lpeg = require("lpeg")
 local epnf = require("epnf")
 
+local Bibliography
+
 local identifier = (SILE.parserBits.identifier + lpeg.S":-")^1
 
 local balanced = lpeg.C{ "{" * lpeg.P(" ")^0 * lpeg.C(((1 - lpeg.S"{}") + lpeg.V(1))^0) * "}" } / function (...) local t={...}; return t[2] end
@@ -43,41 +45,52 @@ local parseBibtex = function (fn)
   return entries
 end
 
-SILE.scratch.bibtex = { bib = {}, bibstyle = {} }
-local Bibliography = SILE.require("packages/bibliography")
+local function init (_, _)
 
-SILE.registerCommand("loadbibliography", function (options, _)
-  local file = SU.required(options, "file", "loadbibliography")
-  SILE.scratch.bibtex.bib = parseBibtex(file) -- Later we'll do multiple bibliogs, but not now
-end)
+  SILE.scratch.bibtex = { bib = {}, bibstyle = {} }
 
-SILE.registerCommand("bibstyle", function (_, content)
-  SILE.scratch.bibtex.bibstyle = SILE.require("packages/bibstyles/"..content)
-end)
+  Bibliography = require("packages.bibtex.bibliography")
 
-SILE.call("bibstyle", {}, "chicago") -- Load some default
+  SILE.call("bibstyle", {}, "chicago") -- Load some default
 
-SILE.registerCommand("cite", function (options, content)
-  if not options.key then options.key = content[1] end
-  local cite = Bibliography.produceCitation(options, SILE.scratch.bibtex.bib, SILE.scratch.bibtex.bibstyle)
-  if cite == Bibliography.Errors.UNKNOWN_REFERENCE then
-    SU.warn("Unknown reference in citation "..options)
-    return
-  end
-  SILE.doTexlike(cite)
-end)
+end
 
-SILE.registerCommand("reference", function (options, content)
-  if not options.key then options.key = content[1] end
-  local cite = Bibliography.produceReference(options, SILE.scratch.bibtex.bib, SILE.scratch.bibtex.bibstyle)
-  if cite == Bibliography.Errors.UNKNOWN_REFERENCE then
-    SU.warn("Unknown reference in citation "..options)
-    return
-  end
-  SILE.doTexlike(cite)
-end)
+local function registerCommands (_)
+
+  SILE.registerCommand("loadbibliography", function (options, _)
+    local file = SU.required(options, "file", "loadbibliography")
+    SILE.scratch.bibtex.bib = parseBibtex(file) -- Later we'll do multiple bibliogs, but not now
+  end)
+
+  SILE.registerCommand("bibstyle", function (_, content)
+    SILE.scratch.bibtex.bibstyle = require("packages.bibtex.styles." .. content)
+  end)
+
+  SILE.registerCommand("cite", function (options, content)
+    if not options.key then options.key = content[1] end
+    local cite = Bibliography.produceCitation(options, SILE.scratch.bibtex.bib, SILE.scratch.bibtex.bibstyle)
+    if cite == Bibliography.Errors.UNKNOWN_REFERENCE then
+      SU.warn("Unknown reference in citation "..options)
+      return
+    end
+    SILE.doTexlike(cite)
+  end)
+
+  SILE.registerCommand("reference", function (options, content)
+    if not options.key then options.key = content[1] end
+    local cite = Bibliography.produceReference(options, SILE.scratch.bibtex.bib, SILE.scratch.bibtex.bibstyle)
+    if cite == Bibliography.Errors.UNKNOWN_REFERENCE then
+      SU.warn("Unknown reference in citation "..options)
+      return
+    end
+    SILE.doTexlike(cite)
+  end)
+
+end
 
 return {
+  init = init,
+  registerCommands = registerCommands,
   documentation = [[\begin{document}
 BibTeX is a citation management system. It was originally designed
 for TeX but has since been integrated into a variety of situations.
@@ -87,16 +100,16 @@ This experimental package allows SILE to read and process BibTeX
 (It doesn’t currently produce full bibliography listings.)
 
 To load a BibTeX file, issue the command
-\code{\\loadbibliography[file=whatever.bib]}
+\autodoc:command{\loadbibliography[file=<whatever.bib>]}
 
-To produce an inline citation, call \code{\\cite\{key\}}, which
+To produce an inline citation, call \autodoc:command{\cite{<key>}}, which
 will typeset something like “Jones 1982”. If you want to cite a
-particular page number, use \code{\\cite[page=22]\{key\}}.
+particular page number, use \autodoc:command{\cite[page=22]{<key>}}.
 
-To produce a full reference, use \code{\\reference\{key\}}.
+To produce a full reference, use \autodoc:command{\reference{<key>}}.
 
 Currently, the only supported bibliography style is Chicago referencing,
 but other styles should be easy to implement if there is interest.
-Check out \code{packages/bibstyles/chicago.lua} and adapt as necessary.
+Check out \code{packages/bibtex/styles/chicago.lua} and adapt as necessary.
 \end{document}]]
 }

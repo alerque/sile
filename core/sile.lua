@@ -1,18 +1,27 @@
 -- Initialize SILE internals
 SILE = {}
 
+SILE.version = require("core.version")
+
 -- Initialize Lua environment and global utilities
 SILE.lua_version = _VERSION:sub(-3)
 SILE.lua_isjit = type(jit) == "table"
-if not SILE.lua_isjit and SILE.lua_version < "5.3" then require("compat53") end -- Backport of lots of Lua 5.3 features to Lua 5.[12]
-pl = require("pl.import_into")() -- Penlight on-demand module loader
-if (os.getenv("SILE_COVERAGE")) then require("luacov") end
+SILE.full_version = string.format("SILE %s (%s)", SILE.version, SILE.lua_isjit and jit.version or _VERSION)
+
+-- Backport of lots of Lua 5.3 features to Lua 5.[12]
+if not SILE.lua_isjit and SILE.lua_version < "5.3" then require("compat53") end
+
+-- Penlight on-demand module loader, provided for SILE and document usage
+pl = require("pl.import_into")()
+
+-- For developer testing only, usually in CI
+if os.getenv("SILE_COVERAGE") then require("luacov") end
 
 -- Include lua-stdlib, but make sure debugging is turned off since newer
 -- versions enable it by default and it comes with a huge performance hit.
 -- Note we are phasing out stdlib in favor of Penlight. When adding or
 -- refactoring code, using the Penlight equivalent features is preferred.
--- luacheck: push ignore _DEBUG
+-- luacheck: push ignore _DEBUG std
 _DEBUG = false
 std = require("std")
 -- luacheck: pop
@@ -35,58 +44,84 @@ SILE.status = {}
 SILE.scratch = {}
 SILE.dolua = {}
 SILE.preamble = {}
+SILE.documentState = {}
 
 -- Internal functions / classes / factories
-SILE.utilities = require("core/utilities")
+SILE.fluent = require("fluent")()
+SILE.utilities = require("core.utilities")
 SU = SILE.utilities -- alias
-SILE.traceStack = require("core/tracestack")()
-SILE.documentState = std.object {}
-SILE.parserBits = require("core/parserbits")
-SILE.units = require("core/units")
-SILE.measurement = require("core/measurement")
-SILE.length = require("core/length")
-SILE.papersize = require("core/papersize")
-require("core/baseclass")
-SILE.nodefactory = require("core/nodefactory")
-require("core/settings")
-require("core/inputs-texlike")
-require("core/inputs-xml")
-require("core/inputs-common")
-require("core/colorparser")
-SILE.pagebuilder = require("core/pagebuilder")()
-require("core/typesetter")
-require("core/hyphenator-liang")
-require("core/languages")
-require("core/font")
-require("core/packagemanager")
-SILE.fontManager = require("core/fontmanager")
-SILE.frameParser = require("core/frameparser")
-SILE.linebreak = require("core/break")
-require("core/frame")
+SILE.traceStack = require("core.tracestack")()
+SILE.parserBits = require("core.parserbits")
+SILE.units = require("core.units")
+SILE.measurement = require("core.measurement")
+SILE.length = require("core.length")
+SILE.papersize = require("core.papersize")
+SILE.classes = require("core.classes")
+SILE.nodefactory = require("core.nodefactory")
+SILE.settings = require("core.settings")()
+require("core.inputs-texlike")
+require("core.inputs-xml")
+require("core.inputs-common")
+SILE.colorparser = require("core.colorparser")
+SILE.pagebuilder = require("core.pagebuilder")()
+require("core.typesetter")
+require("core.hyphenator-liang")
+require("core.languages")
+SILE.font = require("core.font")
+require("core.packagemanager")
+SILE.fontManager = require("core.fontmanager")
+SILE.frameParser = require("core.frameparser")
+SILE.linebreak = require("core.break")
+require("core.frame")
+
+-- Class system deprecation shims
+SILE.baseClass = {}
+local _classdeprecation = function ()
+  SU.warn([[
+  The inheritance system for SILE classes has been refactored using a
+    different object model, please update your code as use of the old
+    model will cause unexpected errors and will eventually be removed.
+  ]])
+  SU.deprecated("SILE.baseclass", "SILE.classes.base", "0.13.0", "0.14.0")
+end
+setmetatable(SILE.baseClass, {
+    __index = function(_, key)
+      -- Likely at attempt to iterate (or dump) the table, sort of safe to ignore
+      if type(key) ~= "number" then
+        _classdeprecation()
+      end
+      return SILE.classes.base[key]
+    end,
+    __call = function (_, ...)
+      _classdeprecation()
+      return SILE.classes.base(...)
+    end
+  })
 
 SILE.init = function ()
   -- Set by def
   if not SILE.backend then
-    if pcall(function () require("justenoughharfbuzz") end) then
+    if pcall(require, "justenoughharfbuzz") then
       SILE.backend = "libtexpdf"
     else
       SU.error("libtexpdf backend not available!")
     end
   end
   if SILE.backend == "libtexpdf" then
-    require("core/harfbuzz-shaper")
-    require("core/libtexpdf-output")
+    require("core.harfbuzz-shaper")
+    require("core.libtexpdf-output")
   elseif SILE.backend == "cairo" then
-    require("core/cairo-output")
+    require("core.pango-shaper")
+    require("core.cairo-output")
   elseif SILE.backend == "debug" then
-    require("core/harfbuzz-shaper")
-    require("core/debug-output")
+    require("core.harfbuzz-shaper")
+    require("core.debug-output")
   elseif SILE.backend == "text" then
-    require("core/harfbuzz-shaper")
-    require("core/text-output")
+    require("core.harfbuzz-shaper")
+    require("core.text-output")
   elseif SILE.backend == "dummy" then
-    require("core/harfbuzz-shaper")
-    require("core/dummy-output")
+    require("core.harfbuzz-shaper")
+    require("core.dummy-output")
   end
   for _, func in ipairs(SILE.dolua) do
     local _, err = pcall(func)
@@ -94,22 +129,42 @@ SILE.init = function ()
   end
 end
 
-SILE.require = function (dependency, pathprefix)
+SILE.require = function (dependency, pathprefix, deprecation_ack)
+  if pathprefix and not deprecation_ack then
+    SU.warn(string.format([[
+    Please don't use the path prefix mechanism; it was intended to provide
+      alternate paths to override core components but never worked well and is
+      causing portability problems. Just use Lua idiomatic module loading:
+
+      SILE.require("%s", "%s") → SILE.require("%s.%s")
+
+    ]], dependency, pathprefix, pathprefix, dependency))
+    SU.deprecated("SILE.require", "SILE.require", "0.13.0", "0.14.0")
+  end
   dependency = dependency:gsub(".lua$", "")
+  local status, lib
   if pathprefix then
-    local status, lib = pcall(require, pl.path.join(pathprefix, dependency))
-    if status then return lib end
+    status, lib = pcall(require, pl.path.join(pathprefix, dependency))
   end
-  local dep = require(dependency)
+  if not status then lib = require(dependency) end
   local class = SILE.documentState.documentClass
-  if type(class) == "table" then
-    class:initPackage(dep)
+  if not class and not deprecation_ack then
+    SU.warn(string.format([[
+    Use of SILE.require() is only supported in documents, packages, or class
+      init functions. It cannot be used before the class is instantiated.
+      Please just use the Lua require() function directly.
+
+      SILE.require("%s") → require("%s")
+
+    ]], dependency, dependency))
   end
-  return dep
+  if lib and class then
+    class:initPackage(lib)
+  end
+  return lib
 end
 
 SILE.parseArguments = function ()
-  SILE.full_version = string.format("SILE %s (%s)", SILE.version, SILE.lua_isjit and jit.version or _VERSION)
   local cli = require("cliargs")
   local print_version = function()
     print(SILE.full_version)
