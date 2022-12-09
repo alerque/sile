@@ -66,6 +66,20 @@ local function startGridInFrame (typesetter)
   if queue[1] then
     table.insert(queue, 1, SILE.nodefactory.vbox())
     table.insert(queue, 2, SILE.typesetter:leadingFor(queue[2], queue[1]))
+  else
+    -- See https://github.com/sile-typesetter/sile/issues/1430
+    -- This is a virtual vbox *not* pushed to the queue for use by the leading
+    -- calculator which tries to make up the space to the next grid line by
+    -- comparing the line it is working on with the "previous" one. The previous
+    -- one is a thing when we're overflowing from a previous frame/page. It is
+    -- also a thing at the start of a document because if the queue started out
+    -- empty we pushed one a few lines above. The problem is when the queue had
+    -- stuff in it but it turns out to be *all* discardables. In that case we end
+    -- up with nothing to calcucate makeup space against. Pretend we do, but also
+    -- don't actually put anything in the queue because that will cause infinite
+    -- empty pages to be output because we never run out of queue material...
+    typesetter.state.previousVbox = typesetter:pushVbox()
+    -- typesetter.state.previousVbox = SILE.nodefactory.vglue()
   end
 end
 
