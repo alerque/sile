@@ -149,7 +149,12 @@ end
 
 function SILE.defaultTypesetter:isQueueEmpty ()
   if not self.state then return nil end
-  return #self.state.nodes == 0 and #self.state.outputQueue == 0
+  local zero = #self.state.nodes == 0 and #self.state.outputQueue == 0
+  if zero then return zero end
+  for _, n in ipairs(self.state.outputQueue) do
+    if not n.discarbable then return false end
+  end
+  return true
 end
 
 function SILE.defaultTypesetter:vmode ()
