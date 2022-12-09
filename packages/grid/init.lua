@@ -17,7 +17,16 @@ local function leadingFor (typesetter, vbox, previous)
   SU.debug("typesetter", "   Considering leading between two lines (grid mode):")
   SU.debug("typesetter", "   1)", previous)
   SU.debug("typesetter", "   2)", vbox)
-  if not previous then return SILE.nodefactory.vglue() end
+  if not previous then
+    -- typesetter:debugState()
+    -- local v = SILE.nodefactory.vbox({ discardable = false })
+    -- previous = typesetter:pushVertical(v)
+    -- typesetter.state.previousVbox = typesetter:pushVbox()
+    -- typesetter.state.previousVbox = SILE.nodefactory.vbox()
+    -- previous = typesetter.state.previousVbox
+    -- previous = SILE.nodefactory.vbox()
+    return SILE.nodefactory.vglue()
+  end
   SU.debug("typesetter", "   Depth of previous line was", previous.depth)
   local totals = typesetter.frame.state.totals
   local oldCursor = SILE.measurement(totals.gridCursor)
@@ -52,8 +61,14 @@ local function pushExplicitVglue (typesetter, spec)
   return node
 end
 
+local l = 0
+
 local function startGridInFrame (typesetter)
-  if not SILE.typesetter.state.grid then return end -- Ensure the frame hook isn't effective when grid is off
+  SU.debug("typesetter", "FOOOO BAAAAR BAAAAZ")
+  SU.dump(queue)
+  l = l + 1
+  if l >= 6 then SU.error("looping") end
+  if not typesetter.state.grid then return end -- Ensure the frame hook isn't effective when grid is off
   local queue = typesetter.state.outputQueue
   typesetter.frame.state.totals.gridCursor = SILE.measurement(0)
   if #queue == 0 then
@@ -78,8 +93,19 @@ local function startGridInFrame (typesetter)
     -- up with nothing to calcucate makeup space against. Pretend we do, but also
     -- don't actually put anything in the queue because that will cause infinite
     -- empty pages to be output because we never run out of queue material...
-    typesetter.state.previousVbox = typesetter:pushVbox()
+    -- typesetter.state.previousVbox = typesetter:pushVbox()
+    -- table.remove(queue, 1)
+    -- typesetter:pushVbox()
+    -- typesetter:debugState()
     -- typesetter.state.previousVbox = SILE.nodefactory.vglue()
+    -- typesetter.state.previousVbox = SILE.nodefactory.vbox()
+  end
+end
+
+local function dequeue (typesetter)
+  local queue = typesetter.state.outputQueue
+  while queue[1] and queue[1].discardable do
+    table.remove(queue, 1)
   end
 end
 
@@ -182,6 +208,9 @@ function package:registerCommands ()
       startGridInFrame(SILE.typesetter)
     end
     SILE.typesetter:registerNewFrameHook(startGridInFrame)
+    -- SILE.typesetter:registerHook("framebreak", dequeue)
+    -- SILE.typesetter:registerHook("newframe", dequeue)
+    -- SILE.typesetter:registerHook("pageend", dequeue)
   end, "Begins typesetting on a grid spaced at <spacing> intervals.")
 
   self:registerCommand("no-grid", function (_, _)
