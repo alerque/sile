@@ -9,55 +9,71 @@ use std::path::PathBuf;
 #[derive(Parser, Debug)]
 #[clap(author, name = "SILE", bin_name = "sile")]
 pub struct Cli {
-    /// Input document, by default in SIL or XML format
+    /// Input document(s), by default in SIL or XML format.
     pub input: Option<Vec<PathBuf>>,
 
-    /// Choose an alternative output backend
+    /// Choose an alternative output backend.
     #[clap(short, long, value_name = "BACKEND")]
     pub backend: Option<String>,
 
-    /// Override default document class
+    /// Override default document class.
     #[clap(short, long)]
     pub class: Option<String>,
 
-    /// Show debug information for tagged aspects of SILE’s operation
+    /// Show debug information for tagged aspects of SILE’s operation.
     #[clap(short, long, value_name = "DEBUGFLAG[,DEBUGFLAG]")]
     // TODO: switch to num_args(0..) to allow space separated inputs
     pub debug: Option<Vec<String>>,
 
-    /// Evaluate Lua expression before processing input
+    /// Evaluate Lua expression before processing input.
     #[clap(short, long, value_name = "EXRPESION")]
     pub evaluate: Option<Vec<String>>,
 
-    /// Evaluate Lua expression after processing input
+    /// Evaluate Lua expression after processing input.
     #[clap(short = 'E', long, value_name = "EXRPESION")]
     pub evaluate_after: Option<Vec<String>>,
 
-    /// Choose an alternative font manager
+    /// Choose an alternative font manager.
     #[clap(short, long, value_name = "FONTMANAGER")]
     pub fontmanager: Option<String>,
 
-    /// Generate a list of dependencies in Makefile format
+    /// Generate a list of dependencies in Makefile format.
     #[clap(short, long, value_name = "FILE")]
     pub makedeps: Option<PathBuf>,
 
-    /// Explicitly set output file name
+    /// Explicitly set output file name.
     #[clap(short, long, value_name = "FILE")]
     pub output: Option<PathBuf>,
 
-    /// Set document class options
+    /// Set document class options.
     #[clap(short = 'O', long)]
     pub option: Option<Vec<String>>,
 
-    /// Process SIL, XML, or other content before the input document
+    /// Include the contents of a SIL, XML, or other resource file before the input document content.
+    ///
+    /// The value should be a full filename with a path relative to PWD or an absolute path
+    /// May be specified more than once.
     #[clap(short, long, value_name = "FILE")]
     pub preamble: Option<Vec<PathBuf>>,
 
-    /// Process SIL, XML, or other content after the input document
+    /// Include the contents of a SIL, XML, or other resource file after the input document content.
+    ///
+    /// The value should be a full filename with a path relative to PWD or an absolute path. May be
+    /// specified more than once.
     #[clap(short = 'P', long, value_name = "FILE")]
     pub postamble: Option<Vec<PathBuf>>,
 
-    /// Load and initialize a module before processing input
+    /// Load and initialize a class, inputter, shaper, or other module before processing the main input.
+    ///
+    /// The value should be a loadable module name (with no extension, using `.` as a path separator) and will be loaded using SILE's module search path.
+    /// Options may be passed to the module by enclosing `key=value` pairs in square brackets following the module name.
+    /// This is particularly useful when the input document is not SIL or a natively recognized XML scheme
+    /// and SILE needs to be taught new tricks before even trying to read the input file.
+    /// If the module is a document class, it will replace `plain` as the default class for processing
+    /// documents that do not specifically identify one to use.
+    /// Because this executes before loading the document, it may even add an input parser or modify an existing one to support new file formats.
+    /// Package modules will be added to the preamble to be loaded after the class is initialized.
+    /// May be specified more than once.
     #[clap(
         short,
         long,
@@ -65,11 +81,14 @@ pub struct Cli {
     )]
     pub r#use: Option<Vec<String>>,
 
-    /// Discard all non-error output messages
+    /// Suppress warnings and informational messages during processing.
     #[clap(short, long)]
     pub quiet: bool,
 
-    /// Display detailed location trace on errors and warnings
+    /// Display detailed location trace on errors and warnings.
     #[clap(short, long)]
     pub traceback: bool,
+
+    /// version
+    #[clap(short, long)]
 }
