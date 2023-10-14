@@ -44,9 +44,10 @@ fn generate_manpage() {
         .get_bin_name()
         .expect("Could not retrieve bin-name from generated Clap app");
     let app = Cli::command();
-    let man = Man::new(app).render_version_section();
+    let man = Man::new(app);
     let mut buffer: Vec<u8> = Default::default();
-    man.render(&mut buffer)
+    man.render_version_section()
+        .render(&mut buffer)
         .expect("Unable to render man page to UTF-8 string");
     fs::write(manpage_dir.join(format!("{bin_name}.1")), buffer)
         .expect("Unable to write manepage to file");
