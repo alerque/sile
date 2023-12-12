@@ -1,26 +1,11 @@
-\begin[papersize=6in x 9in, class=plain]{document}
-\font[size=30pt]
-
-I am at the top of a page 1.
-
-\vfill
-I should be at the bottom of page 1.
-
-\break
-
-I should be at the top of page 2.
+\begin[papersize=a7,class=plain]{document}
+\nofolios
+\neverindent
+Top of page
 
 \vfill
-I should be at the bottom of page 2.
 
-\break
-
-I should be at the top of page 3.
-
-\vfill
-I should be at the bottom of page 3.... but I am not.
-
-\break
-Would work with an explicit break, but let's say I don't want an extra blank page
-
+Bottom of page
+% \break
+% \lua{SILE.documentState.documentClass:endPage()}
 \end{document}

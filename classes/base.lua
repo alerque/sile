@@ -575,7 +575,10 @@ end
 
 function class:finish ()
   SILE.inputter:postamble()
-  SILE.call("vfill")
+  if not SILE.typesetter:isQueueEmpty() then
+    -- SU.dump(SILE.typesetter.state.nodes)
+     -- SILE.call("vfill")
+  end
   while not SILE.typesetter:isQueueEmpty() do
     SILE.call("supereject")
     SILE.typesetter:leaveHmode(true)
