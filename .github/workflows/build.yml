@@ -77,7 +77,7 @@ jobs:
           path: sile-${{ env.CARCH }}
       - name: Release
         uses: softprops/action-gh-release@v1
-        if: matrix.configuration[0] == 'embeded' && github.repository == 'sile-typesetter/sile' && startsWith(github.ref, 'refs/tags/v')
+        if: matrix.configuration[0] == 'embeded' && github.repository == 'alerque/sile' && startsWith(github.ref, 'refs/tags/v')
         with:
           body_path: sile-${{ env.VERSION }}.md
           files: |
