@@ -24,7 +24,7 @@
     "@commitlint/prompt": "^18.4",
     "commitizen": "^4.3",
     "conventional-changelog-cli": "^4.1",
-    "husky": "^8.0",
+    "husky": "^9.0",
     "standard-version": "^9.5",
     "yaml": "^2.3"
   },
