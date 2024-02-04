@@ -17,6 +17,12 @@ local inf_bad = 10000
 local supereject_penalty = 2 * -inf_bad
 -- local deplorable = 100000
 
+-- Cached typesetter related setting values that get update with a hook for fast :get()s
+local _widowpenalty = 3000
+local _orphanpenalty = 3000
+local _parseppattern = "\r?\n[\r\n]+"
+local _lskip, _rskip
+
 -- Local helper class to compare pairs of margins
 local _margins = pl.class({
     lskip = SILE.nodefactory.glue(),
@@ -57,6 +63,7 @@ function typesetter:_init (frame)
   self:initState()
   -- In case people use stdlib prototype syntax off of the instantiated typesetter...
   getmetatable(self).__call = self.init
+
   return self
 end
 
@@ -72,14 +79,16 @@ function typesetter.declareSettings(_)
   SILE.settings:declare({
     parameter = "typesetter.widowpenalty",
     type = "integer",
-    default = 3000,
+    hook = function (value) _widowpenalty = value end,
+    default = _widowpenalty,
     help = "Penalty to be applied to widow lines (at the start of a paragraph)"
   })
 
   SILE.settings:declare({
     parameter = "typesetter.parseppattern",
     type = "string or integer",
-    default = "\r?\n[\r\n]+",
+    hook = function (value) _parseppattern = value end,
+    default = _parseppattern,
     help = "Lua pattern used to separate paragraphs"
   })
 
@@ -93,7 +102,8 @@ function typesetter.declareSettings(_)
   SILE.settings:declare({
     parameter = "typesetter.orphanpenalty",
     type = "integer",
-    default = 3000,
+    hook = function (value) _orphanpenalty = value end,
+    default = _orphanpenalty,
     help = "Penalty to be applied to orphan lines (at the end of a paragraph)"
   })
 
@@ -159,6 +169,11 @@ function typesetter.declareSettings(_)
     default = true,
     help = "When true, em-dash starting a paragraph is considered as a speaker change in a dialogue"
   })
+
+  -- Setup hooks so we can cache values we access a lot
+  SILE.settings:registerHook("document.lskip", function (value) _lskip = value end)
+  SILE.settings:registerHook("document.rskip", function (value) _rskip = value end)
+
 end
 
 function typesetter:initState ()
@@ -177,7 +192,7 @@ function typesetter:initFrame (frame)
 end
 
 function typesetter.getMargins ()
-  return _margins(SILE.settings:get("document.lskip"), SILE.settings:get("document.rskip"))
+  return _margins(_lskip, _rskip)
 end
 
 function typesetter.setMargins (_, margins)
@@ -299,7 +314,7 @@ function typesetter:typeset (text)
   text = tostring(text)
   if text:match("^%\r?\n$") then return end
   local pId = SILE.traceStack:pushText(text)
-  for token in SU.gtoke(text, SILE.settings:get("typesetter.parseppattern")) do
+  for token in SU.gtoke(text, _parseppattern) do
     if token.separator then
       self:endline()
     else
@@ -602,9 +617,9 @@ function typesetter:boxUpNodes ()
     local vbox = SILE.nodefactory.vbox({ nodes = nodes, ratio = line.ratio })
     local pageBreakPenalty = 0
     if (#lines > 1 and index == 1) then
-      pageBreakPenalty = SILE.settings:get("typesetter.widowpenalty")
+      pageBreakPenalty = _widowpenalty
     elseif (#lines > 1 and index == (#lines-1)) then
-      pageBreakPenalty = SILE.settings:get("typesetter.orphanpenalty")
+      pageBreakPenalty = _orphanpenalty
     end
     vboxes[#vboxes+1] = self:leadingFor(vbox, self.state.previousVbox)
     vboxes[#vboxes+1] = vbox
