@@ -2,6 +2,8 @@ local icu = require("justenoughicu")
 
 local chardata = require("char-def")
 
+local _letterspaceglue_width
+
 SILE.settings:declare({
   parameter = "languages.fixedNbsp",
   type = "boolean",
@@ -17,6 +19,10 @@ SILE.nodeMakers.base = pl.class({
       self.token = ""
       self.lastnode = false
       self.lasttype = false
+
+      -- Setup hooks so we can cache values we access a lot
+      _letterspaceglue_width = SILE.settings:get("document.letterspaceglue").width
+      SILE.settings:registerHook("document.letterspaceglue", function (value) _letterspaceglue_width = value.width end)
     end,
 
     makeToken = function (self)
@@ -144,10 +150,10 @@ function SILE.nodeMakers.unicode:handleInitialGlue (items)
 end
 
 function SILE.nodeMakers.unicode:letterspace ()
-  if not SILE.settings:get("document.letterspaceglue") then return end
+  if not _letterspaceglue_width then return end
   if self.token then self:makeToken() end
   if self.lastnode and self.lastnode ~= "glue" then
-    local w = SILE.settings:get("document.letterspaceglue").width
+    local w = _letterspaceglue_width
     SU.debug("tokenizer", "Letter space glue:", w)
     coroutine.yield(SILE.nodefactory.kern({ width = w }))
     self.lastnode = "glue"
