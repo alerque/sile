@@ -92,6 +92,10 @@ AC_SUBST([FONT_DOWNLOAD_TOOLS])
 AC_MSG_NOTICE([checking for SILE specific build dependencies])
 
 QUE_FONT(Gentium Plus)
+QUE_FONT(Hack)
+QUE_FONT(Libertinus Math)
+QUE_FONT(Libertinus Serif)
+QUE_FONT(Noto Sans CJK JP)
 
 QUE_PROGVAR([pdfinfo])
 QUE_PROGVAR([jq])
