@@ -12,6 +12,14 @@ pub mod cli;
 #[cfg(feature = "static")]
 pub mod embed;
 
+pub mod types;
+
+#[mlua::lua_module]
+fn rusty_sile(lua: &Lua) -> LuaResult<LuaTable> {
+    let exports = lua.create_table().unwrap();
+    Ok(exports)
+}
+
 pub type Result<T> = anyhow::Result<T>;
 
 pub fn start_luavm() -> crate::Result<Lua> {

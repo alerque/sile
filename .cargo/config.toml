@@ -11,6 +11,7 @@ rustflags = ["-C", "link-args=-rdynamic"]
 [env]
 SILE_PATH = { value = "", relative = true }
 CONFIGURE_DATADIR = { value = "", relative = true }
+CARGO_FEATURE_LUAJIT = { value = "1", relative = true }
 
 [target.'cfg(all())']
 rustflags = [

@@ -16,6 +16,10 @@ repository = "https://github.com/sile-typesetter/sile"
 license = "MIT"
 build = "build-aux/build.rs"
 
+[lib]
+name = "sile"
+crate_type = ["rlib", "cdylib"]
+
 [[bin]]
 name = "sile"
 required-features = [ "cli" ]
@@ -60,7 +64,7 @@ features = [ "derive", "string", "wrap_help" ]
 
 [dependencies.mlua]
 version = "0.9"
-features = [ "macros" ]
+features = [ "macros", "module" ]
 
 [dependencies.rust-embed]
 version = "8.0"

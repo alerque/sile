@@ -1,9 +1,11 @@
 use clap::{CommandFactory, FromArgMatches};
 
 use sile::cli::Cli;
+use sile::types::semver::foo;
 use sile::Result;
 
 fn main() -> Result<()> {
+    foo();
     let version = option_env!("VERGEN_GIT_DESCRIBE").unwrap_or_else(|| env!("CARGO_PKG_VERSION"));
     let version = version.replacen('-', ".r", 1);
     let long_version = sile::version()?
