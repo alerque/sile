@@ -80,7 +80,7 @@ pub struct Cli {
     /// An extension will be chosen based on the output backend, typically .pdf.
     /// With this option any arbitrary name and path can be given.
     /// Additionally `-` can be used to write the output to STDOUT.
-    #[clap(short, long, value_name = "FILE", value_hint = ValueHint::FilePath)]
+    #[clap(short, long, value_name = "FILE", required_if_eq("input", "-"), value_hint = ValueHint::FilePath)]
     pub output: Option<PathBuf>,
 
     /// Set or override document class options.
