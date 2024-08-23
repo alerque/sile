@@ -1,4 +1,4 @@
-use clap::Parser;
+use clap::{Parser, ValueHint};
 use std::path::PathBuf;
 
 /// The SILE typesetter reads an input file(s), by default in either SIL or XML format, and
@@ -15,6 +15,7 @@ pub struct Cli {
     /// The first listed file is considered the master document, others are procced in sequence.
     /// Other inputter formats may be enabled via`--use`.
     /// Use `-` to read a content stream from STDIN.
+    #[clap(value_hint = ValueHint::FilePath)]
     pub input: Option<Vec<PathBuf>>,
 
     /// Specify the output backend.
@@ -70,7 +71,7 @@ pub struct Cli {
     /// a target in a Makefile.
     /// This can be used later to determine if a PDF needs re-rendering based on whether any inputs
     /// have changed.
-    #[clap(short, long, value_name = "FILE")]
+    #[clap(short, long, value_name = "FILE", value_hint = ValueHint::FilePath)]
     pub makedeps: Option<PathBuf>,
 
     /// Explicitly set the output file name.
@@ -79,7 +80,7 @@ pub struct Cli {
     /// An extension will be chosen based on the output backend, typically .pdf.
     /// With this option any arbitrary name and path can be given.
     /// Additionally `-` can be used to write the output to STDOUT.
-    #[clap(short, long, value_name = "FILE")]
+    #[clap(short, long, value_name = "FILE", value_hint = ValueHint::FilePath)]
     pub output: Option<PathBuf>,
 
     /// Set or override document class options.
@@ -94,14 +95,14 @@ pub struct Cli {
     ///
     /// The value should be a full filename with a path relative to PWD or an absolute path.
     /// May be specified more than once.
-    #[clap(short, long, value_name = "FILE")]
+    #[clap(short, long, value_name = "FILE", value_hint = ValueHint::FilePath)]
     pub preamble: Option<Vec<PathBuf>>,
 
     /// Include the contents of a SIL, XML, or other resource file after the input document content.
     ///
     /// The value should be a full filename with a path relative to PWD or an absolute path.
     /// May be specified more than once.
-    #[clap(short = 'P', long, value_name = "FILE")]
+    #[clap(short = 'P', long, value_name = "FILE", value_hint = ValueHint::FilePath)]
     pub postamble: Option<Vec<PathBuf>>,
 
     /// Load and initialize a class, inputter, shaper, or other module before processing the main input.
