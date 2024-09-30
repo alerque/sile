@@ -1,0 +1,76 @@
+name: macOS Debug
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: macos-latest
+
+    env:
+      CFLAGS: "-I/opt/homebrew/include/luajit-2.1 -I/opt/homebrew/include"
+      OBJCFLAGS: "-I/opt/homebrew/include/luajit-2.1 -I/opt/homebrew/include"
+      LDFLAGS: "-L/opt/homebrew/lib"
+      RUSTFLAGS: "-Clink-args=-Wl,-undefined,dynamic_lookup"
+      DOCKER: false
+      LDOC: false
+      NIX: false
+      SHA256SUM: false
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Install Dependencies
+      run: |
+        brew install \
+          autoconf \
+          automake \
+          libtool \
+          poppler \
+          rust \
+          luajit \
+          luarocks \
+          unzip \
+          expat \
+          zlib
+        brew link icu4c@76 --force
+        brew link zlib --force
+        brew link expat --force
+        brew install --cask font-gentium-plus
+
+    - name: Configure
+      run: |
+        ./bootstrap.sh
+        ./configure \
+          --enable-developer-mode \
+          --without-developer-tools \
+          --with-system-lua-sources
+
+    - name: Make
+      run: |
+        make
+
+    - name: Setup debug env
+      if: always()
+      run: |
+        brew install \
+          busted \
+          cargo-edit \
+          libxslt \
+          luacheck \
+          luacheck \
+          stylua \
+          taplo \
+          typos-cli
+        ./configure \
+          --enable-developer-mode \
+          --with-system-lua-sources
+
+    - name: Setup upterm session
+      uses: lhotari/action-upterm@v1
+      if: always()
+      with:
+        ## If no one connects after 5 minutes, shut down server.
+        wait-timeout-minutes: 5
