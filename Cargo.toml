@@ -1,6 +1,6 @@
 [package]
 name = "sile"
-version = "0.15.3"
+version = "0.15.5"
 edition = "2021"
 rust-version = "1.71.0"
 description = "Simon’s Improved Layout Engine"
@@ -19,6 +19,47 @@ build = "build-aux/build.rs"
 [lib]
 name = "sile"
 crate_type = ["rlib", "cdylib"]
+
+[package.metadata.typos.default]
+locale = "en-us"
+extend-ignore-re = [
+  "(?s)(#|//|--|%)\\s*typos: ignore start.*?\\n\\s*(#|//|--|%)\\s*typos: ignore end"
+]
+extend-ignore-identifiers-re = [
+  "[a-f0-9]{7}",
+  "^.{2,3}$",
+  "^twords?",
+  "[Pp]arms",
+  "wdth",
+  "0fpt",
+  "^ot",
+  "^hb_ot",
+  "^HB_",
+  "^Tyre$",
+  "PoDoFo",
+  "_Flate",
+  "DEPENDEES",
+  "EPdf",
+  "FileAttachement"
+]
+
+  [package.metadata.typos.default.extend-words]
+  craters = "creators"
+  neet = "need"
+
+[package.metadata.typos.files]
+ignore-hidden = false
+extend-exclude = [
+  "/.git",
+  "CHANGELOG.md",
+  "build-aux/ax*",
+  "lua-libraries/*",
+  "lua_modules/*",
+  "node_modules/*",
+  "tests/*.expected",
+  "cmake/*.diff",
+  "libtexpdf"
+]
 
 [[bin]]
 name = "sile"
@@ -63,7 +104,7 @@ optional = true
 features = [ "derive", "string", "wrap_help" ]
 
 [dependencies.mlua]
-version = "0.9"
+version = "0.10.0-beta.2"
 features = [ "macros", "module" ]
 
 [dependencies.rust-embed]

@@ -4,7 +4,10 @@ SILE.nodeMakers.pt = pl.class(SILE.nodeMakers.unicode)
 SILE.nodeMakers.pt.handleWordBreak = SILE.nodeMakers.unicode._handleWordBreakRepeatHyphen
 SILE.nodeMakers.pt.handlelineBreak = SILE.nodeMakers.unicode._handlelineBreakRepeatHyphen
 
+-- further patterns "1nô", "1tô" and "1cô" were added for Brazilian Portuguese
 SILE.hyphenator.languages["pt"] = {}
+
+-- typos: ignore start
 SILE.hyphenator.languages["pt"].patterns = {
    "1b2l",
    "1b2r",
@@ -32,6 +35,7 @@ SILE.hyphenator.languages["pt"].patterns = {
    "1cu",
    "1cá",
    "1câ",
+   "1cô",
    "1cã",
    "1cé",
    "1cí",
@@ -172,6 +176,7 @@ SILE.hyphenator.languages["pt"].patterns = {
    "1nu",
    "1ná",
    "1nâ",
+   "1nô",
    "1nã",
    "1né",
    "1ní",
@@ -236,6 +241,7 @@ SILE.hyphenator.languages["pt"].patterns = {
    "1tu",
    "1tá",
    "1tâ",
+   "1tô",
    "1tã",
    "1té",
    "1tí",
@@ -314,8 +320,11 @@ SILE.hyphenator.languages["pt"].patterns = {
    "u3u",
    "1-",
 }
+-- typos: ignore end
 
+-- typos: ignore start
 SILE.hyphenator.languages["pt"].exceptions = {
    "hard-ware",
    "soft-ware",
 }
+-- typos: ignore end

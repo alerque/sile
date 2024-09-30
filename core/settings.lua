@@ -19,6 +19,16 @@ function settings:_init ()
       parameter = "document.language",
       type = "string",
       default = "en",
+      hook = function (language)
+         if SILE.scratch.loaded_languages and not SILE.scratch.loaded_languages[language] then
+            SU.warn(([[Setting document.language to '%s', but support for '%s' has not been loaded!
+
+  Consider invoking \language[main=%s] which loads language support before
+  setting it or manually calling SILE.languageSupport.loadLanguage("%s").
+            ]]):format(language, language, language, language))
+         end
+         fluent:set_locale(language)
+      end,
       help = "Locale for localized language support",
    })
 
@@ -272,7 +282,7 @@ end
 function settings:runHooks (parameter, value)
    if self.hooks[parameter] then
       for _, func in ipairs(self.hooks[parameter]) do
-         SU.debug("classhooks", "Running seting hook for", parameter)
+         SU.debug("classhooks", "Running setting hook for", parameter)
          func(value)
       end
    end
@@ -291,7 +301,7 @@ function settings:temporarily (func)
 end
 
 --- Create a settings wrapper function that applies current settings to later content processing.
---- @treturn function a closure fuction accepting one argument (content) to process using
+--- @treturn function a closure function accepting one argument (content) to process using
 --- typesetter settings as they are at the time of closure creation.
 function settings:wrap ()
    if not self then
