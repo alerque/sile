@@ -15,7 +15,7 @@
 , makeWrapper
 , poppler_utils
 , harfbuzz
-, icu
+, icu76
 , fontconfig
 , lua
 , libiconv
@@ -95,7 +95,7 @@ in stdenv.mkDerivation (finalAttrs: {
   buildInputs = [
     luaEnv
     harfbuzz
-    icu
+    icu76
     fontconfig
     libiconv
     stylua
