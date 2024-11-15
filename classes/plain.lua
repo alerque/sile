@@ -8,16 +8,16 @@ class._name = "plain"
 
 class.defaultFrameset = {
    content = {
-      left = "5%pw",
-      right = "95%pw",
-      top = "5%ph",
+      left = "12%pw",
+      right = "88%pw",
+      top = "6%ph",
       bottom = "top(footnotes)",
    },
    folio = {
       left = "left(content)",
       right = "right(content)",
       top = "bottom(footnotes)+2%ph",
-      bottom = "97%ph",
+      bottom = "96%ph",
    },
    footnotes = {
       left = "left(content)",
