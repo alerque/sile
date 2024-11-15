@@ -462,6 +462,62 @@ function class:registerCommands ()
       end)
       return vbox
    end, "Compiles all the enclosed material into a single vbox")
+
+   self:registerCommand("chapter", function (options, content)
+      SILE.call("par")
+      SILE.call("goodbreak")
+      SILE.call("noindent")
+      SILE.call("bigskip")
+      local lang = SILE.settings:get("document.language")
+      SILE.call("plain:chapterfont", {}, content)
+      SILE.call("par")
+      SILE.call("novbreak")
+      SILE.call("midskip")
+      SILE.call("novbreak")
+      -- English typography (notably) expects the first paragraph under a section
+      -- not to be indented. Frenchies, don't use this class :)
+      SILE.call("noindent")
+   end, "Begin a new chapter")
+
+   self:registerCommand("section", function (options, content)
+      SILE.call("par")
+      SILE.call("goodbreak")
+      SILE.call("noindent")
+      SILE.call("medskip")
+      SILE.call("plain:sectionfont", {}, content)
+      SILE.call("par")
+      SILE.call("novbreak")
+      SILE.call("smallskip")
+      SILE.call("novbreak")
+      -- English typography (notably) expects the first paragraph under a section
+      -- not to be indented. Frenchies, don't use this class :)
+      SILE.call("noindent")
+   end, "Begin a new section")
+
+   self:registerCommand("subsection", function (options, content)
+      SILE.call("par")
+      SILE.call("goodbreak")
+      SILE.call("noindent")
+      SILE.call("smallskip")
+      SILE.call("plain:subsectionfont", {}, content)
+      SILE.call("par")
+      SILE.call("novbreak")
+      -- English typography (notably) expects the first paragraph under a section
+      -- not to be indented. Frenchies, don't use this class :)
+      SILE.call("noindent")
+   end, "Begin a new subsection")
+
+   self:registerCommand("plain:chapterfont", function (_, content)
+      SILE.call("font", { weight = 800, size = "2em" }, content)
+   end)
+
+   self:registerCommand("plain:sectionfont", function (_, content)
+      SILE.call("font", { weight = 800, size = "1.6em" }, content)
+   end)
+
+   self:registerCommand("plain:subsectionfont", function (_, content)
+      SILE.call("font", { weight = 800, size = "1.2em" }, content)
+   end)
 end
 
 return class

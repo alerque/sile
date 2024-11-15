@@ -147,6 +147,7 @@ function class:registerCommands ()
       SILE.call("font", { size = "9pt", style = "Italic" }, content)
    end)
 
+   -- A more paginated version than the one provided in 'plain'
    self:registerCommand("chapter", function (options, content)
       SILE.call("par")
       SILE.call("open-spread", { double = false })
