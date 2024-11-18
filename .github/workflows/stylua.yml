@@ -14,4 +14,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           version: 2.0.0
-          args: --check --respect-ignores -g '*.lua' -g '*.lua.in' -g '*.rockspec.in' .busted .luacov .luacheckrc build-aux/config.ld .
+          args: | --check --respect-ignores -g '*.lua' -g '*.lua.in' -g '*.rockspec.in' .busted .luacov .luacheckrc build-aux/config.ld .
