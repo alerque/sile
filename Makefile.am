@@ -67,7 +67,7 @@ EXTRA_sile_SOURCES =
 if !EMBEDDED_RESOURCES
 nobase_dist_pkgdata_DATA = $(SILEDATA) $(LUALIBRARIES)
 nobase_nodist_pkgdata_DATA = $(BUILT_SOURCES_LUA) $(LUAMODULES)
-pkglib_LIBRARIES = rusile.so
+pkglib_LIBRARIES = rusile.@SHARED_LIB_EXT@
 rusile_so_SOURCES = $(RUSILE_SOURCES)
 endif !EMBEDDED_RESOURCES
 dist_doc_DATA = README.md CHANGELOG.md
@@ -137,7 +137,7 @@ $(CARGO_BIN): justenough/.libs/justenoughlibtexpdf.a
 $(CARGO_BIN): justenough/.libs/svg.a
 $(CARGO_BIN): libtexpdf/.libs/libtexpdf.a
 if !EMBEDDED_RESOURCES
-$(CARGO_BIN): rusile.so
+$(CARGO_BIN): rusile.@SHARED_LIB_EXT@
 endif !EMBEDDED_RESOURCES
 
 src/embed-includes.rs: Makefile-distfiles
@@ -178,10 +178,10 @@ if FONT_VARIATIONS
 CARGO_FEATURE_ARGS += --features variations
 endif
 
-@builddir@/target/@RUST_TARGET_SUBDIR@/librusile.$(SHARED_LIB_EXT): $(rusile_so_SOURCES) $(bin_PROGRAMS)
+@builddir@/target/@RUST_TARGET_SUBDIR@/librusile.@SHARED_LIB_EXT@: $(rusile_so_SOURCES) $(bin_PROGRAMS)
 	$(CARGO_ENV) $(CARGO) build $(CARGO_VERBOSE) --target $(CARGO_TARGET_TRIPLE) $(RUSILE_FEATURE_ARG) $(CARGO_RELEASE_ARGS) -p rusile
 
-rusile.so: @builddir@/target/@RUST_TARGET_SUBDIR@/librusile.$(SHARED_LIB_EXT)
+rusile.@SHARED_LIB_EXT@: @builddir@/target/@RUST_TARGET_SUBDIR@/librusile.@SHARED_LIB_EXT@
 	$(INSTALL) $< $@
 
 DEPDIR := .deps
@@ -277,13 +277,13 @@ _DOCS_DEPS = $(and $$(filter documentation/%,$@),$(addprefix .fonts/,$(DOCSFONTF
 _SUBDIR_TELLS =
 
 if SHARED
-_SUBDIR_TELLS += justenough/.libs/fontmetrics.$(SHARED_LIB_EXT) \
-				justenough/.libs/justenoughfontconfig.$(SHARED_LIB_EXT) \
-				justenough/.libs/justenoughharfbuzz.$(SHARED_LIB_EXT) \
-				justenough/.libs/justenoughicu.$(SHARED_LIB_EXT) \
-				justenough/.libs/justenoughlibtexpdf.$(SHARED_LIB_EXT) \
-				justenough/.libs/svg.$(SHARED_LIB_EXT) \
-				libtexpdf/.libs/libtexpdf.$(SHARED_LIB_EXT).0.0.0
+_SUBDIR_TELLS += justenough/.libs/fontmetrics.@SHARED_LIB_EXT@ \
+				justenough/.libs/justenoughfontconfig.@SHARED_LIB_EXT@ \
+				justenough/.libs/justenoughharfbuzz.@SHARED_LIB_EXT@ \
+				justenough/.libs/justenoughicu.@SHARED_LIB_EXT@ \
+				justenough/.libs/justenoughlibtexpdf.@SHARED_LIB_EXT@ \
+				justenough/.libs/svg.@SHARED_LIB_EXT@ \
+				libtexpdf/.libs/libtexpdf.@SHARED_LIB_EXT@.0.0.0
 endif
 
 if STATIC
@@ -391,10 +391,10 @@ typos:
 busted: $(SILELUA) $(addprefix .fonts/,$(TESTFONTFILES)) $(BUSTEDSPECS)
 	set -f; IFS=';'
 	packagepath=(./{,lua-libraries/}?{,/init}.lua)
-	packagecpath=(./{,core/,{libtexpdf,justenough}/.libs/}?.$(SHARED_LIB_EXT))
+	packagecpath=(./{,core/,{libtexpdf,justenough}/.libs/}?.@SHARED_LIB_EXT@)
 if !SYSTEM_LUAROCKS
 	packagepath+=(./lua_modules/share/lua/$(LUA_VERSION)/?{,/init}.lua)
-	packagecpath+=(./lua_modules/lib/lua/$(LUA_VERSION)/?.$(SHARED_LIB_EXT))
+	packagecpath+=(./lua_modules/lib/lua/$(LUA_VERSION)/?.@SHARED_LIB_EXT@)
 endif
 # Note: Busted tests can't run with out static build since the Rusile module is
 # only available embedded into it. We can test on the dynamic builds where it
