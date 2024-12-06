@@ -12,7 +12,6 @@ jobs:
       CFLAGS: "-I/opt/homebrew/include/luajit-2.1 -I/opt/homebrew/include"
       OBJCFLAGS: "-I/opt/homebrew/include/luajit-2.1 -I/opt/homebrew/include"
       LDFLAGS: "-L/opt/homebrew/lib"
-      RUSTFLAGS: "-Clink-args=-Wl,-undefined,dynamic_lookup"
       DOCKER: false
       LDOC: false
       NIX: false
