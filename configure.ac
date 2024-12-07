@@ -156,6 +156,7 @@ AM_COND_IF([SYSTEM_LIBTEXPDF],
                             [AC_MSG_FAILURE([--with-system-libtexpdf was given, but test for libtexpdf failed])])],
             [AC_CONFIG_SUBDIRS([libtexpdf])])
 
+
 PKG_CHECK_MODULES(ICU, icu-uc icu-i18n icu-io, [
     with_icu=yes
 ],[
@@ -258,6 +259,8 @@ case $host_os in
 esac
 AC_SUBST([SHARED_LIB_EXT])
 AC_SUBST([LUAROCKSARGS])
+
+AM_COND_IF([SHARED], [QUE_RUST_MODULE([rusile])])
 
 # Avoid need for `--datarootdir=$(cd ..; pwd)` hack to run locally for
 # tests/manual build when developer mode is enabled
