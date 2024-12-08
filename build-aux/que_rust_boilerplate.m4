@@ -17,9 +17,14 @@ AC_DEFUN_ONCE([QUE_RUST_BOILERPLATE], [
         QUE_PROGVAR([rustc])
         QUE_PROGVAR([cmp])
         QUE_PROGVAR([xargs])
+        AX_REQUIRE_PROG([cargo])
+        AX_REQUIRE_PROG([jq])
+        AX_REQUIRE_PROG([rustc])
+        AX_REQUIRE_PROG([cmp])
+        AX_REQUIRE_PROG([xargs])
         AM_COND_IF([DEVELOPER_MODE], [
-                QUE_PROGVAR([git])
-                QUE_PROGVAR([rustfmt])
+                AX_REQUIRE_PROG([git])
+                AX_REQUIRE_PROG([rustfmt])
         ])
 
         AC_ARG_VAR(CARGO_TARGET_TRIPLE, "Target triple for Rust compilations")
