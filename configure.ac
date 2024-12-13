@@ -31,6 +31,8 @@ AX_REQUIRE_PROG([pdfinfo])
 AX_REQUIRE_PROG([sort])
 AX_REQUIRE_PROG([xargs])
 
+QUE_LIBEXT
+
 # Disable ranlib to avoid it being run on our rusile.so module, already LTO
 # optimized but libtool wants to relink it...
 RANLIB=:
@@ -41,19 +43,6 @@ LT_INIT([dlopen])
 QUE_RUST_BOILERPLATE
 QUE_DOCKER_BOILERPLATE
 
-# Load Rust module bits, early since it stuffs rules in aminclude.am
-case $target_os in
-    darwin*)
-        SHARED_LIB_EXT="dylib"
-        ;;
-    cygwin*|mingw*)
-        SHARED_LIB_EXT="dll"
-        ;;
-    *)
-        SHARED_LIB_EXT="so"
-        ;;
-esac
-AC_SUBST([SHARED_LIB_EXT])
 QUE_RUST_MODULE([rusile])
 
 AM_CONDITIONAL([SHARED], [test "x$enable_shared" = "xyes"])
