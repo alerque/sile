@@ -69,6 +69,7 @@ jobs:
           echo "MAKEFLAGS=-j$(sysctl -n hw.ncpu)" >> $GITHUB_ENV
       - name: Make
         run: |
+          grep -R LIBEXT
           make
       - name: Setup debug env
         if: always()
