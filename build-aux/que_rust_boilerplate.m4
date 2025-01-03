@@ -56,10 +56,4 @@ EXTRA_DIST += build-aux/que_rust_module.am
 $($SED -E "s/@MODULE@/$1/g;s/@LIBEXT@/$LIBEXT/g;s/@_LIBEXT@/${LIBEXT##.}/g" build-aux/que_rust_module.am)
 ])dnl
 
-        AC_REQUIRE([AX_AM_MACROS_STATIC])
-
-AX_ADD_AM_MACRO_STATIC([
-EXTRA_DIST += fidget.stick
-])dnl
-
 ])
