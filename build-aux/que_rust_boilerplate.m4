@@ -53,7 +53,9 @@ AC_DEFUN([QUE_RUST_MODULE], [
         AX_ADD_AM_MACRO([dnl
 EXTRA_DIST += build-aux/que_rust_module.am
 
-$($SED -E "s/@MODULE@/$1/g;s/@LIBEXT@/$LIBEXT/g;s/@_LIBEXT@/${LIBEXT##.}/g" build-aux/que_rust_module.am)
+pkglib_LIBRARIES += $1${LIBEXT}
+
+$($SED -E "s/@MODULE@/$1/g" build-aux/que_rust_module.am)
 ])dnl
 
 ])

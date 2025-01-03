@@ -63,6 +63,7 @@ nodist_man_MANS =
 dist_man_MANS = sile-lua.1
 sile_SOURCES = src/bin/sile.rs src/lib.rs src/cli.rs src/types.rs src/types/semver.rs
 EXTRA_sile_SOURCES =
+pkglib_LIBRARIES =
 if !EMBEDDED_RESOURCES
 nobase_dist_pkgdata_DATA = $(SILEDATA) $(LUALIBRARIES)
 nobase_nodist_pkgdata_DATA = $(BUILT_SOURCES_LUA) $(LUAMODULES)

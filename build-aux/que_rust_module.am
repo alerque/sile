@@ -1,8 +1,23 @@
-pkglib_LIBRARIES = @MODULE@@LIBEXT@
-@MODULE@_@_LIBEXT@_SOURCES = @MODULE@/Cargo.toml @MODULE@/src/lib.rs @MODULE@/build.rs
+@MODULE@_so_SOURCES = @MODULE@/Cargo.toml @MODULE@/src/lib.rs @MODULE@/build.rs
 
-@builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@@LIBEXT@: $(@MODULE@_@_LIBEXT@_SOURCES)
+@builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.so: $(@MODULE@_so_SOURCES)
 	$(CARGO_ENV) $(CARGO) build $(CARGO_VERBOSE) --target $(CARGO_TARGET_TRIPLE) $(@MODULE@_FEATURE_ARGS) $(CARGO_RELEASE_ARGS) -p @MODULE@
 
-@MODULE@@LIBEXT@: @builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@@LIBEXT@
+@MODULE@.so: @builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.so
+	$(INSTALL) $< $@
+
+@MODULE@_dylib_SOURCES = @MODULE@/Cargo.toml @MODULE@/src/lib.rs @MODULE@/build.rs
+
+@builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.dylib: $(@MODULE@_dylib_SOURCES)
+	$(CARGO_ENV) $(CARGO) build $(CARGO_VERBOSE) --target $(CARGO_TARGET_TRIPLE) $(@MODULE@_FEATURE_ARGS) $(CARGO_RELEASE_ARGS) -p @MODULE@
+
+@MODULE@.dylib: @builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.dylib
+	$(INSTALL) $< $@
+
+@MODULE@_dll_SOURCES = @MODULE@/Cargo.toml @MODULE@/src/lib.rs @MODULE@/build.rs
+
+@builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.dll: $(@MODULE@_dll_SOURCES)
+	$(CARGO_ENV) $(CARGO) build $(CARGO_VERBOSE) --target $(CARGO_TARGET_TRIPLE) $(@MODULE@_FEATURE_ARGS) $(CARGO_RELEASE_ARGS) -p @MODULE@
+
+@MODULE@.dll: @builddir@/target/@RUST_TARGET_SUBDIR@/lib@MODULE@.dll
 	$(INSTALL) $< $@
