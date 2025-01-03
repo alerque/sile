@@ -10,6 +10,7 @@ Makefile.in
 /config.status
 /configure
 /aminclude.am
+/aminclude_static.am
 build-aux/compile
 build-aux/config.guess
 build-aux/config.sub
