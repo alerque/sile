@@ -32,10 +32,6 @@ AX_REQUIRE_PROG([pdfinfo])
 AX_REQUIRE_PROG([sort])
 AX_REQUIRE_PROG([xargs])
 
-# Disable ranlib to avoid it being run on our rusile.so module, already LTO
-# optimized but libtool wants to relink it...
-RANLIB=:
-
 LT_PREREQ([2.2])
 LT_INIT([dlopen])
 
