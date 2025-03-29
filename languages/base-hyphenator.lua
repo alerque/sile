@@ -189,7 +189,7 @@ function hyphenator:hyphenate (nodelist)
    return newlist
 end
 
-function language:hyphenateNode (node)
+function hyphenator:hyphenateNode (node)
    if not node.language then
       return { node }
    end
