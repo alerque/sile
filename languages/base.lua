@@ -29,7 +29,7 @@ function language:_init (typesetter)
    self:activate()
 end
 
--- TODO: reconsider 'setup' and 'nodeMaker'
+-- TODO: reconsider naming of 'setup' and 'nodeMaker'
 function language:setupNodeMaker ()
    self.nodeMaker = require("languages.base-nodemaker")
 end
