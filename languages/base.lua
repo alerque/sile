@@ -17,7 +17,8 @@ local require_ftl = loadkit.make_loader("ftl", function (file)
    return assert(fluent:add_messages(contents))
 end)
 
-function language:_init ()
+function language:_init (typesetter)
+   self.typesetter = typesetter
    self:_declareBaseSettings()
    self:declareSettings()
    self:_registerBaseCommands()
