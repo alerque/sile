@@ -176,7 +176,7 @@ function hyphenator:showHyphenationPoints (word, language)
    return SU.concat(SILE._hyphenate(SILE._hyphenators[language], word), SILE.settings:get("font.hyphenchar"))
 end
 
-function language:hyphenate (nodelist)
+function hyphenator:hyphenate (nodelist)
    local newlist = {}
    for _, node in ipairs(nodelist) do
       local newnodes = self:hyphenateNode(node)
