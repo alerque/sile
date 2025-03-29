@@ -10,7 +10,7 @@ function hyphenator:_init (language)
    self:loadPatterns()
 end
 
-function language:loadPatterns ()
+function hyphenator:loadPatterns ()
    local code = self.language:getShortcode()
    local hyphens = require(("languages.%s.hyphens"):format(code))
    self.patterns = hyphens.patterns
