@@ -56,7 +56,7 @@ end
 function typesetter:_post_init ()
    self:initFrame(self.frame)
    self:initState()
-   self.language = SILE.languages.en()
+   self.language = SILE.languages.en(self)
 end
 
 --- Declare new setting types
