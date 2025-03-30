@@ -68,9 +68,6 @@ function language:loadMessages()
          )
       )
    end
-   if type(lang) == "table" and lang.init then
-      lang.init()
-   end
    fluent:set_locale(original_language)
 end
 
