@@ -57,8 +57,8 @@ function language:loadMessages()
    -- This needs to be set so that we load localizations into the right bundle,
    -- but this breaks the sync enabled by the hook in the document.language
    -- setting, so we want to set it back when we're done.
-   local original_language = fluent:get_locale()
-   fluent:set_locale(language)
+   local original_lang = fluent:get_locale()
+   fluent:set_locale(lang)
    local gotftl, ftl = pcall(require_ftl, ftlresource)
    if not gotftl then
       SU.warn(
