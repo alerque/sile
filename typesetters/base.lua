@@ -46,11 +46,17 @@ end
 -- @param frame A initial frame to attach the typesetter to.
 function typesetter:_init (frame)
    SU._avoid_base_class_use(self)
+   -- TODO: make class first arg of typesetter init, ditch globals hack
+   self.class = SILE.documentState.documentClass
    self:declareSettings()
    self.hooks = {}
    self.breadcrumbs = SU.breadcrumbs()
    self.frame = frame
    self.stateQueue = {}
+   self.language = true
+   SU.dump{ "PRE", self.language }
+   self.language = SILE.languages.en(self)
+   SU.dump{ "POST", self.language }
 end
 
 function typesetter:_post_init ()
