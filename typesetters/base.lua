@@ -59,8 +59,6 @@ function typesetter:_post_init ()
    self:initFrame(self.frame)
    self:initState()
    self.language = SILE.languages.en(self)
-   self.language:activate()
-   self:switchLanguage(SILE.settings:get("document.language"))
 end
 
 typesetter._language_cache = {}
