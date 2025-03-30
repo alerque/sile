@@ -53,28 +53,24 @@ function typesetter:_init (frame)
    self.breadcrumbs = SU.breadcrumbs()
    self.frame = frame
    self.stateQueue = {}
-   self.language = SILE.languages.en(self)
 end
 
 function typesetter:_post_init ()
    self:initFrame(self.frame)
    self:initState()
+   self.language = SILE.languages.en(self)
    self.language:activate()
    self:switchLanguage(SILE.settings:get("document.language"))
-   -- SU.dump{ "POST", self.language }
 end
 
 typesetter._language_cache = {}
 
 function typesetter:switchLanguage(lang)
-   SU.dump{ "HOOK", self.language, lang }
-   SU.error(642)
-   return true
-   -- local current = self.language:getShortcode()
-   -- if current ~= lang then
-   --    self._language_cache[current] = self.language
-   --    self.language = self._language_cache[lang] or SILE.languages[lang](self)
-   -- end
+   local current = self.language:getShortcode()
+   if current ~= lang then
+      self._language_cache[current] = self.language
+      self.language = self._language_cache[lang] or SILE.languages[lang](self)
+   end
 end
 
 --- Declare new setting types

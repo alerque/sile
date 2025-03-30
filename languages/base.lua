@@ -30,7 +30,9 @@ function language:_init (typesetter)
 end
 
 function language:_post_init ()
-   -- self.typesetter.switchLanguage(self:getShortcode())
+   SILE.settings:registerHook("document.language", function (lang)
+      self.typesetter:switchLanguage(lang)
+   end)
 end
 
 -- TODO: reconsider naming of 'setup' and 'nodeMaker'
@@ -47,7 +49,6 @@ function language:activate()
    fluent:set_locale(lang)
    os.setlocale(lang)
    setenv("LANG", lang)
-   self.typesetter:switchLanguage(lang)
 end
 
 function language:getShortcode()
@@ -77,18 +78,10 @@ function language:loadMessages()
 end
 
 function language:_declareBaseSettings ()
-   local first = true
    SILE.settings:declare({
       parameter = "document.language",
       type = "string",
       default = "en",
-      hook = function (lang)
-         if not first then
-            self.typesetter:switchLanguage(lang)
-         else
-            first = false
-         end
-      end,
       help = "Locale for localized language support",
    })
    SILE.settings:declare({
