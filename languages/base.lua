@@ -77,9 +77,7 @@ function language:_declareBaseSettings ()
       type = "string",
       default = "en",
       hook = function (lang)
-         if not SILE.language or SILE.language:getShortcode() ~= lang then
-            SILE.language = SILE.languages[lang]()
-         end
+         self.typesetter:switchLanguage(lang)
       end,
       help = "Locale for localized language support",
    })
