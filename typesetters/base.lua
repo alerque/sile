@@ -68,6 +68,7 @@ function typesetter:switchLanguage(lang)
    if current ~= lang then
       self._language_cache[current] = self.language
       self.language = self._language_cache[lang] or SILE.languages[lang](self)
+      self.language:activate()
    end
 end
 
