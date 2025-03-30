@@ -63,7 +63,7 @@ function language:loadMessages()
    if not gotftl then
       SU.warn(
          ("Unable to load localized strings (e.g. table of contents header text) for %s: %s"):format(
-            language,
+            lang,
             ftl:gsub(":.*", "")
          )
       )
