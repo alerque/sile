@@ -50,19 +50,8 @@ function language:getShortcode()
 end
 
 -- TODO: not about hyphenation rules per warning....
-function language.loadMessages(_)
-   language = language or SILE.settings:get("document.language")
-   language = cldr.locales[language] and language or "und"
-   local langresource = string.format("languages.%s", language)
-   local gotlang, lang = pcall(require, langresource)
-   if not gotlang then
-      SU.warn(
-         ("Unable to load language feature support (e.g. hyphenation rules) for %s: %s"):format(
-            language,
-            lang:gsub(":.*", "")
-         )
-      )
-   end
+function language:loadMessages()
+   local lang = self:getShortcode()
    local ftlresource = string.format("languages.%s.messages", language)
    SU.debug("fluent", "Loading FTL resource", ftlresource, "into locale", language)
    -- This needs to be set so that we load localizations into the right bundle,
