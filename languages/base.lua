@@ -71,7 +71,7 @@ function language:loadMessages()
    fluent:set_locale(original_language)
 end
 
-function language._declareBaseSettings (_)
+function language:_declareBaseSettings ()
    SILE.settings:declare({
       parameter = "document.language",
       type = "string",
