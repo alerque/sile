@@ -72,7 +72,7 @@ function hyphenator:addPattern (pattern)
          self.trie = self.trie[char]
       end
    end
-   trie["_"] = {}
+   self.trie["_"] = {}
    local lastWasDigit = 0
    for i = 1, #bits do
       local char = bits[i]
