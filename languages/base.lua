@@ -36,6 +36,7 @@ end
 
 -- TODO: reconsider naming of 'setup' and 'nodeMaker'
 function language:setupNodeMaker ()
+   -- TODO should this be an instance of a constructor? inconsistent with typesetter/language/class/etc.
    self.nodeMaker = require("languages.base-nodemaker")
 end
 
