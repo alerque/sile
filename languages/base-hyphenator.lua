@@ -172,7 +172,7 @@ end
 -- function hyphenator:showHyphenationPoints (word, language)
 --    language = language or "en"
 --    initHyphenator(language)
---    return SU.concat(SILE._hyphenate(SILE._hyphenators[language], word), SILE.settings:get("font.hyphenchar"))
+--    return SU.concat(_hyphenate(self, word), SILE.settings:get("font.hyphenchar"))
 -- end
 --
 
