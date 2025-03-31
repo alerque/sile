@@ -197,8 +197,7 @@ function hyphenator:hyphenateNode (node)
    -- if (type(SILE.hyphenator.languages[node.language]) == "function") then
    --    return SILE.hyphenator.languages[node.language](node)
    -- end
-   -- initHyphenator(node.language)
-   -- local segments = SILE._hyphenate(SILE._hyphenators[node.language], node.text)
+   -- local segments = _hyphenate(self, node.text)
    -- local hyphen
    -- if #segments > 1 then
    --    local hyphenateSegments = SILE.hyphenator.languages[node.language].hyphenateSegments
