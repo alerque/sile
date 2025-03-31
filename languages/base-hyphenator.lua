@@ -71,6 +71,7 @@ function hyphenator.registerCommand (_, name, func, help, pack)
 end
 
 function hyphenator:addPattern (pattern)
+   local trie = self.trie
    local bits = SU.splitUtf8(pattern)
    for i = 1, #bits do
       local char = bits[i]
