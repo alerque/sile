@@ -3,7 +3,7 @@
 -- and preventing me from leaving the Granshan 2015 conference until
 -- I had most of this working. — Simon Cozens
 
-local base = require("languages.bas"e)
+local base = require("languages.base")
 
 -- Uyghur is Turkish, right?
 local tr = require("languages.tr")

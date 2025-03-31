@@ -5,6 +5,7 @@ hyphenator.type = "hyphenator"
 hyphenator._name = "base"
 
 function hyphenator:_init (language)
+   self._name = language._name
    self.language = language
    self:registerCommands()
    self:loadPatterns()
@@ -13,8 +14,21 @@ end
 function hyphenator:loadPatterns ()
    local code = self.language:getShortcode()
    local hyphens = require(("languages.%s.hyphens"):format(code))
-   self.patterns = hyphens.patterns
-   self.exceptions = hyphens.exceptions
+   --    TODO
+   --    if not languageset then
+   --       print("No patterns for language " .. language)
+   --       return
+   --    end
+   for _, pattern in ipairs(hyphens.patterns or {}) do
+      self:addPattern(pattern)
+   end
+   -- TODO
+   -- if not languageset.exceptions then
+   --    languageset.exceptions = {}
+   -- end
+   for _, exception in ipairs(hyphens.exceptions or {}) do
+      self:registerException(exception)
+   end
 end
 
 function hyphenator:registerCommands ()
@@ -24,12 +38,13 @@ function hyphenator:registerCommands ()
       initHyphenator(lang)
       for token in SU.gtoke(content[1]) do
          if token.string then
-            registerException(SILE._hyphenators[lang], token.string)
+            registerException(token.string)
          end
       end
    end, nil, nil, true)
 end
 
+-- TODO This is duplicated from many module types, should probably be made a utility
 function hyphenator.registerCommand (_, name, func, help, pack)
    SILE.Commands[name] = func
    if not pack then
@@ -43,7 +58,8 @@ function hyphenator.registerCommand (_, name, func, help, pack)
    }
 end
 
-local function addPattern (hyphenator, pattern)
+function hyphenator:addPattern (pattern)
+   SU.dump(pattern)
    local trie = hyphenator.trie
    local bits = SU.splitUtf8(pattern)
    for i = 1, #bits do
@@ -70,7 +86,7 @@ local function addPattern (hyphenator, pattern)
    end
 end
 
-local function registerException (hyphenator, exception)
+function hyphenator:registerException (exception)
    local text = exception:gsub("-", "")
    local bits = SU.splitUtf8(exception)
    hyphenator.exceptions[text] = {}
@@ -86,95 +102,77 @@ local function registerException (hyphenator, exception)
    end
 end
 
-local function loadPatterns (hyphenator, language)
-   SILE.languageSupport.loadLanguage(language)
-
-   local languageset = SILE.hyphenator.languages[language]
-   if not languageset then
-      print("No patterns for language " .. language)
-      return
-   end
-   for _, pattern in ipairs(languageset.patterns) do
-      addPattern(hyphenator, pattern)
-   end
-   if not languageset.exceptions then
-      languageset.exceptions = {}
-   end
-   for _, exception in ipairs(languageset.exceptions) do
-      registerException(hyphenator, exception)
-   end
-end
-
-SILE._hyphenate = function (self, text)
-   if luautf8.len(text) < self.minWord then
-      return { text }
-   end
-   local lowertext = luautf8.lower(text)
-   local points = self.exceptions[lowertext]
-   local word = SU.splitUtf8(text)
-   if not points then
-      points = SU.map(function ()
-         return 0
-      end, word)
-      local work = SU.map(luautf8.lower, word)
-      table.insert(work, ".")
-      table.insert(work, 1, ".")
-      table.insert(points, 1, 0)
-      for i = 1, #work do
-         local trie = self.trie
-         for j = i, #work do
-            if not trie[work[j]] then
-               break
-            end
-            trie = trie[work[j]]
-            local p = trie["_"]
-            if p then
-               for k = 1, #p do
-                  if points[i + k - 2] and points[i + k - 2] < p[k] then
-                     points[i + k - 2] = p[k]
-                  end
-               end
-            end
-         end
-      end
-      -- Still inside the no-exceptions case
-      for i = 1, self.leftmin do
-         points[i] = 0
-      end
-      for i = #points - self.rightmin, #points do
-         points[i] = 0
-      end
-   end
-   local pieces = { "" }
-   for i = 1, #word do
-      pieces[#pieces] = pieces[#pieces] .. word[i]
-      if points[1 + i] and 1 == (points[1 + i] % 2) then
-         table.insert(pieces, "")
-      end
-   end
-   return pieces
-end
-
-local function defaultHyphenateSegments (node, segments, _)
-   local hyphen = SILE.shaper:createNnodes(SILE.settings:get("font.hyphenchar"), node.options)
-   return SILE.types.node.discretionary({ prebreak = hyphen }), segments
-end
-
-local initHyphenator = function (lang)
-   if not SILE._hyphenators[lang] then
-      SILE._hyphenators[lang] = { minWord = 5, leftmin = 2, rightmin = 2, trie = {}, exceptions = {} }
-      loadPatterns(SILE._hyphenators[lang], lang)
-   end
-   if SILE.hyphenator.languages[lang] and not SILE.hyphenator.languages[lang].hyphenateSegments then
-      SILE.hyphenator.languages[lang].hyphenateSegments = defaultHyphenateSegments
-   end
-end
-
-function hyphenator:showHyphenationPoints (word, language)
-   language = language or "en"
-   initHyphenator(language)
-   return SU.concat(SILE._hyphenate(SILE._hyphenators[language], word), SILE.settings:get("font.hyphenchar"))
-end
+-- SILE._hyphenate = function (self, text)
+--    if luautf8.len(text) < self.minWord then
+--       return { text }
+--    end
+--    local lowertext = luautf8.lower(text)
+--    local points = self.exceptions[lowertext]
+--    local word = SU.splitUtf8(text)
+--    if not points then
+--       points = SU.map(function ()
+--          return 0
+--       end, word)
+--       local work = SU.map(luautf8.lower, word)
+--       table.insert(work, ".")
+--       table.insert(work, 1, ".")
+--       table.insert(points, 1, 0)
+--       for i = 1, #work do
+--          local trie = self.trie
+--          for j = i, #work do
+--             if not trie[work[j]] then
+--                break
+--             end
+--             trie = trie[work[j]]
+--             local p = trie["_"]
+--             if p then
+--                for k = 1, #p do
+--                   if points[i + k - 2] and points[i + k - 2] < p[k] then
+--                      points[i + k - 2] = p[k]
+--                   end
+--                end
+--             end
+--          end
+--       end
+--       -- Still inside the no-exceptions case
+--       for i = 1, self.leftmin do
+--          points[i] = 0
+--       end
+--       for i = #points - self.rightmin, #points do
+--          points[i] = 0
+--       end
+--    end
+--    local pieces = { "" }
+--    for i = 1, #word do
+--       pieces[#pieces] = pieces[#pieces] .. word[i]
+--       if points[1 + i] and 1 == (points[1 + i] % 2) then
+--          table.insert(pieces, "")
+--       end
+--    end
+--    return pieces
+-- end
+--
+-- local function defaultHyphenateSegments (node, segments, _)
+--    local hyphen = SILE.shaper:createNnodes(SILE.settings:get("font.hyphenchar"), node.options)
+--    return SILE.types.node.discretionary({ prebreak = hyphen }), segments
+-- end
+--
+-- local initHyphenator = function (lang)
+--    if not SILE._hyphenators[lang] then
+--       SILE._hyphenators[lang] = { minWord = 5, leftmin = 2, rightmin = 2, trie = {}, exceptions = {} }
+--       loadPatterns(SILE._hyphenators[lang], lang)
+--    end
+--    if SILE.hyphenator.languages[lang] and not SILE.hyphenator.languages[lang].hyphenateSegments then
+--       SILE.hyphenator.languages[lang].hyphenateSegments = defaultHyphenateSegments
+--    end
+-- end
+--
+-- function hyphenator:showHyphenationPoints (word, language)
+--    language = language or "en"
+--    initHyphenator(language)
+--    return SU.concat(SILE._hyphenate(SILE._hyphenators[language], word), SILE.settings:get("font.hyphenchar"))
+-- end
+--
 
 function hyphenator:hyphenate (nodelist)
    local newlist = {}
@@ -196,37 +194,37 @@ function hyphenator:hyphenateNode (node)
    if not node.is_nnode or not node.text then
       return { node }
    end
-   if node.language and (type(SILE.hyphenator.languages[node.language]) == "function") then
-      return SILE.hyphenator.languages[node.language](node)
-   end
-   initHyphenator(node.language)
-   local segments = SILE._hyphenate(SILE._hyphenators[node.language], node.text)
-   local hyphen
-   if #segments > 1 then
-      local hyphenateSegments = SILE.hyphenator.languages[node.language].hyphenateSegments
-      local newnodes = {}
-      for j, segment in ipairs(segments) do
-         if segment == "" then
-            SU.dump({ j, segments })
-            SU.error("No hyphenation segment should ever be empty", true)
-         end
-         hyphen, segments = hyphenateSegments(node, segments, j)
-         for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
-            if newNode.is_nnode then
-               newNode.parent = node
-               table.insert(newnodes, newNode)
-            end
-         end
-         if j < #segments then
-            hyphen.parent = node
-            table.insert(newnodes, hyphen)
-         end
-      end
-      node.children = newnodes
-      node.hyphenated = false
-      node.done = false
-      return newnodes
-   end
+   -- if node.language and (type(SILE.hyphenator.languages[node.language]) == "function") then
+   --    return SILE.hyphenator.languages[node.language](node)
+   -- end
+   -- initHyphenator(node.language)
+   -- local segments = SILE._hyphenate(SILE._hyphenators[node.language], node.text)
+   -- local hyphen
+   -- if #segments > 1 then
+   --    local hyphenateSegments = SILE.hyphenator.languages[node.language].hyphenateSegments
+   --    local newnodes = {}
+   --    for j, segment in ipairs(segments) do
+   --       if segment == "" then
+   --          SU.dump({ j, segments })
+   --          SU.error("No hyphenation segment should ever be empty", true)
+   --       end
+   --       hyphen, segments = hyphenateSegments(node, segments, j)
+   --       for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
+   --          if newNode.is_nnode then
+   --             newNode.parent = node
+   --             table.insert(newnodes, newNode)
+   --          end
+   --       end
+   --       if j < #segments then
+   --          hyphen.parent = node
+   --          table.insert(newnodes, hyphen)
+   --       end
+   --    end
+   --    node.children = newnodes
+   --    node.hyphenated = false
+   --    node.done = false
+   --    return newnodes
+   -- end
    return { node }
 end
 
