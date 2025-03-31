@@ -190,10 +190,7 @@ function hyphenator:hyphenate (nodelist)
 end
 
 function hyphenator:hyphenateNode (node)
-   if not node.language then
-      return { node }
-   end
-   if not node.is_nnode or not node.text then
+   if not node.language or not node.is_nnode or not node.text then
       return { node }
    end
    -- if node.language and (type(SILE.hyphenator.languages[node.language]) == "function") then
