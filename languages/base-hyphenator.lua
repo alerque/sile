@@ -98,7 +98,7 @@ function hyphenator:registerException (exception)
          j = j - 1
          self.exceptions[text][j] = 1
       else
-         hyphenator.exceptions[text][j] = 0
+         self.exceptions[text][j] = 0
       end
    end
 end
