@@ -38,7 +38,7 @@ function hyphenator:registerCommands ()
       initHyphenator(lang)
       for token in SU.gtoke(content[1]) do
          if token.string then
-            registerException(token.string)
+            self:registerException(token.string)
          end
       end
    end, nil, nil, true)
