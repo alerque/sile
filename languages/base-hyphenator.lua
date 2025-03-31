@@ -82,7 +82,7 @@ function hyphenator:addPattern (pattern)
       elseif lastWasDigit == 1 then
          lastWasDigit = 0
       else
-         table.insert(trie["_"], 0)
+         table.insert(self.trie["_"], 0)
       end
    end
 end
