@@ -90,7 +90,7 @@ end
 function hyphenator:registerException (exception)
    local text = exception:gsub("-", "")
    local bits = SU.splitUtf8(exception)
-   hyphenator.exceptions[text] = {}
+   self.exceptions[text] = {}
    local j = 1
    for _, bit in ipairs(bits) do
       j = j + 1
