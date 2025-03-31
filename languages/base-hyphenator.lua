@@ -66,8 +66,8 @@ function hyphenator:addPattern (pattern)
    for i = 1, #bits do
       local char = bits[i]
       if not char:find("%d") then
-         if not trie[char] then
-            trie[char] = {}
+         if not self.trie[char] then
+            self.trie[char] = {}
          end
          trie = trie[char]
       end
