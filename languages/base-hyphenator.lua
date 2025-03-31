@@ -41,7 +41,6 @@ function hyphenator:loadPatterns ()
    for _, exception in ipairs(hyphens.exceptions or {}) do
       self:registerException(exception)
    end
-   SU.dump(self.trie)
 end
 
 function hyphenator:registerCommands ()
