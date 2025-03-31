@@ -113,7 +113,7 @@ function hyphenator:registerException (exception)
    end
 end
 
--- SILE._hyphenate = function (self, text)
+-- local _hyphenate = function (self, text)
 --    if luautf8.len(text) < self.minWord then
 --       return { text }
 --    end
