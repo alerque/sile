@@ -78,7 +78,7 @@ function hyphenator:addPattern (pattern)
       local char = bits[i]
       if char:find("%d") then
          lastWasDigit = 1
-         table.insert(trie["_"], tonumber(char))
+         table.insert(self.trie["_"], tonumber(char))
       elseif lastWasDigit == 1 then
          lastWasDigit = 0
       else
