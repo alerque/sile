@@ -11,6 +11,16 @@ function hyphenator:_init (language)
    self.exceptions = {}
    self:registerCommands()
    self:loadPatterns()
+   -- TODO Reapply bits from original init
+   -- local initHyphenator = function (lang)
+   --    if not SILE._hyphenators[lang] then
+   --       SILE._hyphenators[lang] = { minWord = 5, leftmin = 2, rightmin = 2, trie = {}, exceptions = {} }
+   --       loadPatterns(SILE._hyphenators[lang], lang)
+   --    end
+   --    if SILE.hyphenator.languages[lang] and not SILE.hyphenator.languages[lang].hyphenateSegments then
+   --       SILE.hyphenator.languages[lang].hyphenateSegments = defaultHyphenateSegments
+   --    end
+   -- end
 end
 
 function hyphenator:loadPatterns ()
