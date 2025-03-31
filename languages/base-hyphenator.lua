@@ -69,7 +69,7 @@ function hyphenator:addPattern (pattern)
          if not self.trie[char] then
             self.trie[char] = {}
          end
-         trie = trie[char]
+         self.trie = self.trie[char]
       end
    end
    trie["_"] = {}
