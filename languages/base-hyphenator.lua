@@ -193,7 +193,8 @@ function hyphenator:hyphenateNode (node)
    if not node.language or not node.is_nnode or not node.text then
       return { node }
    end
-   -- if node.language and (type(SILE.hyphenator.languages[node.language]) == "function") then
+   -- TODO figure out what languages used this override and rewire
+   -- if (type(SILE.hyphenator.languages[node.language]) == "function") then
    --    return SILE.hyphenator.languages[node.language](node)
    -- end
    -- initHyphenator(node.language)
