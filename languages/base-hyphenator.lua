@@ -190,33 +190,33 @@ function hyphenator:hyphenateNode (node)
    -- if (type(SILE.hyphenator.languages[node.language]) == "function") then
    --    return SILE.hyphenator.languages[node.language](node)
    -- end
-   -- local segments = _hyphenate(self, node.text)
-   -- local hyphen
-   -- if #segments > 1 then
-   --    local hyphenateSegments = SILE.hyphenator.languages[node.language].hyphenateSegments
-   --    local newnodes = {}
-   --    for j, segment in ipairs(segments) do
-   --       if segment == "" then
-   --          SU.dump({ j, segments })
-   --          SU.error("No hyphenation segment should ever be empty", true)
-   --       end
-   --       hyphen, segments = hyphenateSegments(node, segments, j)
-   --       for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
-   --          if newNode.is_nnode then
-   --             newNode.parent = node
-   --             table.insert(newnodes, newNode)
-   --          end
-   --       end
-   --       if j < #segments then
-   --          hyphen.parent = node
-   --          table.insert(newnodes, hyphen)
-   --       end
-   --    end
-   --    node.children = newnodes
-   --    node.hyphenated = false
-   --    node.done = false
-   --    return newnodes
-   -- end
+   local segments = self:_segment(node.text)
+   local hyphen
+   if #segments > 1 then
+      local shaper = self.language.typesetter.shaper
+      local newnodes = {}
+      for j, segment in ipairs(segments) do
+         if segment == "" then
+            SU.dump({ j, segments })
+            SU.error("No hyphenation segment should ever be empty", true)
+         end
+         hyphen, segments = self:hyphenateSegments(node, segments, j)
+         for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
+            if newNode.is_nnode then
+               newNode.parent = node
+               table.insert(newnodes, newNode)
+            end
+         end
+         if j < #segments then
+            hyphen.parent = node
+            table.insert(newnodes, hyphen)
+         end
+      end
+      node.children = newnodes
+      node.hyphenated = false
+      node.done = false
+      return newnodes
+   end
    return { node }
 end
 
