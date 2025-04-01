@@ -712,6 +712,7 @@ function lineBreak:doBreak (nodes, hsize, sideways)
          -- TODO give line break modules proper access to typesetter
          -- TODO reuse hyphenator instances?
          local hyphenator = SILE.typesetter.language:hyphenator()
+
          self.nodes = hyphenator:hyphenate(self.nodes)
          SILE.typesetter.state.nodes = self.nodes -- Horrible breaking of separation of concerns here. :-(
       end
