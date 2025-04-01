@@ -30,10 +30,6 @@ function hyphenator:loadPatterns ()
    for _, pattern in ipairs(hyphens.patterns or {}) do
       self:addPattern(pattern)
    end
-   -- TODO
-   -- if not languageset.exceptions then
-   --    languageset.exceptions = {}
-   -- end
    for _, exception in ipairs(hyphens.exceptions or {}) do
       self:registerException(exception)
    end
