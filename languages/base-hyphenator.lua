@@ -18,12 +18,15 @@ end
 
 function hyphenator:loadPatterns ()
    local code = self.language:getShortcode()
-   local hyphens = require(("languages.%s.hyphens"):format(code))
-   --    TODO
-   --    if not languageset then
-   --       print("No patterns for language " .. language)
-   --       return
-   --    end
+   -- code = "la"
+   local status, hyphens = pcall(require, ("languages.%s.hyphens"):format(code))
+   if not status then
+      status, hyphens = pcall(require, ("languages.%s.hyphens-tex"):format(code))
+      if not status then
+         SU.warn("No hyphenation patterns for language " .. code)
+         return
+      end
+   end
    for _, pattern in ipairs(hyphens.patterns or {}) do
       self:addPattern(pattern)
    end
