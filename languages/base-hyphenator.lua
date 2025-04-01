@@ -7,6 +7,9 @@ hyphenator._name = "base"
 function hyphenator:_init (language)
    self._name = language._name
    self.language = language
+   self.minWord = 5
+   self.leftmin = 2
+   self.rightmin = 2
    self.trie = {}
    self.exceptions = {}
    self:registerCommands()
