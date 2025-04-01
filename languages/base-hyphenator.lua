@@ -106,68 +106,68 @@ function hyphenator:registerException (exception)
    end
 end
 
--- local _hyphenate = function (self, text)
---    if luautf8.len(text) < self.minWord then
---       return { text }
---    end
---    local lowertext = luautf8.lower(text)
---    local points = self.exceptions[lowertext]
---    local word = SU.splitUtf8(text)
---    if not points then
---       points = SU.map(function ()
---          return 0
---       end, word)
---       local work = SU.map(luautf8.lower, word)
---       table.insert(work, ".")
---       table.insert(work, 1, ".")
---       table.insert(points, 1, 0)
---       for i = 1, #work do
---          local trie = self.trie
---          for j = i, #work do
---             if not trie[work[j]] then
---                break
---             end
---             trie = trie[work[j]]
---             local p = trie["_"]
---             if p then
---                for k = 1, #p do
---                   if points[i + k - 2] and points[i + k - 2] < p[k] then
---                      points[i + k - 2] = p[k]
---                   end
---                end
---             end
---          end
---       end
---       -- Still inside the no-exceptions case
---       for i = 1, self.leftmin do
---          points[i] = 0
---       end
---       for i = #points - self.rightmin, #points do
---          points[i] = 0
---       end
---    end
---    local pieces = { "" }
---    for i = 1, #word do
---       pieces[#pieces] = pieces[#pieces] .. word[i]
---       if points[1 + i] and 1 == (points[1 + i] % 2) then
---          table.insert(pieces, "")
---       end
---    end
---    return pieces
--- end
---
--- local function defaultHyphenateSegments (node, segments, _)
---    local hyphen = SILE.shaper:createNnodes(SILE.settings:get("font.hyphenchar"), node.options)
---    return SILE.types.node.discretionary({ prebreak = hyphen }), segments
--- end
---
---
--- function hyphenator:showHyphenationPoints (word, language)
---    language = language or "en"
---    initHyphenator(language)
---    return SU.concat(_hyphenate(self, word), SILE.settings:get("font.hyphenchar"))
--- end
---
+function hyphenator:_segment (text)
+   if luautf8.len(text) < self.minWord then
+      return { text }
+   end
+   local lowertext = luautf8.lower(text)
+   local points = self.exceptions[lowertext]
+   local word = SU.splitUtf8(text)
+   if not points then
+      points = SU.map(function ()
+         return 0
+      end, word)
+      local work = SU.map(luautf8.lower, word)
+      table.insert(work, ".")
+      table.insert(work, 1, ".")
+      table.insert(points, 1, 0)
+      for i = 1, #work do
+         local trie = self.trie
+         for j = i, #work do
+            if not trie[work[j]] then
+               break
+            end
+            trie = trie[work[j]]
+            local p = trie["_"]
+            if p then
+               for k = 1, #p do
+                  if points[i + k - 2] and points[i + k - 2] < p[k] then
+                     points[i + k - 2] = p[k]
+                  end
+               end
+            end
+         end
+      end
+      -- Still inside the no-exceptions case
+      for i = 1, self.leftmin do
+         points[i] = 0
+      end
+      for i = #points - self.rightmin, #points do
+         points[i] = 0
+      end
+   end
+   local pieces = { "" }
+   for i = 1, #word do
+      pieces[#pieces] = pieces[#pieces] .. word[i]
+      if points[1 + i] and 1 == (points[1 + i] % 2) then
+         table.insert(pieces, "")
+      end
+   end
+   return pieces
+end
+
+function hyphenator:hyphenateSegments (node, segments, _)
+   local hyphen = SILE.shaper:createNnodes(SILE.settings:get("font.hyphenchar"), node.options)
+   return SILE.types.node.discretionary({ prebreak = hyphen }), segments
+end
+
+
+function hyphenator:showHyphenationPoints (word, language)
+   language = language or "en"
+   initHyphenator(language)
+   return SU.concat(self:_segment(word), SILE.settings:get("font.hyphenchar"))
+end
+
 
 function hyphenator:hyphenate (nodelist)
    local newlist = {}
