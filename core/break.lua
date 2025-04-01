@@ -714,6 +714,9 @@ function lineBreak:doBreak (nodes, hsize, sideways)
          local hyphenator = SILE.typesetter.language:hyphenator()
 
          self.nodes = hyphenator:hyphenate(self.nodes)
+         SU.debug("hyphenation", hyphenator._name, hyphenator.language._name)
+         SU.debug("hyphenation", "dd", foo)
+         -- SU.dump(self.nodes[1])
          SILE.typesetter.state.nodes = self.nodes -- Horrible breaking of separation of concerns here. :-(
       end
       -- 890
