@@ -5,7 +5,6 @@ local language = pl.class()
 language.type = "language"
 language._name = "base"
 
-local cldr = require("cldr")
 local loadkit = require("loadkit")
 local setenv = require("rusile").setenv
 
