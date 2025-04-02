@@ -41,8 +41,8 @@ function language:setupNodeMaker ()
 end
 
 function language:setupHyphenator ()
-   -- TODO should this be an instance of a constructor? inconsistent with typesetter/language/class/etc.
-   self.hyphenator = require("languages.base-hyphenator")
+   -- TODO should this be an constructor instead of an instance? inconsistent with typesetter/language/class/etc.
+   self.hyphenator = require("languages.base-hyphenator")(self)
 end
 
 function language:activate()

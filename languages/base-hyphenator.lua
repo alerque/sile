@@ -192,14 +192,16 @@ function hyphenator:hyphenateNode (node)
    local segments = self:_segment(node.text)
    local hyphen
    if #segments > 1 then
-      local shaper = self.language.typesetter.shaper
       local newnodes = {}
       for j, segment in ipairs(segments) do
          if segment == "" then
             SU.dump({ j, segments })
             SU.error("No hyphenation segment should ever be empty", true)
          end
-         hyphen, segments = self:hyphenateSegments(node, segments, j)
+         local node_lang = node.language
+         SU.debug("hyphenation", "Hyphenating node via", node_lang)
+         local node_hyphenator = self.language.typesetter:_cacheLanguage(node_lang).hyphenator
+         hyphen, segments = node_hyphenator:hyphenateSegments(node, segments, j)
          for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
             if newNode.is_nnode then
                newNode.parent = node

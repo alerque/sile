@@ -63,13 +63,20 @@ end
 
 typesetter._language_cache = {}
 
+function typesetter:_cacheLanguage (lang)
+   if not self._language_cache[lang] then
+      self._language_cache[lang] = SILE.languages[lang](self)
+      SU.debug("hyphenation", "Caching language in typesetter", lang)
+   end
+   return self._language_cache[lang]
+end
+
 function typesetter:switchLanguage(lang)
    local current = self.language:getShortcode()
    if current ~= lang then
-      self._language_cache[current] = self.language
-      self.language = self._language_cache[lang] or SILE.languages[lang](self)
+      self.language = self:_cacheLanguage(lang)
       self.language:activate()
-      SU.debug("hyphenation", "Switching language from", current, "→", self.language._name)
+      SU.debug("hyphenation", "Switching active language from", current, "to", self.language._name)
    end
 end
 
