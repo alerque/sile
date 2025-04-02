@@ -682,7 +682,7 @@ function lineBreak:tryFinalBreak () -- 899
    end
 end
 
-function lineBreak:doBreak (nodes, hsize, sideways, foo)
+function lineBreak:doBreak (nodes, hsize, sideways)
    passSerial = 1
    debugging = SILE.debugFlags["break"]
    self.seenAlternatives = false
