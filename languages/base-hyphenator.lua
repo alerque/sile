@@ -161,8 +161,8 @@ function hyphenator.hyphenateSegments (_, node, segments, _)
 end
 
 
-function hyphenator:showHyphenationPoints (word, language)
-   language = language or "en"
+function hyphenator:showHyphenationPoints (word, _language)
+   -- language = language or "en"
    -- initHyphenator(language)
    -- TODO rewire with language cacher
    return SU.concat(self:_segment(word), SILE.settings:get("font.hyphenchar"))
