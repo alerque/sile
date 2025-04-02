@@ -155,7 +155,7 @@ function hyphenator:_segment (text)
    return pieces
 end
 
-function hyphenator:hyphenateSegments (node, segments, _)
+function hyphenator.hyphenateSegments (_, node, segments, _)
    local hyphen = SILE.shaper:createNnodes(SILE.settings:get("font.hyphenchar"), node.options)
    return SILE.types.node.discretionary({ prebreak = hyphen }), segments
 end
