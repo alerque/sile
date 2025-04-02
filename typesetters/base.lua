@@ -66,7 +66,7 @@ typesetter._language_cache = {}
 function typesetter:_cacheLanguage (lang)
    if not self._language_cache[lang] then
       self._language_cache[lang] = SILE.languages[lang](self)
-      SU.debug("hyphenation", "Caching language in typesetter", lang)
+      SU.debug("typesetter", "Caching language in typesetter", lang)
    end
    return self._language_cache[lang]
 end
