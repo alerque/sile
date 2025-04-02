@@ -204,7 +204,6 @@ function hyphenator:hyphenateNode (node)
             SU.error("No hyphenation segment should ever be empty", true)
          end
          hyphen, segments = self:hyphenateSegments(node, segments, j)
-         SU.debug("hyphenation", "Segmented node via", node.language, "as", pl.stringx.join("-", segments))
          for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
             if newNode.is_nnode then
                newNode.parent = node
