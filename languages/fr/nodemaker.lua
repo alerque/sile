@@ -157,7 +157,7 @@ function nodeMaker:dealWith (item)
    if self:handleSpaceAfter(item) then
       return
    end
-   self._base.dealWith(self, item)
+   unicode.dealWith(self, item)
 end
 
 function nodeMaker:handleWordBreak (item)
