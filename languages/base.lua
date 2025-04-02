@@ -74,7 +74,7 @@ function language:loadMessages()
          )
       )
    end
-   fluent:set_locale(original_language)
+   fluent:set_locale(original_lang)
 end
 
 function language:_declareBaseSettings ()
