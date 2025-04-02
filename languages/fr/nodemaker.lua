@@ -167,7 +167,7 @@ function nodeMaker:handleWordBreak (item)
    if self:handleSpaceAfter(item) then
       return
    end
-   self._base.handleWordBreak(self, item)
+   unicode.handleWordBreak(self, item)
 end
 
 function nodeMaker:handleLineBreak (item, subtype)
