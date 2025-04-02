@@ -201,7 +201,7 @@ function nodeMaker:iterator (items)
          table.insert(cleanItems, items[k])
       end
    end
-   return self._base.iterator(self, cleanItems)
+   return unicode.iterator(self, cleanItems)
 end
 
 return nodeMaker
