@@ -76,7 +76,7 @@ function typesetter:switchLanguage(lang)
    if current ~= lang then
       self.language = self:_cacheLanguage(lang)
       self.language:activate()
-      SU.debug("hyphenation", "Switching active language from", current, "to", self.language._name)
+      SU.debug("typesetter", "Switching active language from", current, "to", self.language._name)
    end
 end
 
