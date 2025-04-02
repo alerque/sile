@@ -5,7 +5,8 @@ package._name = "boustrophedon"
 
 function package:_init (options)
    base._init(self, options)
-   SILE.hyphenator.languages.grc = { patterns = {} }
+   -- TODO port to new lang madules
+   SILE.hyphenator.languages.grc = {}
    SILE.nodeMakers.grc = pl.class(SILE.nodeMakers.unicode)
    function SILE.nodeMakers.grc.iterator (node, items)
       return coroutine.wrap(function ()
