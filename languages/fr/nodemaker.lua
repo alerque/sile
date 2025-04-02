@@ -182,7 +182,7 @@ function nodeMaker:handleLineBreak (item, subtype)
       return
    end
 
-   self._base.handleLineBreak(self, item, subtype)
+   unicode.handleLineBreak(self, item, subtype)
 end
 
 function nodeMaker:iterator (items)
