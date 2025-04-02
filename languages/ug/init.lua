@@ -11,7 +11,7 @@ local chardata = require("char-def")
 local language = pl.class(tr)
 language._name = "ug"
 
-function language:declareSettings ()
+function language.declareSettings (_)
    SILE.settings:declare({
       parameter = "languages.ug.hyphenoffset",
       help = "Space added between text and hyphen",
