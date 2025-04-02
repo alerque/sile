@@ -122,7 +122,7 @@ function nodeMaker:_handleWordBreakRepeatHyphen (item)
          self.lastnode = "discretionary"
       end
    else
-      handleWordBreak(self, item)
+      self:handleWordBreak(item)
    end
 end
 
