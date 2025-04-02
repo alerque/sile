@@ -60,7 +60,7 @@ local en_string = function (num)
    return num == 0 and "zero" or vword:sub(1, -2)
 end
 
-function language:formatNumber (form, num)
+function language.formatNumber (_, form, num)
    if form == "string" then
       return en_string(num)
    end
