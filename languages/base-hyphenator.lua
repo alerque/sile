@@ -37,7 +37,7 @@ end
 
 function hyphenator:registerCommands ()
    -- TODO rewire this so it can add exceptions to languages other than this instance
-   self:registerCommand("hyphenator:add-exceptions", function (options, content)
+   self:registerCommand("hyphenator:add-exceptions", function (_options, content)
       -- local lang = options.lang or SILE.settings:get("document.language") or "und"
       -- initHyphenator(lang)
       for token in SU.gtoke(content[1]) do
