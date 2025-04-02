@@ -135,7 +135,7 @@ function shaper:createNnodes (token, options)
       return {}
    end
    -- TODO this shouldn't need a private interface to a different module type
-   local language = SILE.typesetter._language_cache[options.language]
+   local language = SILE.typesetter:_cacheLanguage(options.language)
    local nodes = {}
    local nodemaker = language:nodeMaker(options)
    for node in nodemaker:iterator(items, token) do
