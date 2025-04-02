@@ -163,7 +163,8 @@ end
 
 function hyphenator:showHyphenationPoints (word, language)
    language = language or "en"
-   initHyphenator(language)
+   -- initHyphenator(language)
+   -- TODO rewire with language cacher
    return SU.concat(self:_segment(word), SILE.settings:get("font.hyphenchar"))
 end
 
@@ -171,11 +172,14 @@ end
 function hyphenator:hyphenate (nodelist)
    local newlist = {}
    for _, node in ipairs(nodelist) do
-      local newnodes = self:hyphenateNode(node)
-      if newnodes then
+      if node.language then
+         local nodes_own_hyphenator = self.language.typesetter:_cacheLanguage(node.language).hyphenator
+         local newnodes = nodes_own_hyphenator:hyphenateNode(node)
          for _, n in ipairs(newnodes) do
             table.insert(newlist, n)
          end
+      else
+         table.insert(newlist, node)
       end
    end
    return newlist
@@ -183,12 +187,13 @@ end
 
 function hyphenator:hyphenateNode (node)
    if not node.language or not node.is_nnode or not node.text then
-      return { node }
+      return node
    end
    -- -- TODO figure out what languages used this override and rewire
    -- if (type(SILE.hyphenator.languages[node.language]) == "function") then
    --    return SILE.hyphenator.languages[node.language](node)
    -- end
+   -- SU.debug("hyphenation", "Attempting on", tostring(node))
    local segments = self:_segment(node.text)
    local hyphen
    if #segments > 1 then
@@ -198,10 +203,8 @@ function hyphenator:hyphenateNode (node)
             SU.dump({ j, segments })
             SU.error("No hyphenation segment should ever be empty", true)
          end
-         local node_lang = node.language
-         SU.debug("hyphenation", "Hyphenating node via", node_lang)
-         local node_hyphenator = self.language.typesetter:_cacheLanguage(node_lang).hyphenator
-         hyphen, segments = node_hyphenator:hyphenateSegments(node, segments, j)
+         hyphen, segments = self:hyphenateSegments(node, segments, j)
+         SU.debug("hyphenation", "Segmented node via", node.language, "as", pl.stringx.join("-", segments))
          for _, newNode in ipairs(SILE.shaper:createNnodes(segments[j], node.options)) do
             if newNode.is_nnode then
                newNode.parent = node

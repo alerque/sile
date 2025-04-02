@@ -462,6 +462,7 @@ end
 function typesetter:breakIntoLines (nodelist, breakWidth)
    self:shapeAllNodes(nodelist)
    local breakpoints = SILE.linebreak:doBreak(nodelist, breakWidth, nil, self.language._name)
+   -- SU.dump(breakpoints)
    return self:breakpointsToLines(breakpoints)
 end
 
