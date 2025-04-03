@@ -22,7 +22,7 @@ describe("Hyphenation module", function ()
          hyphenator.minWord = 5 -- (Default)
          assert.is.equal("sé-rie", hyphenator:showHyphenationPoints("série", "fr"))
          -- typos: ignore start
-         assert.is.equal("Lé-gè-re-ment", show_hyphens("Légèrement", "fr"))
+         assert.is.equal("Lé-gè-re-ment", hyphenator:showHyphenationPoints("Légèrement", "fr"))
          -- typos: ignore end
       end)
 
