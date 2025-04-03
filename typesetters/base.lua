@@ -74,7 +74,7 @@ function typesetter:_cacheLanguage (lang)
    return self._language_cache[lang]
 end
 
-function typesetter:switchLanguage(lang)
+function typesetter:switchLanguage(lang, force)
    local current = self.language:getShortcode()
    if current ~= lang then
       self.language = self:_cacheLanguage(lang)
