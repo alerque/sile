@@ -66,7 +66,6 @@ function package:_init ()
          return {}
       end
       local lang = options.language
-      SILE.languageSupport.loadLanguage(lang)
       local nodeMaker = SILE.nodeMakers[lang] or SILE.nodeMakers.unicode
       local run = { [1] = { slice = {}, color = items[1].color, chunk = "" } }
       for i = 1, #items do
