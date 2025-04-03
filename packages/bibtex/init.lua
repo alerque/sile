@@ -216,11 +216,11 @@ function package:registerCommands ()
       if entry then
          local bibstyle = require("packages.bibtex.styles." .. style)
          local cite, err = Bibliography.produceReference(options, SILE.scratch.bibtex.bib, bibstyle)
-         if cite == Bibliography.Errors.UNKNOWN_TYPE then
-            SU.warn("Unknown type @" .. err .. " in citation for reference " .. options.key)
-            return
-         end
-         SILE.processString(("<sile>%s</sile>"):format(cite), "xml")
+         -- if cite == Bibliography.Errors.UNKNOWN_TYPE then
+         --    SU.warn("Unknown type @" .. err .. " in citation for reference " .. options.key)
+         --    return
+         -- end
+         -- SILE.processString(("<sile>%s</sile>"):format(cite), "xml")
       end
    end, "Produce a single bibliographic reference.")
 
