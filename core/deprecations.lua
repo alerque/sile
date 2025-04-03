@@ -225,7 +225,7 @@ local nolanguageloader = function (_, key)
    )
    if key == "loadLanguage" then
       return function (language)
-         require(("languages.%s"):format(language))
+         return SILE.languages[language]
       end
    end
 end
