@@ -244,11 +244,6 @@ local nonodemakers = function (_, key)
       [[
       ]]
    )
-   if key == "loadLanguage" then
-      return function (lang)
-         return SILE.languages[lang]
-      end
-   end
 end
 
 SILE.nodeMakers = {}
