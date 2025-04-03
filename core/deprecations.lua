@@ -261,7 +261,6 @@ setmetatable(SILE.tokenizers, {
    __index = nonodemakers,
 })
 
-
 -- luacheck: ignore updatePackage
 -- luacheck: ignore installPackage
 updatePackage = nopackagemanager
