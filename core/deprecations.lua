@@ -245,8 +245,8 @@ local nonodemakers = function (_, key)
       ]]
    )
    if key == "loadLanguage" then
-      return function (language)
-         require(("languages.%s"):format(language))
+      return function (lang)
+         return SILE.languages[lang]
       end
    end
 end
