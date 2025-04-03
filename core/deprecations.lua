@@ -252,7 +252,7 @@ local nonodemakers = function (_, key)
 end
 
 SILE.nodeMakers = {}
-setmetatable(SILE.languageSupport, {
+setmetatable(SILE.nodeMakers, {
    __index = nonodemakers,
 })
 
