@@ -11,7 +11,7 @@ describe("Hyphenation module", function ()
    describe("minWord with UTF8 in input text", function ()
       -- Trigger the initialization of the hyphenator
       -- so SILE._hyphenators["fr"] is created
-      show_hyphens("série", "fr")
+      hyphenator:showHyphenationPoints("série", "fr")
 
       -- Current lefthyphenmin and righthyphenmin values
       -- for this test (whether changed or not for the language)
