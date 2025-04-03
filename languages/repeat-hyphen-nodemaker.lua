@@ -1,6 +1,6 @@
 local unicode = require("languages.unicode-nodemaker")
 
-local nodeMaker = pl.class(repeat_hyphen)
+local nodeMaker = pl.class(unicode)
 nodeMaker._name = "repeat-hyphen"
 
 function nodeMaker:handleWordBreak (item)
