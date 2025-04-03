@@ -14,8 +14,8 @@ describe("Language module", function ()
       local hyphenator = SILE.typesetter.language.hyphenator
 
       it("should hyphenate", function ()
-         assert.is.equal("Nor-we-gian", show_hyphens("Norwegian", "no"))
-         assert.is.equal("atten-de", show_hyphens("attende", "no"))
+         assert.is.equal("Nor-we-gian", hyphenator:showHyphenationPoints("Norwegian", "no"))
+         assert.is.equal("atten-de", hyphenator:showHyphenationPoints("attende", "no"))
       end)
 
       it("should have localizations", function ()
