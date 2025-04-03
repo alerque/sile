@@ -10,6 +10,7 @@ function nodeMaker:handleWordBreak (item)
       self:addToken(item.text, item)
       self:makeToken()
       if self.lastnode ~= "discretionary" then
+         local postbreak = SILE.shaper:createNnodes("-", self.options)
          coroutine.yield(SILE.types.node.discretionary({
             postbreak = SILE.shaper:createNnodes("-", self.options),
          }))
