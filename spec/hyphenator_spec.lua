@@ -29,7 +29,7 @@ describe("Hyphenation module", function ()
       it("should not hyphenate words shorter than minWord", function ()
          hyphenator.minWord = 6
          -- 5 characters but 6 bytes
-         assert.is.equal("série", show_hyphens("série", "fr"))
+         assert.is.equal("série", hyphenator:showHyphenationPoints("série", "fr"))
          hyphenator.minWord = 5 -- back to default
       end)
    end)
