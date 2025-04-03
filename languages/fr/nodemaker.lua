@@ -24,8 +24,12 @@ nodeMaker.highPunctuations = { ";", "!", "?", "!!", "?!", "!?" }
 nodeMaker.spaceExceptions =
    { "!", "?", ":", ".", "…", "(", "[", "{", "<", "«", "‹", "“", "‘", "?!", "!!", "!?" }
 
--- overridden properties from parent class
-nodeMaker.quoteTypes = { qu = true } -- split tokens at apostrophes &c.
+-- TODO find a more ergonomic place to put obvious properties
+-- (also in Catalan)
+function nodeMaker:_init (language, options)
+   unicode._init(self, language, options)
+   self.quoteTypes = { qu = true } -- split tokens at apostrophes etc.
+end
 
 local function getSpaceGlue (options, parameter)
    local sg
