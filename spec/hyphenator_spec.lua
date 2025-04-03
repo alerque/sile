@@ -7,7 +7,6 @@ describe("Hyphenation module", function ()
 
    SILE.call("language", { main = "fr" })
    local hyphenator = SILE.typesetter.language.hyphenator
-   local show_hyphens = hyphenator.showHyphenationPoints
 
    describe("minWord with UTF8 in input text", function ()
       -- Trigger the initialization of the hyphenator
