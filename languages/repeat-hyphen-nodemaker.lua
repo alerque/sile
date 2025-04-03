@@ -17,7 +17,7 @@ function nodeMaker:handleWordBreak (item)
          self.lastnode = "discretionary"
       end
    else
-      self:handleWordBreak(item)
+      unicode.handleWordBreak(self, item)
    end
 end
 
