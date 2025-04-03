@@ -27,8 +27,8 @@ describe("Language module", function ()
          SILE.call("language", { main = "nb" })
 
          it("should hyphenate", function ()
-            assert.is.equal("Nor-we-gian", show_hyphens("Norwegian", "nb"))
-            assert.is.equal("atten-de", show_hyphens("attende", "nb"))
+            assert.is.equal("Nor-we-gian", hyphenator:showHyphenationPoints("Norwegian", "nb"))
+            assert.is.equal("atten-de", hyphenator:showHyphenationPoints("attende", "nb"))
          end)
 
          it("should have localizations", function ()
