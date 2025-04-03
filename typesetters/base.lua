@@ -76,7 +76,7 @@ end
 
 function typesetter:switchLanguage(lang, force)
    local current = self.language:getShortcode()
-   if current ~= lang then
+   if force or current ~= lang then
       self.language = self:_cacheLanguage(lang)
       self.language:activate()
       SU.debug("typesetter", "Switching active language from", current, "to", self.language._name)
