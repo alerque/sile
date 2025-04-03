@@ -1,4 +1,4 @@
-local repeat_hyphen = require("languages.unicode-nodemaker")
+local unicode = require("languages.unicode-nodemaker")
 
 local nodeMaker = pl.class(repeat_hyphen)
 nodeMaker._name = "repeat-hyphen"
