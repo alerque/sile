@@ -27,7 +27,7 @@ function nodeMaker:handleLineBreak (item, subtype)
       -- Bypass it and just deal with the token.
       self:dealWith(item)
    else
-      self:handleLineBreak(item, subtype)
+      unicode.handleLineBreak(self, item, subtype)
    end
 end
 
