@@ -5,8 +5,7 @@
 \begin{lua}
 function typeset_hyphens (word, lang)
    local hyphenator = SILE.typesetter.language.hyphenator
-   local show_hyphens = hyphenator.showHyphenationPoints
-   SILE.typesetter:typeset(show_hyphens(word, lang))
+   SILE.typesetter:typeset(hyphenator:showHyphenationPoints(word, lang))
 end
 \end{lua}
 \lua{typeset_hyphens("rab'bin", "tr")}
