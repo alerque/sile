@@ -4,4 +4,3 @@ local language = pl.class(unicode)
 language._name = "he"
 
 return language
-
