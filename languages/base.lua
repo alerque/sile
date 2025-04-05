@@ -149,7 +149,6 @@ function language:_registerBaseCommands ()
       end
       fluent:set_locale(original_locale)
    end, nil, nil, true)
-
 end
 
 function language.registerCommand (_, name, func, help, pack)
