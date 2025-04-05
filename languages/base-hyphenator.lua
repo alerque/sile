@@ -159,7 +159,7 @@ function hyphenator.hyphenateSegments (_, node, segments, _)
    return SILE.types.node.discretionary({ prebreak = hyphen }), segments
 end
 
-function hyphenator:showHyphenationPoints (word, lang)
+function hyphenator.showHyphenationPoints (_, word, lang)
    lang = lang or SILE.settings:get("document.language")
    local language = SILE.typesetter:_cacheLanguage(lang)
    return SU.concat(language.hyphenator:_segment(word), SILE.settings:get("font.hyphenchar"))
