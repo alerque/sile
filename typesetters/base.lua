@@ -75,7 +75,7 @@ function typesetter:_cacheLanguage (lang)
 end
 
 function typesetter:switchLanguage(lang, force)
-   local current = self.language:getShortcode()
+   local current = self.language:_getLegacyCode()
    if force or current ~= lang then
       self.language = self:_cacheLanguage(lang)
       self.language:activate()
