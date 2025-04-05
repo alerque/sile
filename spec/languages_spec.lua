@@ -13,7 +13,6 @@ describe("Language module", function ()
    end)
 
    describe("Norwegian", function ()
-
       SILE.call("language", { main = "no" })
 
       local hyphenator = SILE.typesetter.language.hyphenator
