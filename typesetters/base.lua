@@ -59,8 +59,8 @@ function typesetter:_post_init ()
    self:initFrame(self.frame)
    self:initState()
    self.language = SILE.languages.en(self)
-   -- Since it is the default and will get created as an instance before the callback triggers for the firsth *change*,
-   -- we nede to force the first load here.
+   -- Since it is the default and will get created as an instance before the callback triggers for the first *change*,
+   -- we need to force the first load here.
    self:switchLanguage("en", true)
 end
 
