@@ -7,7 +7,6 @@ SILE.init()
 SILE.typesetter = SILE.typesetters.default()
 
 describe("Hyphenation module", function ()
-
    SILE.call("language", { main = "fr" })
    local hyphenator = SILE.typesetter.language.hyphenator
 
