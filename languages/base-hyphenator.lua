@@ -17,7 +17,7 @@ function hyphenator:_init (language)
 end
 
 function hyphenator:loadPatterns ()
-   local code = self.language:getShortcode()
+   local code = self.language:_getLegacyCode()
    -- code = "la"
    local status, hyphens = pcall(require, ("languages.%s.hyphens"):format(code))
    if not status then
