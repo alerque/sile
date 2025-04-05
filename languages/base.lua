@@ -45,7 +45,7 @@ function language:setupHyphenator ()
 end
 
 function language:activate()
-   local lang = self:getShortcode()
+   local lang = self:_getLegacyCode()
    fluent:set_locale(lang)
    os.setlocale(lang)
    setenv("LANG", lang)
