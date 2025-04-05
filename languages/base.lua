@@ -56,7 +56,7 @@ function language:_getLegacyCode ()
 end
 
 -- TODO: not about hyphenation rules per warning....
-function language:loadMessages()
+function language:loadMessages ()
    local lang = self:_getLegacyCode()
    local ftlresource = string.format("languages.%s.messages", lang)
    SU.debug("fluent", "Loading FTL resource", ftlresource, "into locale", lang)
