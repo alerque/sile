@@ -244,6 +244,9 @@ local nonodemakers = function (_, key)
       [[
       ]]
    )
+   return function ()
+      return SILE.languages[key].nodeMaker
+   end
 end
 
 SILE.nodeMakers = {}
