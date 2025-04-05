@@ -51,7 +51,7 @@ function language:activate()
    setenv("LANG", lang)
 end
 
-function language:getShortcode()
+function language:_getLegacyCode()
    return self._name
 end
 
