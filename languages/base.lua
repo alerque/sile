@@ -57,7 +57,7 @@ end
 
 -- TODO: not about hyphenation rules per warning....
 function language:loadMessages()
-   local lang = self:getShortcode()
+   local lang = self:_getLegacyCode()
    local ftlresource = string.format("languages.%s.messages", lang)
    SU.debug("fluent", "Loading FTL resource", ftlresource, "into locale", lang)
    -- This needs to be set so that we load localizations into the right bundle,
