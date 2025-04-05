@@ -44,7 +44,7 @@ function language:setupHyphenator ()
    self.hyphenator = require("languages.base-hyphenator")(self)
 end
 
-function language:activate()
+function language:activate ()
    local lang = self:_getLegacyCode()
    fluent:set_locale(lang)
    os.setlocale(lang)
