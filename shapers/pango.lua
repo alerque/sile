@@ -25,7 +25,7 @@ local function _shape (text, item)
    -- Create a new GlyphString
    local pgs = pango.GlyphString.new()
 
-   -- Create a temporary context for shaping if needed
+   -- Ensure analysis and font are properly set
    if not (analysis and analysis.font) then
       local desc = pango.FontDescription.new()
       desc:set_family("serif")
@@ -36,14 +36,20 @@ local function _shape (text, item)
    end
 
    -- Shape with explicit length
-   pango.shape(shaped_text, -1, analysis, pgs)
+   pango.shape(shaped_text, pango.AttrList.new(), analysis, pgs)
 
-   SU.debug("pango", "Shaped result:", pl.pretty.write {
+   -- Debugging output to verify shaping results
+   SU.debug("pango", "Shaped result:", {
       text = shaped_text,
       glyphs = pgs.num_glyphs,
       has_font = analysis.font ~= nil,
       font_desc = analysis.font and analysis.font:describe():to_string() or "none"
    })
+
+   -- Ensure the GlyphString has glyphs
+   if pgs.num_glyphs == 0 then
+      SU.warn("Pango shaping produced no glyphs for text: " .. shaped_text)
+   end
 
    return pgs
 end
