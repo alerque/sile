@@ -27,22 +27,18 @@ local function _shape (text, item)
 
    -- Create a temporary context for shaping if needed
    if not (analysis and analysis.font) then
-      local desc = pango.FontDescription.new()
-      desc:set_family("serif")
-      desc:set_absolute_size(12 * pango.SCALE)
-      analysis = pango.Analysis.new()
-      analysis.font = fm:load_font(pango_context, desc)
-      analysis.level = 0  -- Set text direction (0 = LTR)
+      SU.error("No font in analysis")
    end
 
    -- Shape with explicit length
    pango.shape(shaped_text, -1, analysis, pgs)
 
-   SU.debug("pango", "Shaped result:", pl.pretty.write {
+   SU.debug("pango", "Shaped result:", {
       text = shaped_text,
       glyphs = pgs.num_glyphs,
       has_font = analysis.font ~= nil,
-      font_desc = analysis.font and analysis.font:describe():to_string() or "none"
+      font_desc = analysis.font and analysis.font:describe():to_string() or "none",
+      font_file = analysis.font and analysis.font:get_filename() or "none"
    })
 
    return pgs
@@ -53,16 +49,12 @@ shaper._name = "pango"
 
 -- TODO: refactor so method accepts self
 function shaper.getFace (options)
-   -- Create a unique key for caching
-   local key = options.family .. ":" .. options.size .. ":" .. (options.weight or "")
-   if palcache[key] then return palcache[key] end
-
    local face = SILE.fontManager:face(options)
    if not face then
       SU.error("Couldn't find face '" .. options.family .. "'")
    end
 
-   -- Create font description
+   -- Create font description using the actual font file
    local desc = pango.FontDescription.new()
    desc:set_family(face.family)
    desc:set_absolute_size(options.size * pango.SCALE)
@@ -73,11 +65,15 @@ function shaper.getFace (options)
       desc:set_style(options.style:lower() == "italic" and pango.Style.ITALIC or pango.Style.NORMAL)
    end
 
-   -- Create a new context for this font
-   local context = pango.Context.new()
-   context:set_font_description(desc)
+   -- Create a custom font map to load the specific font file
+   local fontmap = pangocairo.FontMap.new()
+   fontmap:set_resolution(72) -- Standard PDF resolution
+   local context = fontmap:create_context()
 
-   -- Create attribute list
+   -- Add the font file to the fontmap
+   fontmap:add_font_file(face.filename)
+
+   -- Create attribute list with the font
    local pal = pango.AttrList.new()
    pal:insert(pango.attr_font_desc_new(desc))
 
@@ -85,17 +81,26 @@ function shaper.getFace (options)
       pal:insert(pango.attr_language_new(pango.Language.from_string(options.language)))
    end
 
-   palcache[key] = pal
-   return pal
+   -- Store context and fontmap in the cache to keep them alive
+   local key = options.family .. ":" .. options.size .. ":" .. (options.weight or "")
+   palcache[key] = {
+      pal = pal,
+      context = context,
+      fontmap = fontmap,
+      desc = desc
+   }
+
+   return palcache[key]
 end
 
 function shaper:shapeToken (text, options)
    SU.debug("pango", "Shaping text:", text, "with options:", pl.pretty.write(options))
 
-   local pal = SILE.font.cache(options, self.getFace)
+   local cache = SILE.font.cache(options, self.getFace)
+   local pal = cache.pal
    SU.debug("pango", "Got PAL:", pal)
 
-   local items = pango.itemize(pango_context, text, 0, string.len(text), pal, nil)
+   local items = pango.itemize(cache.context, text, 0, string.len(text), pal, nil)
    SU.debug("pango", "Itemization result count:", #items)
 
    local rv = {}
