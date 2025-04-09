@@ -4,8 +4,9 @@
 local lgi = require("lgi")
 require("string")
 local pango = lgi.Pango
-local fm = lgi.PangoCairo.FontMap.get_default()
-local pango_context = lgi.Pango.FontMap.create_context(fm)
+local pangocairo = lgi.PangoCairo
+local fm = pangocairo.FontMap.get_default()
+local pango_context = fm:create_context()
 pango_context:set_round_glyph_positions(false)  -- We want exact positions
 pango_context:set_language(pango.Language.get_default())
 pango_context:set_base_dir(pango.Direction.LTR)  -- Default to left-to-right
@@ -29,19 +30,19 @@ local function _shape (text, item)
       local desc = pango.FontDescription.new()
       desc:set_family("serif")
       desc:set_absolute_size(12 * pango.SCALE)
-      local context = pango.Context.new()
-      context:set_font_description(desc)
       analysis = pango.Analysis.new()
-      analysis.font = context:load_font(desc)
+      analysis.font = fm:load_font(pango_context, desc)
+      analysis.level = 0  -- Set text direction (0 = LTR)
    end
 
    -- Shape with explicit length
-   pango.shape(shaped_text, string.len(shaped_text), analysis, pgs)
+   pango.shape(shaped_text, -1, analysis, pgs)
 
-   SU.debug("pango", "Shaped result:", {
+   SU.debug("pango", "Shaped result:", pl.pretty.write {
       text = shaped_text,
       glyphs = pgs.num_glyphs,
-      has_font = analysis.font ~= nil
+      has_font = analysis.font ~= nil,
+      font_desc = analysis.font and analysis.font:describe():to_string() or "none"
    })
 
    return pgs
