@@ -19,38 +19,29 @@ local function _shape (text, item)
    local length = item.length
    local analysis = item.analysis
 
-   SU.debug("pango", "Shape input:", pl.pretty.write {
-      text = text,
-      offset = offset,
-      length = length,
-      has_analysis = analysis ~= nil,
-      analysis_font = analysis and analysis.font or "no font",
-      analysis_lang = analysis and analysis.language or "no language"
-   })
-
    local shaped_text = string.sub(text, 1 + offset, 1 + offset + length)
-   SU.debug("pango", "Shaping text segment:", shaped_text)
 
+   -- Create a new GlyphString
    local pgs = pango.GlyphString.new()
 
-   -- Ensure we have a valid font in the analysis
+   -- Create a temporary context for shaping if needed
    if not (analysis and analysis.font) then
-      SU.debug("pango", "No font in analysis, creating fallback")
       local desc = pango.FontDescription.new()
       desc:set_family("serif")
-      desc:set_size(12 * pango.SCALE)
+      desc:set_absolute_size(12 * pango.SCALE)
+      local context = pango.Context.new()
+      context:set_font_description(desc)
       analysis = pango.Analysis.new()
-      analysis.font = pango_context:load_font(desc)
+      analysis.font = context:load_font(desc)
    end
 
    -- Shape with explicit length
    pango.shape(shaped_text, string.len(shaped_text), analysis, pgs)
 
-   SU.debug("pango", "Shaped result:", pl.pretty.write {
-      num_glyphs = pgs.num_glyphs,
-      has_glyphs = pgs.glyphs ~= nil,
-      analysis_font = analysis.font,
-      text_length = string.len(shaped_text)
+   SU.debug("pango", "Shaped result:", {
+      text = shaped_text,
+      glyphs = pgs.num_glyphs,
+      has_font = analysis.font ~= nil
    })
 
    return pgs
@@ -61,52 +52,31 @@ shaper._name = "pango"
 
 -- TODO: refactor so method accepts self
 function shaper.getFace (options)
-   SU.debug("pango", "Getting face for options:", pl.pretty.write(options))
+   -- Create a unique key for caching
+   local key = options.family .. ":" .. options.size .. ":" .. (options.weight or "")
+   if palcache[key] then return palcache[key] end
 
-   -- First get the actual font face using SILE's font manager
    local face = SILE.fontManager:face(options)
    if not face then
       SU.error("Couldn't find face '" .. options.family .. "'")
    end
 
-   SU.debug("pango", "SILE font face:", pl.pretty.write {
-      family = face.family,
-      filename = face.filename,
-      subfamily = face.subfamily,
-      fullname = face.fullname
-   })
-
-   -- Create a font description from the actual font data
+   -- Create font description
    local desc = pango.FontDescription.new()
    desc:set_family(face.family)
-   desc:set_size(options.size * pango.SCALE)
+   desc:set_absolute_size(options.size * pango.SCALE)
    if options.weight then
       desc:set_weight(tonumber(options.weight))
    end
-
-   -- Load the actual font into Pango
-   local font = pango_context:load_font(desc)
-   if not font then
-      SU.error("Pango couldn't load font: " .. face.family)
+   if options.style then
+      desc:set_style(options.style:lower() == "italic" and pango.Style.ITALIC or pango.Style.NORMAL)
    end
 
-   -- Debug font information
-   local font_desc = font:describe()
-   SU.debug("pango", "Loaded Pango font details:", pl.pretty.write {
-      family = font_desc:get_family(),
-      size = font_desc:get_size() / pango.SCALE,
-      weight = font_desc:get_weight(),
-      loaded = font:get_face() ~= nil,
-      metrics = pl.pretty.write(font:get_metrics())
-   })
+   -- Create a new context for this font
+   local context = pango.Context.new()
+   context:set_font_description(desc)
 
-   -- -- Try to get font file path through fontconfig
-   -- local fc_font = font:get_face()
-   -- if fc_font then
-   --    SU.debug("pango", "Font file path:", fc_font:get_filename())
-   -- end
-
-   -- Create and return the attribute list with the font
+   -- Create attribute list
    local pal = pango.AttrList.new()
    pal:insert(pango.attr_font_desc_new(desc))
 
@@ -114,7 +84,8 @@ function shaper.getFace (options)
       pal:insert(pango.attr_language_new(pango.Language.from_string(options.language)))
    end
 
-   return pal, font
+   palcache[key] = pal
+   return pal
 end
 
 function shaper:shapeToken (text, options)
