@@ -79,11 +79,16 @@ function outputter:setColor (color)
 end
 
 function outputter:drawHbox (value, _)
+   SU.debug("cairo", "drawHbox called with:", pl.pretty.write(value))
    self:_ensureInit()
    if not value then
       return
    end
    if value.pgs then
+      if value.font then
+         cr:set_font_face(value.font:get_font_face())
+         cr:set_font_size(value.font:get_size() / 1024.0)
+      end
       sgs(cr, value.font, value.pgs)
    elseif value.text then
       cr:show_text(value.text)
@@ -91,9 +96,17 @@ function outputter:drawHbox (value, _)
 end
 
 function outputter:setFont (options)
+   SU.debug("cairo", "setFont called with:", pl.pretty.write(options))
    self:_ensureInit()
-   cr:select_font_face(options.font, options.style:lower() == "italic" and 1 or 0, options.weight > 100 and 0 or 1)
-   cr:set_font_size(options.size)
+   if options.font_description then
+      cr:set_font_face(options.font_description:get_font_face())
+      cr:set_font_size(options.size)
+   else
+      cr:select_font_face(options.font,
+      options.style:lower() == "italic" and 1 or 0,
+      options.weight > 100 and 0 or 1)
+      cr:set_font_size(options.size)
+   end
 end
 
 function outputter:drawImage (src, x, y, width, height)

@@ -19,7 +19,7 @@ local function _shape (text, item)
    local length = item.length
    local analysis = item.analysis
 
-   SU.debug("pango", "Shape input:", {
+   SU.debug("pango", "Shape input:", pl.pretty.write {
       text = text,
       offset = offset,
       length = length,
@@ -32,24 +32,25 @@ local function _shape (text, item)
    SU.debug("pango", "Shaping text segment:", shaped_text)
 
    local pgs = pango.GlyphString.new()
-   -- Make sure we're passing the font from the analysis
-   if analysis and analysis.font then
-      pango.shape(shaped_text, -1, analysis, pgs)
-   else
-      -- Try fallback if no font in analysis
+
+   -- Ensure we have a valid font in the analysis
+   if not (analysis and analysis.font) then
+      SU.debug("pango", "No font in analysis, creating fallback")
       local desc = pango.FontDescription.new()
-      desc:set_family("serif") -- fallback font
+      desc:set_family("serif")
       desc:set_size(12 * pango.SCALE)
-      local font = pango_context:load_font(desc)
       analysis = pango.Analysis.new()
-      analysis.font = font
-      pango.shape(shaped_text, -1, analysis, pgs)
+      analysis.font = pango_context:load_font(desc)
    end
 
-   SU.debug("pango", "Shaped result:", {
+   -- Shape with explicit length
+   pango.shape(shaped_text, string.len(shaped_text), analysis, pgs)
+
+   SU.debug("pango", "Shaped result:", pl.pretty.write {
       num_glyphs = pgs.num_glyphs,
       has_glyphs = pgs.glyphs ~= nil,
-      glyphs_table = pgs.glyphs and pl.pretty.write(pgs.glyphs) or "no glyphs"
+      analysis_font = analysis.font,
+      text_length = string.len(shaped_text)
    })
 
    return pgs
@@ -62,35 +63,58 @@ shaper._name = "pango"
 function shaper.getFace (options)
    SU.debug("pango", "Getting face for options:", pl.pretty.write(options))
 
-   local pal = pango.AttrList.new()
-
-   -- Create a font description
-   local desc = pango.FontDescription.new()
-
-   if options.family then
-      desc:set_family(options.family)
-   else
-      desc:set_family("serif") -- fallback
+   -- First get the actual font face using SILE's font manager
+   local face = SILE.fontManager:face(options)
+   if not face then
+      SU.error("Couldn't find face '" .. options.family .. "'")
    end
 
+   SU.debug("pango", "SILE font face:", pl.pretty.write {
+      family = face.family,
+      filename = face.filename,
+      subfamily = face.subfamily,
+      fullname = face.fullname
+   })
+
+   -- Create a font description from the actual font data
+   local desc = pango.FontDescription.new()
+   desc:set_family(face.family)
+   desc:set_size(options.size * pango.SCALE)
    if options.weight then
       desc:set_weight(tonumber(options.weight))
    end
 
-   if options.size then
-      desc:set_size(options.size * pango.SCALE)
+   -- Load the actual font into Pango
+   local font = pango_context:load_font(desc)
+   if not font then
+      SU.error("Pango couldn't load font: " .. face.family)
    end
 
-   -- Add the font description to the attribute list
+   -- Debug font information
+   local font_desc = font:describe()
+   SU.debug("pango", "Loaded Pango font details:", pl.pretty.write {
+      family = font_desc:get_family(),
+      size = font_desc:get_size() / pango.SCALE,
+      weight = font_desc:get_weight(),
+      loaded = font:get_face() ~= nil,
+      metrics = pl.pretty.write(font:get_metrics())
+   })
+
+   -- -- Try to get font file path through fontconfig
+   -- local fc_font = font:get_face()
+   -- if fc_font then
+   --    SU.debug("pango", "Font file path:", fc_font:get_filename())
+   -- end
+
+   -- Create and return the attribute list with the font
+   local pal = pango.AttrList.new()
    pal:insert(pango.attr_font_desc_new(desc))
 
    if options.language then
       pal:insert(pango.attr_language_new(pango.Language.from_string(options.language)))
    end
 
-   SU.debug("pango", "Created attribute list with font description:", desc:to_string())
-
-   return pal
+   return pal, font
 end
 
 function shaper:shapeToken (text, options)
