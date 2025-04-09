@@ -2,11 +2,10 @@
 -- example of how to create alternative shaper backends, in comparison
 -- with the harfbuzz shaper.
 local lgi = require("lgi")
-require("string")
 local pango = lgi.Pango
 local pangocairo = lgi.PangoCairo
-local fm = pangocairo.FontMap.get_default()
-local pango_context = fm:create_context()
+local font_map = pangocairo.FontMap.get_default()
+local pango_context = font_map:create_context()
 pango_context:set_round_glyph_positions(false)  -- We want exact positions
 pango_context:set_language(pango.Language.get_default())
 pango_context:set_base_dir(pango.Direction.LTR)  -- Default to left-to-right
@@ -25,21 +24,11 @@ local function _shape (text, item)
    -- Create a new GlyphString
    local pgs = pango.GlyphString.new()
 
-   -- Ensure analysis and font are properly set
-   if not (analysis and analysis.font) then
-      local desc = pango.FontDescription.new()
-      desc:set_family("serif")
-      desc:set_absolute_size(12 * pango.SCALE)
-      analysis = pango.Analysis.new()
-      analysis.font = fm:load_font(pango_context, desc)
-      analysis.level = 0  -- Set text direction (0 = LTR)
-   end
-
    -- Shape with explicit length
-   pango.shape(shaped_text, pango.AttrList.new(), analysis, pgs)
+   pango.shape(shaped_text, -1, analysis, pgs)
 
    -- Debugging output to verify shaping results
-   SU.debug("pango", "Shaped result:", {
+   SU.debug("pango", "Shaped result:", pl.pretty.write {
       text = shaped_text,
       glyphs = pgs.num_glyphs,
       has_font = analysis.font ~= nil,
@@ -100,6 +89,26 @@ function shaper:shapeToken (text, options)
 
    local pal = SILE.font.cache(options, self.getFace)
    SU.debug("pango", "Got PAL:", pal)
+
+   local fdesc = pango.FontDescription.new()
+   fdesc:set_family("Gentium Plus")
+   fdesc:set_absolute_size(10 * pango.SCALE)
+
+   local pal = pango.AttrList.new()
+   local la = pango.Language.from_string("en-US")
+   local item = pango.Item.new()
+   item.offset = 0
+   item.length = -1
+   item.analysis = {
+      font = pango_context:load_font(fdesc),
+      language = la,
+      level = 0,
+   }
+
+   local text = "foobar"
+   local pgs = pango.GlyphString.new()
+   pango.shape(text, #text, item.analysis, pgs)
+   SU.debug("pango", "one two", pgs.num_glyphs)
 
    local items = pango.itemize(pango_context, text, 0, string.len(text), pal, nil)
    SU.debug("pango", "Itemization result count:", #items)
