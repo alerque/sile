@@ -6,33 +6,26 @@ local PangoCairo = lgi.PangoCairo
 local font_map = PangoCairo.FontMap.get_default()
 local context = font_map:create_context()
 
--- Set up font description
+-- Set up font
 local font_desc = Pango.FontDescription.from_string("Serif 12")
-local font = context:load_font(font_desc)
-
-print("Loaded font: ", font)
-
--- Sanity check that font loaded
-assert(font, "Failed to load font")
-
--- Create a proper Analysis object
-local analysis = Pango.Analysis()
-analysis.font = font
-analysis.level = 0
+context:set_font_description(font_desc)
+context:set_language(Pango.Language.from_string("en"))
 
 -- Input text
 local text = "text"
 
--- Create a glyph string
+-- Itemize the text manually
+local attr_list = Pango.AttrList.new()
+local items = Pango.itemize(context, text, 0, #text, attr_list, nil)
+print("Number of items: ", #items)
+
+-- Shape each item
 local glyphs = Pango.GlyphString.new()
-
--- Perform shaping
-Pango.shape(text, #text, analysis, glyphs)
-
--- Output shaped data
-print("Number of glyphs: " .. glyphs.num_glyphs)
-
-for i = 0, glyphs.num_glyphs - 1 do
-    local g = glyphs.glyphs[i]
-    print(string.format("Glyph %d: index=%d, x_advance=%d", i, g.glyph, g.geometry.x_advance))
+for i, item in ipairs(items) do
+    print("Item ", i, " offset: ", item.offset, " length: ", item.length)
+    Pango.shape(text:sub(item.offset + 1, item.offset + item.length), item.length, item.analysis, glyphs)
+    print("Glyphs for item ", i, ": ", glyphs.num_glyphs)
 end
+
+-- Check results
+print("Total glyphs: ", glyphs.num_glyphs)

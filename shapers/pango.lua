@@ -7,7 +7,7 @@ local pangocairo = lgi.PangoCairo
 local font_map = pangocairo.FontMap.get_default()
 local pango_context = font_map:create_context()
 pango_context:set_round_glyph_positions(false)  -- We want exact positions
--- pango_context:set_language(pango.Language.get_default())
+pango_context:set_language(pango.Language.get_default())
 pango_context:set_base_dir(pango.Direction.LTR)  -- Default to left-to-right
 
 local base = require("shapers.base")
