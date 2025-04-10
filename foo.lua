@@ -29,23 +29,37 @@ for i, item in ipairs(items) do
     local end_pos = item.offset + item.length
     local subtext = text:sub(start, end_pos)
     print("Substring: '", subtext, "' Length: ", #subtext)
-    print("Analysis font: ", item.analysis.font)
+    
+    -- Get the font from the analysis structure
+    local font = item.analysis.font
+    print("Analysis font: ", font)
     
     -- Create a new glyph string for each item
     local glyphs = Pango.GlyphString.new()
     
-    -- Shape using the item's analysis and the substring
-    Pango.shape_full(subtext, #subtext, nil, item.analysis, glyphs)
-    
+    -- Make sure we have a valid font before shaping
+    if font then
+        -- Use the proper API based on Pango version
+        if Pango.shape_item then
+            -- Newer Pango versions
+            Pango.shape_item(item, subtext, glyphs)
+        else
+            -- Direct shape call - ensure parameters are correct for LGI
+            -- Pass text directly rather than substring to avoid encoding issues
+            Pango.shape(subtext, -1, item.analysis, glyphs)
+        end
+    else
+        print("Warning: No font in analysis, cannot shape")
+    end
+
     print("Glyphs for item ", i, ": ", glyphs.num_glyphs)
     
     -- Display glyph info
     if glyphs.num_glyphs > 0 then
         for g = 0, glyphs.num_glyphs - 1 do
             local glyph_info = glyphs:get_glyph_info(g)
-            local glyph_pos = glyphs:get_glyph_geometry(g)
-            print(string.format("  Glyph %d: glyph=%d width=%d", 
-                  g, glyph_info.glyph, glyph_pos.width))
+            print(string.format("  Glyph %d: glyph=%d char=%d", 
+                  g, glyph_info.glyph, glyph_info.chars))
         end
     end
     
