@@ -178,6 +178,7 @@ local _gutterwidth
 function class:_init (options)
    plain._init(self, options)
    self:loadPackage("masters")
+   self:loadPackage("twoside")
    self:loadPackage("infonode")
    self:loadPackage("chapterverse")
    self:registerPostinit(function (self_)
@@ -191,7 +192,8 @@ function class:_init (options)
 end
 
 function class:endPage ()
-   if self:oddPage() and SILE.scratch.headers.right then
+   local isodd = class:oddPage()
+   if  isodd and SILE.scratch.headers.right then
       SILE.typesetNaturally(SILE.getFrame("runningHead"), function ()
          SILE.settings:set("current.parindent", SILE.types.node.glue())
          SILE.settings:set("document.lskip", SILE.types.node.glue())
@@ -200,7 +202,7 @@ function class:endPage ()
          SILE.process(SILE.scratch.headers.right)
          SILE.call("par")
       end)
-   elseif not (self:oddPage()) and SILE.scratch.headers.left then
+   elseif not isodd and SILE.scratch.headers.left then
       SILE.typesetNaturally(SILE.getFrame("runningHead"), function ()
          SILE.settings:set("current.parindent", SILE.types.node.glue())
          SILE.settings:set("document.lskip", SILE.types.node.glue())
@@ -240,6 +242,9 @@ function class:registerCommands ()
 
    self:registerCommand("left-running-head", function (_, content)
       local closure = SILE.settings:wrap()
+      if not SILE.scratch.headers then
+         SILE.scratch.headers = {}
+      end
       SILE.scratch.headers.left = function ()
          closure(content)
       end
@@ -247,6 +252,9 @@ function class:registerCommands ()
 
    self:registerCommand("right-running-head", function (_, content)
       local closure = SILE.settings:wrap()
+      if not SILE.scratch.headers then
+         SILE.scratch.headers = {}
+      end
       SILE.scratch.headers.right = function ()
          closure(content)
       end

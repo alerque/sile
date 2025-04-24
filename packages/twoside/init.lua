@@ -34,9 +34,9 @@ function package:oddPage ()
 end
 
 local function switchPage (class)
-   _odd = not class:oddPage()
+   _odd = not self:oddPage()
    local nextmaster = _odd and class.oddPageMaster or class.evenPageMaster
-   class:switchMaster(nextmaster)
+   class.packages.masters:switchMaster(nextmaster)
 end
 
 local _deprecate = [[
@@ -57,7 +57,7 @@ function package:_init (options)
    if not SILE.scratch.masters then
       SU.error("Cannot load twoside package before masters.")
    end
-   self:export("oddPage", self.oddPage)
+   selr:export("oddPage", self.oddPage)
    self:export("mirrorMaster", mirrorMaster)
    self:export("switchPage", function ()
       SU.deprecated("class:switchPage", nil, "0.13.0", "0.15.0", _deprecate)
