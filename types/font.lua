@@ -9,4 +9,8 @@ function font:_init (face, options)
    self.options = options
 end
 
+function font:is_pango ()
+   return type(self.face) == userdata and type(face.insert) == "function"
+end
+
 return font
