@@ -8,7 +8,7 @@ function fontmanager:_init ()
    self._fc = require("justenoughfontconfig")
 end
 
-function fontmanager:face (options)
+function fontmanager:load (options)
    return self._fc._face(options)
 end
 

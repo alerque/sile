@@ -94,13 +94,13 @@ end
 function shaper:getFace (options)
    if not options then
       SU.deprecated("shaper.getFace()", "shaper:getFace()", "0.16.0", "0.17.0")
-      return shaper:getFace(self)
+      return SILE.shaper:getFace(self)
    end
    local face = SILE.fontmanager:face(options)
-   SU.debug("fonts", "Resolved font family", options.family, "->", face and face.filename)
    if not face or not face.filename then
-      SU.error("Couldn't find face '" .. options.family .. "'")
+      SU.error("Couldn't find face '" .. options.family or options.filename .. "'")
    end
+   SU.debug("fonts", "Resolved font family", options.family or options.filename, "->", face and face.filename)
    if SILE.makeDeps then
       SILE.makeDeps:add(face.filename)
    end

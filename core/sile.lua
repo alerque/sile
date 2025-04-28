@@ -254,6 +254,5 @@ SILE.finish = require("core.init").finish
 
 -- Internal libraries that run core SILE functions on load
 require("core.frame")
-SILE.font = require("core.font")
 
 return SILE

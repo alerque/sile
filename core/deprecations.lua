@@ -286,6 +286,14 @@ setmetatable(SILE.fontManager, {
    end,
 })
 
+SILE.font = {}
+setmetatable(SILE.font, {
+   __index = function (_, key)
+      SU.deprecated("SILE.font:*", "SILE.fontmanager:*", "0.16.0", "0.17.0")
+      return SILE.fontmanager[key]
+   end,
+})
+
 -- luacheck: ignore updatePackage
 -- luacheck: ignore installPackage
 updatePackage = nopackagemanager

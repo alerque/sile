@@ -8,7 +8,7 @@ function fontmanager:_init ()
    self._mf = require("macfonts")
 end
 
-function fontmanager:face (options)
+function fontmanager:load (options)
    return self._mf._face(options)
 end
 

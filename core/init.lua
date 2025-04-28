@@ -48,7 +48,7 @@ end
 
 local function finish ()
    SILE.documentState.documentClass:finish()
-   SILE.font.finish()
+   SILE.fontmanager:finish()
    runEvals(SILE.input.evaluateAfters, "evaluate-after")
    if SILE.makeDeps then
       SILE.makeDeps:write()
