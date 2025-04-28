@@ -32,7 +32,7 @@ rules:
     - debug
     - deps
     - docker
-    - fonts
+    - fontmanagers
     - frames
     - images
     - i18n
