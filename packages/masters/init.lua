@@ -30,15 +30,15 @@ local function defineMasters (class, list)
    end
 end
 
-local function doswitch (frames)
+function package:_doswitch (frames)
    SILE.frames = { page = SILE.frames.page }
    for id, frame in pairs(frames) do
-      SILE.frames[id] = frame
+      self.class.frames[id] = frame
       frame:invalidate()
    end
 end
 
-local function switchMasterOnePage (_, id)
+local function switchMasterOnePage (class, id)
    if not id then
       SU.deprecated("class.switchMasterOnePage", "class:switchMasterOnePage", "0.13.0", "0.15.0")
    end
@@ -46,14 +46,14 @@ local function switchMasterOnePage (_, id)
       SU.error("Can't find master " .. id)
    end
    SILE.documentState.thisPageTemplate = SILE.scratch.masters[id]
-   doswitch(SILE.scratch.masters[id].frames)
+   class.packages.masters:_doswitch(SILE.scratch.masters[id].frames)
    SILE.typesetter:chuck()
    SILE.typesetter:initFrame(SILE.scratch.masters[id].firstContentFrame)
 end
 
 local function switchMaster (class, id)
    if not id then
-      SU.deprecated("class.switchMaster", "class:switchMaster", "0.13.0", "0.15.0")
+      SU.deprecated("class:switchMaster", "class:switchMaster", "0.13.0", "0.15.0")
    end
    _currentMaster = id
    if not SILE.scratch.masters[id] then
@@ -61,7 +61,7 @@ local function switchMaster (class, id)
    end
    class.pageTemplate = SILE.scratch.masters[id]
    SILE.documentState.thisPageTemplate = class.pageTemplate
-   doswitch(SILE.scratch.masters[id].frames)
+   class.packages.masters:_doswitch(SILE.scratch.masters[id].frames)
    SILE.typesetter:initFrame(SILE.scratch.masters[id].firstContentFrame)
 end
 
@@ -90,8 +90,8 @@ function package:registerCommands ()
       SU.required(options, "first-content-frame", "defining a master")
       -- Subvert the <frame> functionality from baseclass
       local spare = SILE.documentState.thisPageTemplate.frames
-      local sp2 = SILE.frames
-      SILE.frames = { page = SILE.frames.page }
+      local sp2 = self.class.frames
+      self.class.frames = { page = sp2.page }
       SILE.documentState.thisPageTemplate.frames = {}
       SILE.process(content)
       SILE.scratch.masters[options.id] = {}
@@ -102,7 +102,7 @@ function package:registerCommands ()
       SILE.scratch.masters[options.id].firstContentFrame =
          SILE.scratch.masters[options.id].frames[options["first-content-frame"]]
       SILE.documentState.thisPageTemplate.frames = spare
-      SILE.frames = sp2
+      self.class.frames = sp2
    end)
 
    self.commands:register("switch-master-one-page", function (options, _)

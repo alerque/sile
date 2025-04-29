@@ -51,6 +51,10 @@ class.packages = {}
 
 function class:_init (options)
    SILE.scratch.half_initialized_class = self
+   SILE.documentState.documentClass = self
+   -- TODO: Refactor as a registry of available frames (like settings, commands, etc.)
+   -- For now this is just a migration shim to get us off the previously global SILE.frames dumping ground.
+   self.frames = {}
    module._init(self, options)
    self:declareFrames(self.defaultFrameset)
    self:registerPostinit(function (self_)
@@ -61,8 +65,8 @@ function class:_init (options)
       SILE.typesetter = SILE.typesetters.default(frame)
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
-            for _, v in pairs(SILE.frames) do
-               SILE.outputter:debugFrame(v)
+            for _, frame in pairs(self.frames) do
+               SILE.outputter:debugFrame(frame)
             end
             return "Drew debug outlines around frames"
          end)
@@ -654,15 +658,19 @@ end
 
 function class:initialFrame ()
    SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
-   SILE.frames = { page = SILE.frames.page }
+   -- Truncate list of frames to just the page
+   self.frames = { page = self.frames.page }
+   -- Re-init the frameset for a new page
    for k, v in pairs(SILE.documentState.thisPageTemplate.frames) do
-      SILE.frames[k] = v
+      -- self.frames[k] = SILE.types.frame:class_of(v) and v or SILE.types.frame(v)
+      self.frames[k] = v
    end
-   if not SILE.documentState.thisPageTemplate.firstContentFrame then
-      SILE.documentState.thisPageTemplate.firstContentFrame = SILE.frames[self.firstContentFrame]
-   end
-   SILE.documentState.thisPageTemplate.firstContentFrame:invalidate()
-   return SILE.documentState.thisPageTemplate.firstContentFrame
+   -- For leagacy 'reasons' the first content frame might be a frame spec or a stringly typed id
+   local id = type(self.pageTemplate.firstContentFrame) == "string" and self.frames[self.pageTemplate.firstContentFrame] or self.pageTemplate.firstContentFrame.id
+   SU.debug("frames", "Initial frame JUST SET TO ", id)
+   local initial_frame = self.frames[id]
+   initial_frame:invalidate()
+   return initial_frame
 end
 
 function class:declareFrame (id, spec)
