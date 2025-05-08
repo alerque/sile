@@ -64,6 +64,10 @@ function frames:_post_init ()
       SU.deprecated("SILE.frames[]", "<module>.frames:new", "0.16.0", "0.17.0")
       return self:new(spec)
    end
+   function mt.__pairs (_)
+      SU.error("GOT PAIRS MATE")
+      return pairs(self._registry)
+   end
 end
 
 return frames
