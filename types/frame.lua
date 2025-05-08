@@ -58,19 +58,17 @@ end
 
 -- This gets called by us in typesetter before we start to use the frame
 function frame:init (typesetter)
-   if not self.dummy then
-      self.state = { totals = { height = SILE.types.measurement(0) } }
-      self:enter(typesetter)
-      self:newLine(typesetter)
-      if self:pageAdvanceDirection() == "TTB" then
-         self.state.cursorY = self:top()
-      elseif self:pageAdvanceDirection() == "LTR" then
-         self.state.cursorX = self:left()
-      elseif self:pageAdvanceDirection() == "RTL" then
-         self.state.cursorX = self:right()
-      elseif self:pageAdvanceDirection() == "BTT" then
-         self.state.cursorY = self:bottom()
-      end
+   self.state = { totals = { height = SILE.types.measurement(0) } }
+   self:enter(typesetter)
+   self:newLine(typesetter)
+   if self:pageAdvanceDirection() == "TTB" then
+      self.state.cursorY = self:top()
+   elseif self:pageAdvanceDirection() == "LTR" then
+      self.state.cursorX = self:left()
+   elseif self:pageAdvanceDirection() == "RTL" then
+      self.state.cursorX = self:right()
+   elseif self:pageAdvanceDirection() == "BTT" then
+      self.state.cursorY = self:bottom()
    end
 end
 
@@ -275,36 +273,6 @@ function frame:__tostring ()
    end
    str = str .. ">"
    return str
-end
-
-SILE.getFrame = function (id)
-   if type(id) == "table" then
-      SU.error("Passed a table, expected a string", true)
-   end
-   local frame, last_attempt
-   while not frame do
-      frame = SILE.frames[id]
-      id = id:gsub("_$", "")
-      if id == last_attempt then
-         break
-      end
-      last_attempt = id
-   end
-   return frame or SU.warn("Couldn't find frame ID " .. id, true)
-end
-
-SILE.parseComplexFrameDimension = function (dimension)
-   local length = SILE.frameParser:match(SU.cast("string", dimension))
-   if type(length) == "table" then
-      local g = cassowary.Variable({ name = "t" })
-      local eq = cassowary.Equation(g, length)
-      solverNeedsReloading = true
-      solver:addConstraint(eq)
-      SILE.frames.page:solve()
-      solverNeedsReloading = true
-      return g.value
-   end
-   return length
 end
 
 return frame

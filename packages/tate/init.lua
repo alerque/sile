@@ -3,23 +3,27 @@ local base = require("packages.base")
 local package = pl.class(base)
 package._name = "tate"
 
-package.tateFrame = pl.class(SILE.types.frame)
-
-package.tateFrame.direction = "TTB-RTL"
-package.tateFrame.enterHooks = {
+package._tateFrame = pl.class(SILE.types.frame)
+package._tateFrame.direction = "TTB-RTL"
+package._tateFrame.enterHooks = {
    function (_, typesetter)
       SILE.typesetters.tate:cast(typesetter)
    end,
 }
-package.tateFrame.leaveHooks = {
+package._tateFrame.leaveHooks = {
    function (_, typesetter)
       SILE.typesetters.base:cast(typesetter)
    end,
 }
 
+package._dummyFrame = pl.class(SILE.types.frame)
+package._dummyFrame.init = function (frame, _typesetter)
+   frame.state = {}
+end
+
 SILE.newTateFrame = function (spec)
-   SU.deprecated("SILE.newTateFrame", "packages.tate.tateFrame", "0.16.0", "0.17.0")
-   return package.tateFrame(spec)
+   SU.deprecated("SILE.newTateFrame", "packages.tate._tateFrame", "0.16.0", "0.17.0")
+   return SILE.newFrame(spec, package._tateFrame)
 end
 
 local outputLatinInTate = function (self, typesetter, line)
@@ -61,7 +65,7 @@ function package:registerCommands ()
       local prevDirection = oldT.frame.direction
       self:loadPackage("rotate")
       self.settings:temporarily(function ()
-         local frame = SILE.types.frame({}, true)
+         local frame = self._dummyFrame({ id = "dummy" }, true)
          SILE.typesetter = SILE.typesetters["latin-in-tate"](frame)
          self.settings:set("document.language", "und")
          self.settings:set("font.direction", "LTR")
