@@ -53,8 +53,6 @@ end
 
 function frames:_post_init ()
    local mt = getmetatable(self)
-   SU.dump(self)
-   SU.error("what is")
    function mt:__index (id)
       SU.deprecated("SILE.frames[]", "<module>.frames:get", "0.16.0", "0.17.0")
       return self:get(id)
@@ -65,4 +63,19 @@ function frames:_post_init ()
    end
 end
 
-return frames
+local deprecation_proxy = setmetatable({}, {
+   __metatable = function (_)
+      return getmetatable(frames)
+   end,
+   __call = function (_, ...)
+      return frames(...)
+   end,
+   __index = function (_, key)
+      return frames[key]
+   end,
+   __newindex = function (_, key, value)
+      SU.error("Dont nuke frames")
+   end,
+})
+
+return deprecation_proxy
