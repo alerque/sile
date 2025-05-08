@@ -150,6 +150,7 @@ SILE.types = core_loader("types")
 -- These should typically accessed as attributes on other modules.
 SILE.traceStack = require("core.tracestack")()
 SILE.commands = require("core.commands")():forModule(SILE)
+SILE.frames = require("core.frames")():forModule(SILE)
 SILE.settings = require("core.settings")():forModule(SILE)
 
 -- Internal modules and return classes that need instantiation (loading is idempotent)
@@ -256,7 +257,6 @@ SILE.paperSizeParser = require("core.misc").paperSizeParser
 SILE.finish = require("core.init").finish
 
 -- Internal libraries that run core SILE functions on load
-require("core.frame")
 SILE.font = require("core.font")
 
 return SILE

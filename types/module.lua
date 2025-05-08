@@ -28,6 +28,7 @@ end
 
 function module:_init (options)
    self.commands = SILE.commands:forModule(self)
+   self.frames = SILE.frames:forModule(self)
    self.settings = SILE.settings:forModule(self)
    if not self.type then
       SU.error("Attempted it initialize module with no type")

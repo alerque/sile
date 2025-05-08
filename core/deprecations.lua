@@ -288,15 +288,33 @@ setmetatable(SILE.fontManager, {
 
 local mt = getmetatable(SILE)
 function mt:__index (key)
-   -- if key == "frames" then
-   --    SU.deprecated("SILE.frames:*", "class.frames:*", "0.16.0", "0.17.0")
-   --    return SILE.documentState.documentClass.frames
-   -- end
+   -- See types.frame for deprecation shims relating to SILE.frames
    if key == "framePrototype" then
       SU.deprecated("SILE.framePrototype", "SILE.types.frame", "0.16.0", "0.17.0")
       return SILE.types.frame
    end
    return rawget(SILE, key)
+end
+function mt:__newindex (key, value)
+   if key == "frames" and rawget(SILE, key) then
+      SU.error("Implement reset frameset shim")
+   end
+   return rawset(SILE, key, value)
+end
+
+SILE.newFrame = function (spec, prototype)
+   SU.deprecated("SILE.newFrame", "<module>:frames:new", "0.16.0", "0.17.0")
+   return SILE.frames:new(spec, prototype)
+end
+
+SILE.getFrame = function (id)
+   SU.deprecated("SILE.getFrame", "class.frames:get", "0.16.0", "0.17.0")
+   return SILE.frames:get(id)
+end
+
+SILE.parseComplexFrameDimension = function (dimension)
+   SU.deprecated("SILE.parseComplexFrameDimension", "module.frames:parseComplexFrameDimension", "0.16.0", "0.17.0")
+   return SILE.frames:parseComplexFrameDimension(dimension)
 end
 
 -- luacheck: ignore updatePackage

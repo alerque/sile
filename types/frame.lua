@@ -259,6 +259,10 @@ function frame:isMainContentFrame ()
 end
 
 function frame:__tostring ()
+   return self.id
+end
+
+function frame:__debug ()
    local str = "<Frame: " .. self.id .. ": "
    str = str .. " next=" .. (self.next or "nil") .. " "
    for method, dimension in pairs(self.constraints) do
