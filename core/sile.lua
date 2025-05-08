@@ -10,6 +10,9 @@ require("core.globals")
 -- Placeholder for SILE internals table
 SILE = {}
 
+-- Currently used for deprecation shims, in the future may have other uses
+setmetatable(SILE, {})
+
 --- Fields
 -- @section fields
 
@@ -64,7 +67,7 @@ SU = SILE.utilities -- regrettable global alias
 -- For warnings and shims scheduled for removal that are easier to keep track
 -- of when they are not spread across so many locations...
 -- Loaded early to make it easier to manage migrations in core code.
-require("core.deprecations")
+local deprecations_post = require("core.deprecations")
 
 --- Data tables
 --- @section data
@@ -255,5 +258,7 @@ SILE.finish = require("core.init").finish
 
 -- Internal libraries that run core SILE functions on load
 SILE.font = require("core.font")
+
+deprecations_post()
 
 return SILE

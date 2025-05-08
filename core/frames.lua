@@ -21,15 +21,18 @@ function frames:new (parent, spec, prototype)
    return self:push(parent, frame)
 end
 
-function frames:get (_parent, id)
+function frames:get (parent, id)
    local frame, last_attempt
    while not frame do
-      frame = self._registry[id]
-      id = id:gsub("_$", "")
-      if id == last_attempt then
-         break
+      if self:exists(parent, id) then
+         frame = self:pull(parent, id)
+      else
+         id = id:gsub("_$", "")
+         if id == last_attempt then
+            break
+         end
+         last_attempt = id
       end
-      last_attempt = id
    end
    return frame or SU.warn("Couldn't find frame ID " .. id, true)
 end
@@ -63,19 +66,4 @@ function frames:_post_init ()
    end
 end
 
-local deprecation_proxy = setmetatable({}, {
-   __metatable = function (_)
-      return getmetatable(frames)
-   end,
-   __call = function (_, ...)
-      return frames(...)
-   end,
-   __index = function (_, key)
-      return frames[key]
-   end,
-   __newindex = function (_, key, value)
-      SU.error("Dont nuke frames")
-   end,
-})
-
-return deprecation_proxy
+return frames

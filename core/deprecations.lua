@@ -286,38 +286,6 @@ setmetatable(SILE.fontManager, {
    end,
 })
 
-local the_real_frame_registry = SILE.frames
-SILE.frames = setmetatable({}, {
-   __metatable = function (_)
-      return getmetatable(the_real_frame_registry)
-   end,
-   __call = function (_, ...)
-      return the_real_frame_registry(...)
-   end,
-   __index = function (_, key)
-      return the_real_frame_registry[key]
-   end,
-   __newindex = function (_, key, value)
-      SU.error("implement whole frameset nuke")
-   end,
-})
-
-SILE.framePrototype = {}
-setmetatable(SILE.framePrototype, {
-      __call = function (_, ...)
-         SU.deprecated("SILE.framePrototype", "SILE.types.frame", "0.16.0", "0.17.0")
-         return SILE.types.frame(...)
-      end,
-      __index = function(_, key)
-         SU.deprecated("SILE.framePrototype", "SILE.types.frame", "0.16.0", "0.17.0")
-         return rawget(SILE.types.frame, key)
-      end,
-      __newindex = function (_, key, value)
-         SU.deprecated("SILE.framePrototype", "SILE.types.frame", "0.16.0", "0.17.0")
-         return rawset(SILE.types.frame, key, value)
-      end,
-})
-
 SILE.newFrame = function (spec, prototype)
    SU.deprecated("SILE.newFrame", "<module>:frames:new", "0.16.0", "0.17.0")
    return SILE.frames:new(spec, prototype)
@@ -337,3 +305,37 @@ end
 -- luacheck: ignore installPackage
 updatePackage = nopackagemanager
 installPackage = nopackagemanager
+
+local function deprecations_post ()
+
+   local the_actual_frame_registry = SILE.frames
+   SILE.frames = nil
+
+   local mt = getmetatable(SILE)
+
+   function mt:__index (key)
+      if key == "frames" then
+         SU.deprecated("SILE.frames[]", "<module>.frames", "0.16.0", "0.17.0")
+         return the_actual_frame_registry
+      elseif key == "framePrototype" then
+         SU.deprecated("SILE.framePrototype", "SILE.types.frame", "0.16.0", "0.17.0")
+         return SILE.types.frame
+      end
+      return rawget(SILE, key)
+   end
+
+   function mt:__newindex (key, value)
+      if key == "frames" then
+         SU.warn("Implement frameset redo")
+         the_actual_frame_registry._registry = value
+         for _, v in pairs(value) do
+            SU.deprecated("SILE.frames[]", "<module>.frames:new()", "0.16.0", "0.17.0")
+            -- the_actual_frame_registry:new(v)
+         end
+      end
+      return rawset(self, key, value)
+   end
+
+end
+
+return deprecations_post
