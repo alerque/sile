@@ -12,7 +12,7 @@ end
 
 function frames:new (parent, spec, prototype)
    if self:exists(parent, spec.id) then
-      SU.debug("frames", "WARNING: Redefining frame", name)
+      SU.debug("frames", "WARNING: Redefining frame", spec.id)
    else
       self._registry[spec.id] = {}
    end
