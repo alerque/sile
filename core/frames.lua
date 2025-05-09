@@ -56,7 +56,7 @@ end
 
 function frames:_post_init ()
    local mt = getmetatable(self)
-   function mt:__index (id)
+   function mt.__index (_, id)
       SU.deprecated("SILE.frames[]", "<module>.frames:get", "0.16.0", "0.17.0")
       return self:get(id)
    end
