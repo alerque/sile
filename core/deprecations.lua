@@ -330,7 +330,7 @@ local function deprecations_post ()
          the_actual_frame_registry._registry = value
          for _, v in pairs(value) do
             SU.deprecated("SILE.frames[]", "<module>.frames:new()", "0.16.0", "0.17.0")
-            -- the_actual_frame_registry:new(v)
+            the_actual_frame_registry:new(v)
          end
       end
       return rawset(self, key, value)
