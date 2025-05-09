@@ -16,6 +16,8 @@ local run_once = {
    "registerRawHandlers",
    "_registerCommands",
    "registerCommands",
+   "_declareFrames",
+   "declareFrames",
    "_setOptions",
    "setOptions",
 }
@@ -88,6 +90,9 @@ function module:registerCommand (name, func, help, pack, defaults)
    SU.deprecated("module:registerCommand", "module.commands:register", "0.16.0", "0.17.0")
    return self.commands:register(name, func, help, pack, defaults)
 end
+
+function module:_declareFrames () end
+function module:declareFrames () end
 
 function module:_setOptions () end
 function module:setOptions () end

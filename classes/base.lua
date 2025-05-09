@@ -668,12 +668,14 @@ function class:initialFrame ()
 end
 
 function class:declareFrame (id, spec)
-   spec.id = id
+   SU.deprecated("class:declareFrame", "<module>.frames:new", "0.16.0", "0.17.0")
    if spec.solve then
+      SU.error("Rewire solver")
       self.pageTemplate.frames[id] = spec
-   else
-      self.pageTemplate.frames[id] = SILE.newFrame(spec)
+   -- else
+      -- self.pageTemplate.frames[id] = SILE.newFrame(spec)
    end
+   return self.frames:new(spec)
    --   next = spec.next,
    --   left = spec.left and fW(spec.left),
    --   right = spec.right and fW(spec.right),
@@ -687,9 +689,12 @@ end
 
 function class:declareFrames (specs)
    if specs then
-      for k, v in pairs(specs) do
-         self:declareFrame(k, v)
-      end
+      SU.deprecated("class:declareFrames(specs)", "class:declareFrames", "0.16.0", "0.17.0")
+      SU.eror("REimplement spec iteration")
+   end
+   for k, v in pairs(specs) do
+      self.frames:new(v)
+      self:declareFrame(k, v)
    end
 end
 

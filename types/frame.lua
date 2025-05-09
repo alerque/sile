@@ -52,10 +52,6 @@ function frame:_init (spec, dummy)
    end
 end
 
-function frame:_post_init ()
-   -- SILE.frames[self.id] = self
-end
-
 -- This gets called by us in typesetter before we start to use the frame
 function frame:init (typesetter)
    self.state = { totals = { height = SILE.types.measurement(0) } }

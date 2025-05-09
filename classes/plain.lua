@@ -4,6 +4,7 @@
 local base = require("classes.base")
 
 local class = pl.class(base)
+
 class._name = "plain"
 
 class.defaultFrameset = {
