@@ -54,10 +54,10 @@ function class:_init (options)
    module._init(self, options)
    self:registerPostinit(function (self_)
       if type(self.firstContentFrame) == "string" then
-         SU.warn("Redo first content frame")
-         -- self_.pageTemplate.firstContentFrame = self_.pageTemplate.frames[self_.firstContentFrame]
+         SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
+         self.frames:setDefault(self.firstContentFrame)
       end
-      local frame = self_:initialFrame()
+      local frame = self_.frames:getDefault()
       SILE.typesetter = SILE.typesetters.default(frame)
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
@@ -655,7 +655,7 @@ function class:_registerCommands ()
 end
 
 function class:initialFrame ()
-   SU.deprecated(
+   SU.deprecated("class:initialFrame", "class:", "0.16.0", "0.17.0")
    SU.warn("Redo initial frame")
    -- SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
    -- -- Truncate list of frames to just the page

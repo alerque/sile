@@ -5,7 +5,7 @@
 local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
-frames.default = ""
+frames.default = false
 
 function frames:_init ()
    registry._init(self)
@@ -19,10 +19,15 @@ function frames:new (parent, spec, prototype)
    end
    prototype = prototype or SILE.types.frame
    local frame = prototype(spec)
+   -- If we only have one frame, make it the default
+   if not self.default or spec.default then
+      self.default = frame.id
+   end
    return self:push(parent, frame)
 end
 
 function frames:get (parent, id)
+   id = id or self.default
    local frame, last_attempt
    while not frame do
       if self:exists(parent, id) then
@@ -36,6 +41,23 @@ function frames:get (parent, id)
       end
    end
    return frame or SU.warn("Couldn't find frame ID " .. id, true)
+end
+
+function frames:setDefault (_parent, id)
+   self.default = id
+end
+
+function frames:getDefault (parent)
+   return self:get(parent, self.default)
+end
+
+function frames:getNext (parent)
+   if not parent._type == "typesetter" then
+      SU.error("Implement finding current frame outside of the typesetter")
+   end
+   local current = parent.frame
+   local next = current:next()
+   return self:get(next)
 end
 
 function frames:makeSet(id)

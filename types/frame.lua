@@ -52,16 +52,20 @@ function frame:_init (spec, dummy)
    end
 end
 
--- This gets called by us in typesetter before we start to use the frame
 function frame:init (typesetter)
-   SU.deprecated("frame:init", "frame:attachTypesetter", "0.16.0", "0.17.0")
+   SU.deprecated("frame:init", "frame:use", "0.16.0", "0.17.0")
    return self:attachTypesetter(typesetter)
 end
 
-function frame:attachTypesetter (typesetter)
+-- This gets called by us in typesetter before we start to use the frame
+function frame:use (typesetter)
    self.state = { totals = { height = SILE.types.measurement(0) } }
    self:enter(typesetter)
+   self:resetCursor()
    self:newLine(typesetter)
+end
+
+function frame:resetCursor ()
    if self:pageAdvanceDirection() == "TTB" then
       self.state.cursorY = self:top()
    elseif self:pageAdvanceDirection() == "LTR" then
@@ -243,7 +247,12 @@ function frame:isAbsoluteConstraint (method)
    return true
 end
 
+function frame:next()
+   return self.next
+end
+
 function frame:isMainContentFrame ()
+   SU.error("Rewire isMain with registry iteration")
    local tpt = SILE.documentState.thisPageTemplate
    local frame = tpt.firstContentFrame
    while frame do
