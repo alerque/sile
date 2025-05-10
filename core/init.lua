@@ -47,6 +47,7 @@ local function init ()
 end
 
 local function finish ()
+   SILE.frames:dump()
    SILE.documentState.documentClass:finish()
    SILE.font.finish()
    runEvals(SILE.input.evaluateAfters, "evaluate-after")

@@ -54,6 +54,11 @@ end
 
 -- This gets called by us in typesetter before we start to use the frame
 function frame:init (typesetter)
+   SU.deprecated("frame:init", "frame:attachTypesetter", "0.16.0", "0.17.0")
+   return self:attachTypesetter(typesetter)
+end
+
+function frame:attachTypesetter (typesetter)
    self.state = { totals = { height = SILE.types.measurement(0) } }
    self:enter(typesetter)
    self:newLine(typesetter)

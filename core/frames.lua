@@ -5,6 +5,7 @@
 local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
+frames.default = ""
 
 function frames:_init ()
    registry._init(self)
@@ -37,6 +38,15 @@ function frames:get (parent, id)
    return frame or SU.warn("Couldn't find frame ID " .. id, true)
 end
 
+function frames:makeSet(id)
+end
+
+function frames:enterSet(id)
+end
+
+function frames:clear()
+end
+
 local cassowary = require("cassowary")
 local solver = cassowary.SimplexSolver()
 
@@ -63,6 +73,12 @@ function frames:_post_init ()
    function mt.__newindex (_name, spec)
       SU.deprecated("SILE.frames[]", "<module>.frames:new", "0.16.0", "0.17.0")
       return self:new(spec)
+   end
+end
+
+function frames:dump ()
+   for _, stack in pairs(self._registry) do
+      SU.debug("frames", stack[1]:__debug())
    end
 end
 

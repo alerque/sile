@@ -52,10 +52,10 @@ class.packages = {}
 function class:_init (options)
    SILE.scratch.half_initialized_class = self
    module._init(self, options)
-   self:declareFrames(self.defaultFrameset)
    self:registerPostinit(function (self_)
       if type(self.firstContentFrame) == "string" then
-         self_.pageTemplate.firstContentFrame = self_.pageTemplate.frames[self_.firstContentFrame]
+         SU.warn("Redo first content frame")
+         -- self_.pageTemplate.firstContentFrame = self_.pageTemplate.frames[self_.firstContentFrame]
       end
       local frame = self_:initialFrame()
       SILE.typesetter = SILE.typesetters.default(frame)
@@ -586,16 +586,18 @@ function class:_registerCommands ()
    end, "Invoke a raw passthrough handler")
 
    self.commands:register("pagetemplate", function (options, content)
-      SILE.typesetter:pushState()
-      SILE.documentState.thisPageTemplate = { frames = {} }
-      SILE.process(content)
-      SILE.documentState.thisPageTemplate.firstContentFrame = SILE.getFrame(options["first-content-frame"])
-      SILE.typesetter:initFrame(SILE.documentState.thisPageTemplate.firstContentFrame)
-      SILE.typesetter:popState()
+      SU.warn("redo page tmplate")
+      -- SILE.typesetter:pushState()
+      -- SILE.documentState.thisPageTemplate = { frames = {} }
+      -- SILE.process(content)
+      -- SILE.documentState.thisPageTemplate.firstContentFrame = SILE.getFrame(options["first-content-frame"])
+      -- SILE.typesetter:initFrame(SILE.documentState.thisPageTemplate.firstContentFrame)
+      -- SILE.typesetter:popState()
    end, "Defines a new page template for the current page and sets the typesetter to use it.")
 
    self.commands:register("frame", function (options, _)
-      SILE.documentState.thisPageTemplate.frames[options.id] = SILE.newFrame(options)
+      SU.warn("redo frame command")
+      -- SILE.documentState.thisPageTemplate.frames[options.id] = SILE.newFrame(options)
    end, "Declares (or re-declares) a frame on this page.")
 
    self.commands:register("penalty", function (options, _)
@@ -653,27 +655,26 @@ function class:_registerCommands ()
 end
 
 function class:initialFrame ()
-   SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
-   -- Truncate list of frames to just the page
-   -- SILE.frames = { page = SILE.frames.page }
-   -- Re-init the frameset for a new page
-   for k, v in pairs(SILE.documentState.thisPageTemplate.frames) do
-      SILE.frames[k] = v
-   end
-   if not SILE.documentState.thisPageTemplate.firstContentFrame then
-      SILE.documentState.thisPageTemplate.firstContentFrame = SILE.frames[self.firstContentFrame]
-   end
-   SILE.documentState.thisPageTemplate.firstContentFrame:invalidate()
-   return SILE.documentState.thisPageTemplate.firstContentFrame
+   SU.deprecated(
+   SU.warn("Redo initial frame")
+   -- SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
+   -- -- Truncate list of frames to just the page
+   -- -- SILE.frames = { page = SILE.frames.page }
+   -- -- Re-init the frameset for a new page
+   -- for k, v in pairs(SILE.documentState.thisPageTemplate.frames) do
+   --    SILE.frames[k] = v
+   -- end
+   -- if not SILE.documentState.thisPageTemplate.firstContentFrame then
+   --    SILE.documentState.thisPageTemplate.firstContentFrame = SILE.frames[self.firstContentFrame]
+   -- end
+   -- SILE.documentState.thisPageTemplate.firstContentFrame:invalidate()
+   -- return SILE.documentState.thisPageTemplate.firstContentFrame
 end
 
 function class:declareFrame (id, spec)
    SU.deprecated("class:declareFrame", "<module>.frames:new", "0.16.0", "0.17.0")
-   if spec.solve then
-      SU.error("Rewire solver")
-      self.pageTemplate.frames[id] = spec
-   -- else
-      -- self.pageTemplate.frames[id] = SILE.newFrame(spec)
+   if SILE.types.frame:class_of(spec) then
+      SU.error("Why sending a frame instead of a spec")
    end
    return self.frames:new(spec)
    --   next = spec.next,
@@ -687,14 +688,19 @@ function class:declareFrame (id, spec)
    -- })
 end
 
-function class:declareFrames (specs)
+function class:_declareFrames (specs)
    if specs then
       SU.deprecated("class:declareFrames(specs)", "class:declareFrames", "0.16.0", "0.17.0")
-      SU.eror("REimplement spec iteration")
    end
-   for k, v in pairs(specs) do
-      self.frames:new(v)
-      self:declareFrame(k, v)
+   if self.defaultFrameset then
+      SU.deprecated("class.defaultFrameset", "class:declareFrames", "0.16.0", "0.17.0")
+      specs = self.defaultFrameset
+   end
+   if specs then
+      for id, spec in pairs(specs) do
+         if not spec.id then spec.id = id end
+         self.frames:new(spec)
+      end
    end
 end
 
