@@ -57,8 +57,9 @@ function class:_init (options)
          SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
          self.frames:setDefault(self.firstContentFrame)
       end
+      SILE.typesetter = SILE.typesetters.default()
       local frame = self_.frames:getDefault()
-      SILE.typesetter = SILE.typesetters.default(frame)
+      SILE.typesetter:switchToFrame(frame)
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
             for _, v in pairs(SILE.frames) do
