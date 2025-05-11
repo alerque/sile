@@ -53,14 +53,14 @@ function frame:_init (spec, dummy)
 end
 
 function frame:init (typesetter)
-   SU.deprecated("frame:init", "frame:use", "0.16.0", "0.17.0")
-   return self:use(typesetter)
+   SU.deprecated("frame:init", "frame:connectToTypesetter", "0.16.0", "0.17.0")
+   return self:connectToTypesetter(typesetter)
 end
 
 -- This gets called by us in typesetter before we start to use the frame
-function frame:use (typesetter)
+function frame:connectToTypesetter (typesetter)
    if self.typesetter then
-      SU.error("Re-using frame that has already been given to a typesetter")
+      SU.error("Re-using frame that has already been connected to a typesetter")
    end
    self.state = { totals = { height = SILE.types.measurement(0) } }
    self:enter(typesetter)

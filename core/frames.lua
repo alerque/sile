@@ -62,6 +62,12 @@ function frames:getNext (parent)
 end
 
 function frames:use (parent, id)
+   if parent.type ~= "typesetter" then
+      SU.dump(parent == SILE)
+      SU.error("Attempt by non-typesetter to use a frame")
+   end
+   local frame = self:get(parent, id)
+   frame:connectToTypesetter(parent)
 end
 
 function frames:makeSet(id)

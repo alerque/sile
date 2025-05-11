@@ -203,12 +203,11 @@ function typesetter:initFrame (frame)
 end
 
 function typesetter:switchToFrame (frame)
-   if not frame then
-      frame = self.frame.id
+   if not frame or not frame.id then
+      SU.deprecated("typesetter:switchToFrame", "typesetter:switchToFrame", "0.16.0", "0.17.0", [[Frame argument must be instantiated frame, not an id]])
+      frame = self.frames:get(frame or self.frame.id)
    end
    self.frames:use(frame)
-   -- self.frames.current = frame
-   -- self.frame = frame:use(self)
 end
 
 function typesetter:getMargins ()
