@@ -54,15 +54,20 @@ end
 
 function frame:init (typesetter)
    SU.deprecated("frame:init", "frame:use", "0.16.0", "0.17.0")
-   return self:attachTypesetter(typesetter)
+   return self:use(typesetter)
 end
 
 -- This gets called by us in typesetter before we start to use the frame
 function frame:use (typesetter)
+   if self.typesetter then
+      SU.error("Re-using frame that has already been given to a typesetter")
+   end
    self.state = { totals = { height = SILE.types.measurement(0) } }
    self:enter(typesetter)
    self:resetCursor()
    self:newLine(typesetter)
+   self.typesetter = typesetter
+   return self
 end
 
 function frame:resetCursor ()
@@ -245,10 +250,6 @@ function frame:isAbsoluteConstraint (method)
       end
    end
    return true
-end
-
-function frame:next()
-   return self.next
 end
 
 function frame:isMainContentFrame ()

@@ -52,12 +52,16 @@ function frames:getDefault (parent)
 end
 
 function frames:getNext (parent)
-   if not parent._type == "typesetter" then
-      SU.error("Implement finding current frame outside of the typesetter")
+   if parent._type ~= "typesetter" then
+      -- SU.dump(parent == SILE)
+      SU.warn("Implement finding current frame outside of the typesetter")
    end
    local current = parent.frame
-   local next = current:next()
-   return self:get(next)
+   local next = current.next
+   return next and self:get(next)
+end
+
+function frames:use (parent, id)
 end
 
 function frames:makeSet(id)

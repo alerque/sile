@@ -32,7 +32,7 @@ local _margins = pl.class({
 function typesetter:_init (frame)
    if not frame then
       SU.warn("No frame specified for typesetter, creating dummy frame")
-      self.frame = SILE.types.frame({}, true)
+      frame = SILE.types.frame({}, true)
    end
    -- TODO: make class first arg of typesetter init, ditch globals hack
    self.class = SILE.documentState.documentClass
@@ -204,9 +204,11 @@ end
 
 function typesetter:switchToFrame (frame)
    if not frame then
-      frame = self.frame
+      frame = self.frame.id
    end
-   self.frame = frame:use(self)
+   self.frames:use(frame)
+   -- self.frames.current = frame
+   -- self.frame = frame:use(self)
 end
 
 function typesetter:getMargins ()
@@ -881,7 +883,8 @@ function typesetter:initNextFrame ()
    if #self.state.outputQueue == 0 then
       self.state.previousVbox = nil
    end
-   local next = self.frames:next()
+   local next = self.frames:getNext()
+   -- TODO this if/elseif/else is missing a branch
    if next and self.state.lastPenalty > supereject_penalty then
       self:switchToFrame(next)
    elseif not self.frame:isMainContentFrame() then
@@ -892,7 +895,8 @@ function typesetter:initNextFrame ()
    else
       self:runHooks("pageend")
       self.class:endPage()
-      self:switchToFrame(self.class:newPage())
+      next = self.class:newPage()
+      self:switchToFrame(next)
    end
 
    if not SU.feq(oldframe:getLineWidth(), self.frame:getLineWidth()) then
