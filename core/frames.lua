@@ -5,7 +5,9 @@
 local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
-frames.default = false
+
+frames.default = nil
+frames.current = nil
 
 function frames:_init ()
    registry._init(self)
@@ -21,7 +23,7 @@ function frames:new (parent, spec, prototype)
    local frame = prototype(spec)
    -- If we only have one frame, make it the default
    if not self.default or spec.default then
-      self.default = frame.id
+      self.default = frame
    end
    return self:push(parent, frame)
 end
@@ -71,6 +73,7 @@ function frames:use (parent, frame)
       SU.deprecated("frames:use", "frames:use", "0.16.0", "0.17.0", [[Wants frame, not id]])
       frame = self:get(parent, frame)
    end
+   self.current = frame
    frame:connectToTypesetter(parent)
 end
 
