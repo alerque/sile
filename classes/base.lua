@@ -57,9 +57,10 @@ function class:_init (options)
          SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
          self.frames:setDefault(self.firstContentFrame)
       end
-      SILE.typesetter = SILE.typesetters.default()
       local frame = self_.frames:getDefault()
-      SILE.typesetter:switchToFrame(frame)
+      -- SILE.typesetter:switchToFrame(frame)
+      SILE.typesetter = SILE.typesetters.default(frame)
+      -- SU.error("Whatsit")
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
             for _, v in pairs(SILE.frames) do
@@ -586,7 +587,7 @@ function class:_registerCommands ()
       handler(options, content)
    end, "Invoke a raw passthrough handler")
 
-   self.commands:register("pagetemplate", function (options, content)
+   self.commands:register("pagetemplate", function (_options, _content)
       SU.warn("redo page tmplate")
       -- SILE.typesetter:pushState()
       -- SILE.documentState.thisPageTemplate = { frames = {} }
@@ -596,7 +597,7 @@ function class:_registerCommands ()
       -- SILE.typesetter:popState()
    end, "Defines a new page template for the current page and sets the typesetter to use it.")
 
-   self.commands:register("frame", function (options, _)
+   self.commands:register("frame", function (_options, _content)
       SU.warn("redo frame command")
       -- SILE.documentState.thisPageTemplate.frames[options.id] = SILE.newFrame(options)
    end, "Declares (or re-declares) a frame on this page.")
@@ -672,7 +673,7 @@ function class:initialFrame ()
    -- return SILE.documentState.thisPageTemplate.firstContentFrame
 end
 
-function class:declareFrame (id, spec)
+function class:declareFrame (_id, spec)
    SU.deprecated("class:declareFrame", "<module>.frames:new", "0.16.0", "0.17.0")
    if SILE.types.frame:class_of(spec) then
       SU.error("Why sending a frame instead of a spec")

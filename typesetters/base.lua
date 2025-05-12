@@ -32,7 +32,7 @@ local _margins = pl.class({
 function typesetter:_init (frame)
    if not frame then
       SU.warn("No frame specified for typesetter, creating dummy frame")
-      frame = SILE.types.frame({}, true)
+      frame = SILE.types.frame({ id = "dummy" }, true)
    end
    -- TODO: make class first arg of typesetter init, ditch globals hack
    self.class = SILE.documentState.documentClass

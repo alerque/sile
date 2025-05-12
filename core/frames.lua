@@ -55,25 +55,29 @@ function frames:getNext (parent)
    if parent._type ~= "typesetter" then
       -- SU.dump(parent == SILE)
       SU.warn("Implement finding current frame outside of the typesetter")
+      parent = SILE.typesetter
    end
    local current = parent.frame
    local next = current.next
    return next and self:get(next)
 end
 
-function frames:use (parent, id)
+function frames:use (parent, frame)
    if parent.type ~= "typesetter" then
       SU.dump(parent == SILE)
-      SU.error("Attempt by non-typesetter to use a frame")
+      SU.warn("Attempt by non-typesetter to use a frame")
    end
-   local frame = self:get(parent, id)
+   if type(frame) == "string" then
+      SU.deprecated("frames:use", "frames:use", "0.16.0", "0.17.0", [[Wants frame, not id]])
+      frame = self:get(parent, frame)
+   end
    frame:connectToTypesetter(parent)
 end
 
-function frames:makeSet(id)
+function frames:makeSet(_id)
 end
 
-function frames:enterSet(id)
+function frames:enterSet(_id)
 end
 
 function frames:clear()
