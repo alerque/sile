@@ -58,9 +58,8 @@ function class:_init (options)
          self.frames:setDefault(self.firstContentFrame)
       end
       local frame = self_.frames:getDefault()
-      -- SILE.typesetter:switchToFrame(frame)
       SILE.typesetter = SILE.typesetters.default(frame)
-      -- SU.error("Whatsit")
+      SU.error("Whatsit")
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
             for _, v in pairs(SILE.frames) do
@@ -761,6 +760,7 @@ function class:newPage ()
 end
 
 function class:endPage ()
+   SILE.frames:dump()
    SILE.typesetter.frame:leave(SILE.typesetter)
    self:runHooks("endpage")
    -- I'm trying to call up a new frame here, don't cause a page break in the current one

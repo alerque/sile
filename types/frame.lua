@@ -60,7 +60,7 @@ end
 -- This gets called by us in typesetter before we start to use the frame
 function frame:connectToTypesetter (typesetter)
    if self.typesetter then
-      SU.error("Re-using frame that has already been connected to a typesetter")
+      SU.warn("Re-using frame that has already been connected to a typesetter")
    end
    self.state = { totals = { height = SILE.types.measurement(0) } }
    self:enter(typesetter)

@@ -1,19 +1,19 @@
 -- TODO: this probably needs deprecating, moved here just to get out of the way so
 -- typesetters classing works as expected
 local function typesetNaturally (frame, func)
-   local saveTypesetter = SILE.typesetter
-   if SILE.typesetter.frame then
-      SILE.typesetter.frame:leave(SILE.typesetter)
-   end
-   SILE.typesetter = SILE.typesetters.default(frame)
-   SILE.settings:temporarily(func)
-   SILE.typesetter:leaveHmode()
-   SILE.typesetter:chuck()
-   SILE.typesetter.frame:leave(SILE.typesetter)
-   SILE.typesetter = saveTypesetter
-   if SILE.typesetter.frame then
-      SILE.typesetter.frame:enter(SILE.typesetter)
-   end
+   -- local saveTypesetter = SILE.typesetter
+   -- if SILE.typesetter.frame then
+   --    SILE.typesetter.frame:leave(SILE.typesetter)
+   -- end
+   -- SILE.typesetter = SILE.typesetters.default(frame)
+   -- SILE.settings:temporarily(func)
+   -- SILE.typesetter:leaveHmode()
+   -- SILE.typesetter:chuck()
+   -- SILE.typesetter.frame:leave(SILE.typesetter)
+   -- SILE.typesetter = saveTypesetter
+   -- if SILE.typesetter.frame then
+   --    SILE.typesetter.frame:enter(SILE.typesetter)
+   -- end
 end
 
 local function call (name, options, content)

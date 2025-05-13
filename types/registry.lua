@@ -19,7 +19,7 @@ function registry:forModule (parent)
    local wrapper = {}
    setmetatable(wrapper, {
       __index = function (_, key)
-         if type(self[key]) == "function" then
+         if type(self[key]) == "function" and key ~= "forModule" then
             return function (_, ...)
                return self[key](self, parent, ...)
             end

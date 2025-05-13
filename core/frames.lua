@@ -6,8 +6,8 @@ local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
 
-frames.default = nil
-frames.current = nil
+-- frames.default = nil
+-- frames.current = nil
 
 function frames:_init ()
    registry._init(self)
@@ -64,10 +64,13 @@ function frames:getNext (parent)
    return next and self:get(next)
 end
 
-function frames:use (parent, frame)
+function frames:use (parent, frame, check)
+   if check ~= "x" then
+      SU.error("Some other caller")
+   end
    if parent.type ~= "typesetter" then
       SU.dump(parent == SILE)
-      SU.warn("Attempt by non-typesetter to use a frame")
+      SU.error("Attempt by non-typesetter to use a frame")
    end
    if type(frame) == "string" then
       SU.deprecated("frames:use", "frames:use", "0.16.0", "0.17.0", [[Wants frame, not id]])
