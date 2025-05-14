@@ -132,11 +132,13 @@ function frame:solve ()
       SILE.frames.page:addWidthHeightDefinitions(solver)
    end
    for id, frame in pairs(SILE.frames) do
-      if not (id == "page") then
-         for method, _ in pairs(frame.constraints) do
-            frame:reifyConstraint(solver, method)
+      if id ~= "page" then
+         if frame.constraints then
+            for method, _ in pairs(frame.constraints) do
+               frame:reifyConstraint(solver, method)
+            end
+            frame:addWidthHeightDefinitions(solver)
          end
-         frame:addWidthHeightDefinitions(solver)
       end
    end
    solver:solve()

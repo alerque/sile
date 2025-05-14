@@ -47,13 +47,12 @@ end
 
 function typesetter:_post_init (x)
    module._post_init(self)
-   SU.dump{self.type, self._name, self.frames}
    self:switchToFrame(self.frame)
-   -- self:initState()
-   -- self.language = SILE.languages.en(self)
-   -- -- Since it is the default and will get created as an instance before the callback triggers for the first *change*,
-   -- -- we need to force the first load here.
-   -- self:switchLanguage("en", true)
+   self:initState()
+   self.language = SILE.languages.en(self)
+   -- Since it is the default and will get created as an instance before the callback triggers for the first *change*,
+   -- we need to force the first load here.
+   self:switchLanguage("en", true)
 end
 
 typesetter._language_cache = {}
@@ -208,14 +207,7 @@ function typesetter:switchToFrame (frame)
       SU.deprecated("typesetter:switchToFrame", "typesetter:switchToFrame", "0.16.0", "0.17.0", [[Frame argument must be instantiated frame, not an id]])
       frame = self.frames:get(frame or self.frame.id)
    end
-   if self.type ~= "typesetter" then
-      SU.error("Hold UP MATE!")
-   else
-      SU.dump{ "from typ self is sile", self == SILE, self.type }
-      SU.dump{ "LOCAL NOT GLOBAL", self.frames ~= SILE.frames }
-   end
-   self.frames:use(frame, "x")
-   -- self.frames.use(self.frames, self, frame)
+   self.frames:use(frame)
 end
 
 function typesetter:getMargins ()

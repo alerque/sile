@@ -13,20 +13,20 @@ function registry:_init ()
 end
 
 function registry:forModule (parent)
-   SU.debug("registries", "Setup", self._name, "for", parent.type)
    if not SILE.types.module:class_of(parent) and parent ~= SILE then
       SU.error("Attempted to initialize registry for non-module " .. parent)
    end
-   local wrapper = {}
+   local root = self._root_registry or self
+   local wrapper = { _root_registry = root }
    setmetatable(wrapper, {
-      __index = function (_, key)
-         if type(self[key]) == "function" and key ~= "forModule" then
-            SU.debug("registries", "Make wrapper of", key, "for", self._name, "in", parent.type)
+      __index = function (wrapper, key)
+         local _root = wrapper._root_registry
+         if type(_root[key]) == "function" and key ~= "forModule" then
             return function (_, ...)
-               return self[key](self, parent, ...)
+               return _root[key](_root, parent, ...)
             end
          else
-            return self[key]
+            return _root[key]
          end
       end,
    })

@@ -153,6 +153,11 @@ SILE.commands = require("core.commands")():forModule(SILE)
 SILE.frames = require("core.frames")():forModule(SILE)
 SILE.settings = require("core.settings")():forModule(SILE)
 
+-- local x = string.format("%p %p %p", SILE.commands, SILE.frames, SILE.settings)
+-- local y = string.format("%s %s %s", SILE.commands.lvl, SILE.frames.lvl, SILE.settings.lvl)
+-- SU.warn(x)
+-- SU.warn(y)
+
 -- Internal modules and return classes that need instantiation (loading is idempotent)
 SILE.inputters = core_loader("inputters")
 SILE.shapers = core_loader("shapers")

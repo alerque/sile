@@ -55,7 +55,6 @@ end
 
 function frames:getNext (parent)
    if parent._type ~= "typesetter" then
-      -- SU.dump(parent == SILE)
       SU.warn("Implement finding current frame outside of the typesetter")
       parent = SILE.typesetter
    end
@@ -64,12 +63,8 @@ function frames:getNext (parent)
    return next and self:get(next)
 end
 
-function frames:use (parent, frame, check)
-   if check ~= "x" then
-      SU.error("Some other caller")
-   end
+function frames:use (parent, frame)
    if parent.type ~= "typesetter" then
-      SU.dump(parent == SILE)
       SU.error("Attempt by non-typesetter to use a frame")
    end
    if type(frame) == "string" then

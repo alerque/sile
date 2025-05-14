@@ -40,12 +40,7 @@ end
 
 --- Declare a new setting
 --- @tparam table spec { parameter, type, default, help, hook, ... } declaration specification
-function settings:declare (parent, spec, foo)
-   if foo then
-      print()
-      SU.dump{ "self", self, "p is g", parent == SILE, "spec", spec, "foo", foo }
-      SU.error("too many args")
-   end
+function settings:declare (parent, spec)
    if self:exists(parent, spec.parameter) then
       SU.debug("settings", "WARNING: Redeclaring setting", spec.parameter)
    else

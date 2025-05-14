@@ -59,7 +59,6 @@ function class:_init (options)
       end
       local frame = self_.frames:getDefault()
       SILE.typesetter = SILE.typesetters.default(frame)
-      SU.error("Whatsit")
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
             for _, v in pairs(SILE.frames) do
