@@ -53,11 +53,8 @@ function class:_init (options)
    SILE.scratch.half_initialized_class = self
    module._init(self, options)
    self:registerPostinit(function (self_)
-      if type(self.firstContentFrame) == "string" then
-         SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
-         self.frames:setDefault(self.firstContentFrame)
-      end
-      local frame = self_.frames:getDefault()
+      -- local frame = self_.frames:getDefault()
+      local frame = self_:initialFrame()
       SILE.typesetter = SILE.typesetters.default(frame)
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
@@ -658,6 +655,7 @@ function class:initialFrame ()
    SU.deprecated("class:initialFrame", "class:", "0.16.0", "0.17.0")
    SU.warn("Redo initial frame")
    -- SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
+   self.frames:enterSet()
    -- -- Truncate list of frames to just the page
    -- -- SILE.frames = { page = SILE.frames.page }
    -- -- Re-init the frameset for a new page
@@ -677,24 +675,19 @@ function class:declareFrame (_id, spec)
       SU.error("Why sending a frame instead of a spec")
    end
    return self.frames:new(spec)
-   --   next = spec.next,
-   --   left = spec.left and fW(spec.left),
-   --   right = spec.right and fW(spec.right),
-   --   top = spec.top and fH(spec.top),
-   --   bottom = spec.bottom and fH(spec.bottom),
-   --   height = spec.height and fH(spec.height),
-   --   width = spec.width and fH(spec.width),
-   --   id = id
-   -- })
 end
 
 function class:_declareFrames (specs)
    if specs then
       SU.deprecated("class:declareFrames(specs)", "class:declareFrames", "0.16.0", "0.17.0")
    end
-   if self.defaultFrameset then
+   if type(self.defaultFrameset) == "table" then
       SU.deprecated("class.defaultFrameset", "class:declareFrames", "0.16.0", "0.17.0")
       specs = self.defaultFrameset
+   end
+   if type(self.firstContentFrame) == "string" then
+      SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
+      self.frames:setDefault(self.firstContentFrame)
    end
    if specs then
       for id, spec in pairs(specs) do

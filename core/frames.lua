@@ -6,11 +6,9 @@ local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
 
--- frames.default = nil
--- frames.current = nil
-
 function frames:_init ()
    registry._init(self)
+   self.default = nil
 end
 
 function frames:new (parent, spec, prototype)
@@ -55,7 +53,7 @@ end
 
 function frames:getNext (parent)
    if parent._type ~= "typesetter" then
-      SU.warn("Implement finding current frame outside of the typesetter")
+      SU.error("Implement finding current frame outside of the typesetter")
       parent = SILE.typesetter
    end
    local current = parent.frame
