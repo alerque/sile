@@ -47,6 +47,7 @@ end
 
 function typesetter:_post_init (x)
    module._post_init(self)
+   self.frames:defineSet()
    self:switchToFrame(self.frame)
    self:initState()
    self.language = SILE.languages.en(self)

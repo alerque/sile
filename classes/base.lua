@@ -677,24 +677,29 @@ function class:declareFrame (_id, spec)
    return self.frames:new(spec)
 end
 
-function class:_declareFrames (specs)
-   if specs then
-      SU.deprecated("class:declareFrames(specs)", "class:declareFrames", "0.16.0", "0.17.0")
-   end
+function class:_declareFrames ()
    if type(self.defaultFrameset) == "table" then
       SU.deprecated("class.defaultFrameset", "class:declareFrames", "0.16.0", "0.17.0")
-      specs = self.defaultFrameset
+      for id, spec in pairs(self.defaultFrameset) do
+         if not spec.id then spec.id = id end
+         self.frames:new(spec)
+      end
    end
    if type(self.firstContentFrame) == "string" then
       SU.deprecated("class.firstContentFrame", "<module>.frames:setDefault", "0.16.0", "0.17.0")
       self.frames:setDefault(self.firstContentFrame)
    end
+end
+
+function class:declareFrames (specs)
    if specs then
+      SU.deprecated("class:declareFrames(specs)", "class:declareFrames", "0.16.0", "0.17.0")
       for id, spec in pairs(specs) do
          if not spec.id then spec.id = id end
          self.frames:new(spec)
       end
    end
+   module.declareFrames(self)
 end
 
 function class:newPar (typesetter)

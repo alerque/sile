@@ -6,6 +6,8 @@ local registry = require("types.registry")
 local frames = pl.class(registry)
 frames._name = "frames"
 
+frames.sets = {}
+
 function frames:_init ()
    registry._init(self)
    self.default = nil
@@ -73,7 +75,8 @@ function frames:use (parent, frame)
    frame:connectToTypesetter(parent)
 end
 
-function frames:makeSet(_id)
+-- Keep a copy of clean frames around for use in the next page
+function frames:defineSet(_id)
 end
 
 function frames:enterSet(_id)
