@@ -76,10 +76,19 @@ function frames:use (parent, frame)
 end
 
 -- Keep a copy of clean frames around for use in the next page
-function frames:defineSet(_id)
+function frames:defineSet(_parent, set_id)
+   local set = {}
+   for frame_id, stack in pairs(self._registry) do
+      set[frame_id] = stack[1]
+   end
+   table.insert(self.sets, set)
+   if set_id then
+      self.sets[set_id] = #self.sets
+   end
 end
 
-function frames:enterSet(_id)
+function frames:enterSet(parent, _id)
+   local frame = self:getDefault()
 end
 
 function frames:clear()

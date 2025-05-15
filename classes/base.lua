@@ -53,8 +53,9 @@ function class:_init (options)
    SILE.scratch.half_initialized_class = self
    module._init(self, options)
    self:registerPostinit(function (self_)
-      -- local frame = self_.frames:getDefault()
-      local frame = self_:initialFrame()
+      -- By this time all frames should be setup, so mark our place and start using them
+      self.frames:defineSet()
+      local frame = self.frames:enterSet()
       SILE.typesetter = SILE.typesetters.default(frame)
       SILE.typesetter:registerPageEndHook(function ()
          SU.debug("frames", function ()
@@ -654,8 +655,8 @@ end
 function class:initialFrame ()
    SU.deprecated("class:initialFrame", "class:", "0.16.0", "0.17.0")
    SU.warn("Redo initial frame")
-   -- SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
    self.frames:enterSet()
+   -- SILE.documentState.thisPageTemplate = pl.tablex.deepcopy(self.pageTemplate)
    -- -- Truncate list of frames to just the page
    -- -- SILE.frames = { page = SILE.frames.page }
    -- -- Re-init the frameset for a new page
