@@ -81,9 +81,11 @@ function frames:defineSet(_parent, set_id)
    SU.debug("frames", "Turning all frames in current to date part of set")
    local set = {}
    for frame_id, stack in pairs(self._registry) do
-      set[frame_id] = stack[1]:clone()
+      if stack[1] then -- The top of the stack might not have a given frame
+         set[frame_id] = stack[1]:clone()
+      end
    end
-   table.insert(self.sets, set)
+   table.insert(self.sets, set, #self.sets+1)
    if set_id then
       self.sets[set_id] = #self.sets
    end
@@ -94,6 +96,10 @@ function frames:enterSet(parent, id)
    local id = id or #self.sets
    SU.debug("frames", "Entering first content frame of set", id)
    -- Reset current frame registry to just the page
+   for id in (self._registry) do
+      local value = id == "page" and stack[1]:clone() or nil
+      table.insert(self._registry[id], value)
+   end
    -- Bring in the frame set as the current set of frames in the stack
    -- Find the first content frame
    -- Return it
