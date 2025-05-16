@@ -7,6 +7,7 @@ local frames = pl.class(registry)
 frames._name = "frames"
 
 frames.sets = {}
+frames.current = {}
 
 function frames:_init ()
    registry._init(self)
@@ -76,7 +77,8 @@ function frames:use (parent, frame)
 end
 
 -- Keep a copy of clean frames around for use in the next page
-function frames:defineSet(_parent, set_id)
+function frames:defineSet(parent, set_id)
+   SU.debug("frames", "Turning all frames in current to date part of set")
    local set = {}
    for frame_id, stack in pairs(self._registry) do
       set[frame_id] = stack[1]
@@ -85,10 +87,18 @@ function frames:defineSet(_parent, set_id)
    if set_id then
       self.sets[set_id] = #self.sets
    end
+   SU.dump(self.sets)
+   SU.error("SSTTOOPP")
+   return set_id or #self.sets
+   -- return self.sets[set_id or #self.sets]
 end
 
-function frames:enterSet(parent, _id)
-   local frame = self:getDefault()
+function frames:enterSet(parent, id)
+   local id = id or #self.sets
+   SU.debug("frames", "Entering first content frame of set", id)
+   local set = pl.tablex.deepcopy(self.sets[id])
+   SU.dump(set)
+   -- local frame = self:getDefault(parent)
 end
 
 function frames:clear()

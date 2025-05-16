@@ -15,41 +15,49 @@ local heightdims = pl.Set({ "top", "bottom", "height" })
 local alldims = widthdims + heightdims
 
 frame.direction = "LTR-TTB"
+
+-- TODO refactor with a hook table with multiple types
 frame.enterHooks = {}
 frame.leaveHooks = {}
 
 function frame:_init (spec, dummy)
    SU.required(spec, "id", "frame declaration")
+   self._spec = spec
+   -- Redo this to read form the typesetter status on enter, not on frame creation
    local direction = SILE.documentState.direction
    if direction then
       self.direction = direction
    end
-   self.constraints = {}
-   self.variables = {}
    self.id = spec.id
+   self.balanced = SU.boolean(spec.balanced, false)
+   self.dummy = SU.boolean(dummy or spec.dummy, false)
    for k, v in pairs(spec) do
       if not alldims[k] then
          self[k] = v
       end
    end
-   self.balanced = SU.boolean(self.balanced, false)
-   self.dummy = dummy
+end
+
+function frame:_post_init ()
+   if true then return end
+   self.constraints = {}
+   self.variables = {}
    if not self.dummy then
       for method in pairs(alldims) do
-         self.variables[method] = cassowary.Variable({ name = spec.id .. "_" .. method })
+         self.variables[method] = cassowary.Variable({ name = self._spec.id .. "_" .. method })
          self[method] = function (instance_self)
-            instance_self:solve()
-            local value = instance_self.variables[method].value
-            return SILE.types.measurement(value)
+               instance_self:solve()
+               local value = instance_self.variables[method].value
+               return SILE.types.measurement(value)
+            end
+         end
+         -- Add definitions of width and height
+         for method in pairs(alldims) do
+            if self._spec[method] then
+               self:constrain(method, self._spec[method])
+            end
          end
       end
-      -- Add definitions of width and height
-      for method in pairs(alldims) do
-         if spec[method] then
-            self:constrain(method, spec[method])
-         end
-      end
-   end
 end
 
 function frame:init (typesetter)
@@ -59,15 +67,16 @@ end
 
 -- This gets called by us in typesetter before we start to use the frame
 function frame:connectToTypesetter (typesetter)
+   -- TODO make sure is solved
    if self.typesetter then
       SU.warn("Re-using frame that has already been connected to a typesetter")
    end
-   self.state = { totals = { height = SILE.types.measurement(0) } }
-   self:enter(typesetter)
-   self:resetCursor()
-   self:newLine(typesetter)
-   self.typesetter = typesetter
-   return self
+   -- self.state = { totals = { height = SILE.types.measurement(0) } }
+   -- self:enter(typesetter)
+   -- self:resetCursor()
+   -- self:newLine(typesetter)
+   -- self.typesetter = typesetter
+   -- return self
 end
 
 function frame:resetCursor ()
@@ -224,6 +233,7 @@ function frame:getTargetLength ()
 end
 
 function frame:enter (typesetter)
+   -- TODO make sure is solved
    for i = 1, #self.enterHooks do
       self.enterHooks[i](self, typesetter)
    end
@@ -272,6 +282,17 @@ function frame:isMainContentFrame ()
    return false
 end
 
+-- Return a fresh copy of the frame based on the original specs without being "in use" by a typesetter or having any of
+-- the constraints solved.
+function frame:clone ()
+   local spec = pl.tablex.copy(self._spec)
+   local frame = self._base(spec)
+   for _, k in ipairs({ "balanced", "dummy", "direction", "enterHooks", "leaveHooks" }) do
+      frame[k] = self[k]
+   end
+   return frame
+end
+
 function frame:__tostring ()
    return self.id
 end
@@ -293,4 +314,6 @@ function frame:__debug ()
    return str
 end
 
-return frame
+-- Work around _post_init() only getting called from base classes
+local _frame = pl.class(frame)
+return _frame
