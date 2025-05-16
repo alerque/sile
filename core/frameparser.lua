@@ -12,7 +12,8 @@ local functionOfFrame = function (dim, id)
       -- TODO: Fix this race condition properly!
       SILE.newFrame({ id = id })
    end
-   return SILE.frames[id].variables[dim]
+   -- TODO implement without a private attribute
+   return SILE.frames[id]._variables[dim]
 end
 
 -- stylua: ignore start

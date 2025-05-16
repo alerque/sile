@@ -77,26 +77,27 @@ function frames:use (parent, frame)
 end
 
 -- Keep a copy of clean frames around for use in the next page
-function frames:defineSet(parent, set_id)
+function frames:defineSet(_parent, set_id)
    SU.debug("frames", "Turning all frames in current to date part of set")
    local set = {}
    for frame_id, stack in pairs(self._registry) do
-      set[frame_id] = stack[1]
+      set[frame_id] = stack[1]:clone()
    end
    table.insert(self.sets, set)
    if set_id then
       self.sets[set_id] = #self.sets
    end
-   SU.dump(self.sets)
-   SU.error("SSTTOOPP")
    return set_id or #self.sets
-   -- return self.sets[set_id or #self.sets]
 end
 
 function frames:enterSet(parent, id)
    local id = id or #self.sets
    SU.debug("frames", "Entering first content frame of set", id)
-   local set = pl.tablex.deepcopy(self.sets[id])
+   -- Reset current frame registry to just the page
+   -- Bring in the frame set as the current set of frames in the stack
+   -- Find the first content frame
+   -- Return it
+   local set = self.sets[id]
    SU.dump(set)
    -- local frame = self:getDefault(parent)
 end

@@ -30,6 +30,8 @@ function frame:_init (spec, dummy)
    end
    self.id = spec.id
    self.balanced = SU.boolean(spec.balanced, false)
+   self.mirrored = SU.boolean(spec.mirrored, false) -- TODO redo twoside, use this to swap constraints
+   self.flipped = SU.boolean(spec.flipped, false) -- TODO implement the same as mirroring for vertical
    self.dummy = SU.boolean(dummy or spec.dummy, false)
    for k, v in pairs(spec) do
       if not alldims[k] then
@@ -40,14 +42,29 @@ end
 
 function frame:_post_init ()
    if true then return end
-   self.constraints = {}
-   self.variables = {}
+   frame._constraints = {}
+   self.constraints = setmetatable({}, {
+      __call = function (...)
+         -- eventually _constraints_pairs() should just be constraints(), this is a shim because it used to be direct
+         -- access to an attribute table that is now supposed to be private
+         return self._constraints_pairs(...)
+      end,
+      __index = function (_, key)
+         SU.deprecated("frame.constraints.*", "frame._constraints", "0.16.0", "0.17.0", [[Use the contsraint method to fetch constraints.]])
+         return self._constraints[key]
+      end,
+      __newindex = function (_, key, value)
+         SU.deprecated("frame.constraints.*", "frame:constrain()", "0.16.0", "0.17.0", [[Use the constrain method to add constraints.]])
+         return self:constrain(key, value)
+      end,
+   })
+   self._variables = {}
    if not self.dummy then
       for method in pairs(alldims) do
-         self.variables[method] = cassowary.Variable({ name = self._spec.id .. "_" .. method })
-         self[method] = function (instance_self)
-               instance_self:solve()
-               local value = instance_self.variables[method].value
+         self._variables[method] = cassowary.Variable({ name = self._spec.id .. "_" .. method })
+         self[method] = function (self_)
+               self_:solve()
+               local value = self_._variables[method].value
                return SILE.types.measurement(value)
             end
          end
@@ -96,16 +113,25 @@ function frame:constrain (method, dimension)
    self:invalidate()
 end
 
+function frame:constraint (method)
+   return tostring(self._constraints[method])
+end
+
+function frame:_constraints_pairs ()
+   return pairs(self._constraints)
+end
+
 function frame:invalidate ()
    solverNeedsReloading = true
 end
 
 function frame:relax (method)
-   self.constraints[method] = nil
+   self._constraints[method] = nil
+   self:invalidate()
 end
 
 function frame:reifyConstraint (solver, method, stay)
-   local constraint = self.constraints[method]
+   local constraint = self._constraints[method]
    if not constraint then
       return
    end
@@ -113,7 +139,7 @@ function frame:reifyConstraint (solver, method, stay)
    SU.debug("frames", "Adding constraint", self.id, function ()
       return "(" .. method .. ") = " .. tostring(constraint)
    end)
-   local eq = cassowary.Equation(self.variables[method], constraint)
+   local eq = cassowary.Equation(self._variables[method], constraint)
    solver:addConstraint(eq)
    if stay then
       solver:addStay(eq)
@@ -121,7 +147,7 @@ function frame:reifyConstraint (solver, method, stay)
 end
 
 function frame:addWidthHeightDefinitions (solver)
-   local vars = self.variables
+   local vars = self._variables
    solver:addConstraint(cassowary.Equation(vars.width, cassowary.minus(vars.right, vars.left)))
    solver:addConstraint(cassowary.Equation(vars.height, cassowary.minus(vars.bottom, vars.top)))
 end
@@ -135,19 +161,17 @@ function frame:solve ()
    SU.debug("frames", "Solving...")
    solver = cassowary.SimplexSolver()
    if SILE.frames.page then
-      for method, _ in pairs(SILE.frames.page.constraints) do
+      for method, _ in SILE.frames.page:constraints() do
          SILE.frames.page:reifyConstraint(solver, method, true)
       end
       SILE.frames.page:addWidthHeightDefinitions(solver)
    end
    for id, frame in pairs(SILE.frames) do
       if id ~= "page" then
-         if frame.constraints then
-            for method, _ in pairs(frame.constraints) do
-               frame:reifyConstraint(solver, method)
-            end
-            frame:addWidthHeightDefinitions(solver)
+         for method, _ in frame:constraints() do
+            frame:reifyConstraint(solver, method)
          end
+         frame:addWidthHeightDefinitions(solver)
       end
    end
    solver:solve()
@@ -287,7 +311,7 @@ end
 function frame:clone ()
    local spec = pl.tablex.copy(self._spec)
    local frame = self._base(spec)
-   for _, k in ipairs({ "balanced", "dummy", "direction", "enterHooks", "leaveHooks" }) do
+   for _, k in ipairs({ "balanced", "mirrored", "flipped", "dummy", "direction", "enterHooks", "leaveHooks" }) do
       frame[k] = self[k]
    end
    return frame
