@@ -40,6 +40,12 @@ function frame:_init (spec, dummy)
    end
    self._constraints = {}
    self._variables = {}
+   for method in pairs(alldims) do
+      SU.debug("frames", "SET PSEUDO HOLDER", method)
+      self[method] = function ()
+         SU.error("Attempt to use a size method from an unreloved frame", true)
+      end
+   end
 end
 
 function frame:_post_init ()

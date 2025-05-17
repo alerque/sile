@@ -62,8 +62,8 @@ function class:_post_init ()
    SILE.typesetter = SILE.typesetters.default(frame)
    SILE.typesetter:registerPageEndHook(function ()
       SU.debug("frames", function ()
-         for _, v in pairs(SILE.frames) do
-            SILE.outputter:debugFrame(v)
+         for _, frame in self.frames:iterate() do
+            SILE.outputter:debugFrame(frame)
          end
          return "Drew debug outlines around frames"
       end)

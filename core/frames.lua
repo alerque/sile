@@ -118,10 +118,11 @@ function frames:parseComplexFrameDimension (_parent, dimension)
    if type(length) == "table" then
       local g = cassowary.Variable({ name = "t" })
       local eq = cassowary.Equation(g, length)
-      SILE.frames.page:invalidate()
+      local page = self:pull("page")
+      page:invalidate()
       solver:addConstraint(eq)
-      SILE.frames.page:solve()
-      SILE.frames.page:invalidate()
+      page:solve()
+      page:invalidate()
       return g.value
    end
    return length
