@@ -38,11 +38,11 @@ function frame:_init (spec, dummy)
          self[k] = v
       end
    end
+   self._constraints = {}
+   self._variables = {}
 end
 
 function frame:_post_init ()
-   if true then return end
-   frame._constraints = {}
    self.constraints = setmetatable({}, {
       __index = function (_, key)
          SU.deprecated("frame.constraints.*", "frame._constraints", "0.16.0", "0.17.0", [[Use the contsraint method to fetch constraints.]])
@@ -53,7 +53,6 @@ function frame:_post_init ()
          return self:constrain(key, value)
       end,
    })
-   self._variables = {}
    if not self.dummy then
       for method in pairs(alldims) do
          self._variables[method] = cassowary.Variable({ name = self._spec.id .. "_" .. method })
@@ -83,12 +82,12 @@ function frame:connectToTypesetter (typesetter)
    if self.typesetter then
       SU.warn("Re-using frame that has already been connected to a typesetter")
    end
-   -- self.state = { totals = { height = SILE.types.measurement(0) } }
-   -- self:enter(typesetter)
-   -- self:resetCursor()
-   -- self:newLine(typesetter)
-   -- self.typesetter = typesetter
-   -- return self
+   self.state = { totals = { height = SILE.types.measurement(0) } }
+   self:enter(typesetter)
+   self:resetCursor()
+   self:newLine(typesetter)
+   self.typesetter = typesetter
+   return self
 end
 
 function frame:resetCursor ()
@@ -104,7 +103,7 @@ function frame:resetCursor ()
 end
 
 function frame:constrain (method, dimension)
-   self.constraints[method] = tostring(dimension)
+   self._constraints[method] = tostring(dimension)
    self:invalidate()
 end
 
@@ -113,6 +112,7 @@ function frame:constraint (method)
 end
 
 function frame:iterateConstraints ()
+   SU.debug("frames", "Iterating constraints for", self.id)
    return pairs(self._constraints)
 end
 
@@ -157,17 +157,10 @@ function frame:solve ()
    solver = cassowary.SimplexSolver()
    if SILE.frames:exists("page") then
       local page = SILE.frames:pull("page")
-      SU.debug("frames", "#####", "Yes have page", page:__debug())
-      SU.dump(page)
-      local s = type(page.iterateConstraints)
-      SU.warn("Pragmatics "..s)
-      -- for method, _ in page:iterateConstraints() do
-      for method, _ in pairs(page._constraints) do
-         SU.dump(method)
-         -- page:reifyConstraint(solver, method, true)
+      for method, _ in page:iterateConstraints() do
+         page:reifyConstraint(solver, method, true)
       end
-      SU.error("Stop me martha")
-      SILE.frames.page:addWidthHeightDefinitions(solver)
+      page:addWidthHeightDefinitions(solver)
    end
    for id, frame in SILE.frames:iterate() do
       SU.debug("frame", "Solving", id)

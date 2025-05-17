@@ -13,7 +13,7 @@ local functionOfFrame = function (dim, id)
       SILE.newFrame({ id = id })
    end
    -- TODO implement without a private attribute
-   return SILE.frames[id]._variables[dim]
+   return SILE.frames:pull(id)._variables[dim]
 end
 
 -- stylua: ignore start
