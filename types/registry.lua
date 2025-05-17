@@ -80,4 +80,17 @@ function registry:pop (parent, name, count)
    end
 end
 
+function registry:iterate (_parent)
+   local ids = pl.tablex.keys(self._registry)
+   local i = 0
+   return function()
+      i = i + 1
+      local id = ids[i]
+      if id then
+         local stack = self._registry[id]
+         return id, stack[#stack]
+      end
+   end
+end
+
 return registry

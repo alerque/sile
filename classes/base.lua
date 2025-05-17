@@ -52,25 +52,24 @@ class.packages = {}
 function class:_init (options)
    SILE.scratch.half_initialized_class = self
    module._init(self, options)
-   self:registerPostinit(function (self_)
-      -- By this time all frames should be setup, so mark our place and start using them
-      self.frames:defineSet()
-      local frame = self.frames:enterSet()
-      SILE.typesetter = SILE.typesetters.default(frame)
-      SILE.typesetter:registerPageEndHook(function ()
-         SU.debug("frames", function ()
-            for _, v in pairs(SILE.frames) do
-               SILE.outputter:debugFrame(v)
-            end
-            return "Drew debug outlines around frames"
-         end)
-      end)
-   end)
 end
 
 function class:_post_init ()
    module._post_init(self)
    SILE.documentState.documentClass = self
+   -- By this time all frames should be setup, so mark our place and start using them
+   local frame = self.frames:enterSet()
+   SU.dump(frame)
+   SU.error("STSTSTSTST 00")
+   SILE.typesetter = SILE.typesetters.default(frame)
+   SILE.typesetter:registerPageEndHook(function ()
+      SU.debug("frames", function ()
+         for _, v in pairs(SILE.frames) do
+            SILE.outputter:debugFrame(v)
+         end
+         return "Drew debug outlines around frames"
+      end)
+   end)
    for i, func in ipairs(self.deferredInit) do
       func(self)
       self.deferredInit[i] = nil
@@ -758,7 +757,6 @@ function class:newPage ()
 end
 
 function class:endPage ()
-   SILE.frames:dump()
    SILE.typesetter.frame:leave(SILE.typesetter)
    self:runHooks("endpage")
    -- I'm trying to call up a new frame here, don't cause a page break in the current one

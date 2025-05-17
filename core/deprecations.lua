@@ -292,8 +292,8 @@ SILE.newFrame = function (spec, prototype)
 end
 
 SILE.getFrame = function (id)
-   SU.deprecated("SILE.getFrame", "class.frames:get", "0.16.0", "0.17.0")
-   return SILE.frames:get(id)
+   SU.deprecated("SILE.getFrame", "class.frames:pull", "0.16.0", "0.17.0")
+   return SILE.frames:pull(id)
 end
 
 SILE.parseComplexFrameDimension = function (dimension)

@@ -44,11 +44,6 @@ function frame:_post_init ()
    if true then return end
    frame._constraints = {}
    self.constraints = setmetatable({}, {
-      __call = function (...)
-         -- eventually _constraints_pairs() should just be constraints(), this is a shim because it used to be direct
-         -- access to an attribute table that is now supposed to be private
-         return self._constraints_pairs(...)
-      end,
       __index = function (_, key)
          SU.deprecated("frame.constraints.*", "frame._constraints", "0.16.0", "0.17.0", [[Use the contsraint method to fetch constraints.]])
          return self._constraints[key]
@@ -117,7 +112,7 @@ function frame:constraint (method)
    return tostring(self._constraints[method])
 end
 
-function frame:_constraints_pairs ()
+function frame:iterateConstraints ()
    return pairs(self._constraints)
 end
 
@@ -161,14 +156,14 @@ function frame:solve ()
    SU.debug("frames", "Solving...")
    solver = cassowary.SimplexSolver()
    if SILE.frames.page then
-      for method, _ in SILE.frames.page:constraints() do
+      for method, _ in SILE.frames.page:iterateConstraints() do
          SILE.frames.page:reifyConstraint(solver, method, true)
       end
       SILE.frames.page:addWidthHeightDefinitions(solver)
    end
    for id, frame in pairs(SILE.frames) do
       if id ~= "page" then
-         for method, _ in frame:constraints() do
+         for method, _ in frame:iterateConstraints() do
             frame:reifyConstraint(solver, method)
          end
          frame:addWidthHeightDefinitions(solver)

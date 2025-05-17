@@ -29,12 +29,13 @@ function frames:new (parent, spec, prototype)
    return self:push(parent, frame)
 end
 
-function frames:get (parent, id)
+-- Wrap registry:pull(), but handle returing current fragment of split frames
+function frames:pull (parent, id)
    id = id or self.default
    local frame, last_attempt
    while not frame do
       if self:exists(parent, id) then
-         frame = self:pull(parent, id)
+         frame = registry.pull(self, parent, id)
       else
          id = id:gsub("_$", "")
          if id == last_attempt then
@@ -43,7 +44,7 @@ function frames:get (parent, id)
          last_attempt = id
       end
    end
-   return frame or SU.warn("Couldn't find frame ID " .. id, true)
+   return frame or SU.error("Couldn't find frame ID " .. id, true)
 end
 
 function frames:setDefault (_parent, id)
@@ -77,12 +78,12 @@ function frames:use (parent, frame)
 end
 
 -- Keep a copy of clean frames around for use in the next page
-function frames:defineSet(_parent, set_id)
+function frames:defineSet(parent, set_id)
    SU.debug("frames", "Turning all frames in current to date part of set")
    local set = {}
-   for frame_id, stack in pairs(self._registry) do
+   for frame_id, frame in self:iterate(parent) do
       if stack[1] then -- The top of the stack might not have a given frame
-         set[frame_id] = stack[1]:clone()
+         set[frame_id] = frame:clone()
       end
    end
    table.insert(self.sets, set, #self.sets+1)
@@ -93,8 +94,14 @@ function frames:defineSet(_parent, set_id)
 end
 
 function frames:enterSet(parent, id)
+   if #self.sets == 0 then
+      SU.warn("No frame sets detected, making current frames into a set")
+      self:defineSet(parent)
+   end
    local id = id or #self.sets
+   local set = self.sets[id]
    SU.debug("frames", "Entering first content frame of set", id)
+   SU.dump(set)
    -- Reset current frame registry to just the page
    for id in (self._registry) do
       local value = id == "page" and stack[1]:clone() or nil
@@ -104,7 +111,6 @@ function frames:enterSet(parent, id)
    -- Find the first content frame
    -- Return it
    local set = self.sets[id]
-   SU.dump(set)
    -- local frame = self:getDefault(parent)
 end
 
@@ -131,8 +137,8 @@ end
 function frames:_post_init ()
    local mt = getmetatable(self)
    function mt.__index (_, id)
-      SU.deprecated("SILE.frames[]", "<module>.frames:get", "0.16.0", "0.17.0")
-      return self:get(id)
+      SU.deprecated("SILE.frames[]", "<module>.frames:pull", "0.16.0", "0.17.0")
+      return self:pull(id)
    end
    function mt.__newindex (_name, spec)
       SU.deprecated("SILE.frames[]", "<module>.frames:new", "0.16.0", "0.17.0")
