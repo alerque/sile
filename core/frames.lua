@@ -56,8 +56,8 @@ function frames:getDefault (parent)
 end
 
 function frames:getNext (parent)
-   if parent._type ~= "typesetter" then
-      SU.error("Implement finding current frame outside of the typesetter")
+   if parent.type ~= "typesetter" then
+      SU.warn("Implement finding current frame outside of the typesetter")
       parent = SILE.typesetter
    end
    local current = parent.frame

@@ -286,16 +286,13 @@ function frame:isAbsoluteConstraint (method)
 end
 
 function frame:isMainContentFrame ()
-   SU.error("Rewire isMain with registry iteration")
-   if true then return true end
-   local tpt = SILE.documentState.thisPageTemplate
-   local frame = tpt.firstContentFrame
+   local frame = self.typesetter.frames:getDefault()
    while frame do
       if frame == self then
          return true
       end
       if frame.next then
-         frame = SILE.getFrame(frame.next)
+         frame = frame:getNext()
       else
          return false
       end
