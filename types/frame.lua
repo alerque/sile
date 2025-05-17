@@ -153,15 +153,24 @@ function frame:solve ()
    if not solverNeedsReloading then
       return
    end
-   SU.debug("frames", "Solving...")
+   SU.debug("frames", "Begin solving...")
    solver = cassowary.SimplexSolver()
-   if SILE.frames.page then
-      for method, _ in SILE.frames.page:iterateConstraints() do
-         SILE.frames.page:reifyConstraint(solver, method, true)
+   if SILE.frames:exists("page") then
+      local page = SILE.frames:pull("page")
+      SU.debug("frames", "#####", "Yes have page", page:__debug())
+      SU.dump(page)
+      local s = type(page.iterateConstraints)
+      SU.warn("Pragmatics "..s)
+      -- for method, _ in page:iterateConstraints() do
+      for method, _ in pairs(page._constraints) do
+         SU.dump(method)
+         -- page:reifyConstraint(solver, method, true)
       end
+      SU.error("Stop me martha")
       SILE.frames.page:addWidthHeightDefinitions(solver)
    end
-   for id, frame in pairs(SILE.frames) do
+   for id, frame in SILE.frames:iterate() do
+      SU.debug("frame", "Solving", id)
       if id ~= "page" then
          for method, _ in frame:iterateConstraints() do
             frame:reifyConstraint(solver, method)

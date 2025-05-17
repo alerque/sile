@@ -104,7 +104,6 @@ function frames:enterSet(parent, id)
    for _, frame in pairs(set) do
       self:push(parent, frame)
    end
-   self:dump()
    -- Find the first content frame
    local frame = self:getDefault(parent)
    frame:solve()
