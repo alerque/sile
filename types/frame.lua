@@ -41,9 +41,8 @@ function frame:_init (spec, dummy)
    self._constraints = {}
    self._variables = {}
    for method in pairs(alldims) do
-      SU.debug("frames", "SET PSEUDO HOLDER", method)
       self[method] = function ()
-         SU.error("Attempt to use a size method from an unreloved frame", true)
+         SU.error("Attempt to use a size method from an unresolved frame", true)
       end
    end
 end
@@ -137,8 +136,8 @@ function frame:reifyConstraint (solver, method, stay)
       return
    end
    constraint = SU.type(constraint) == "measurement" and constraint:tonumber() or SILE.frameParser:match(constraint)
-   SU.debug("frames", "Adding constraint", self.id, function ()
-      return "(" .. method .. ") = " .. tostring(constraint)
+   SU.debug("frames", function ()
+      return "Adding constraint " .. method .. " to " .. self.id .. " as " .. tostring(constraint)
    end)
    local eq = cassowary.Equation(self._variables[method], constraint)
    solver:addConstraint(eq)

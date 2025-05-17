@@ -16,8 +16,9 @@ end
 
 function frames:new (parent, spec, prototype)
    if self:exists(parent, spec.id) then
-      SU.debug("frames", "WARNING: Redefining frame", spec.id)
+      SU.error("frames", "WARNING: Redefining frame", spec.id)
    else
+      SU.debug("frames", "Defining frame", spec.id)
       self._registry[spec.id] = {}
    end
    prototype = prototype or SILE.types.frame
@@ -79,7 +80,7 @@ end
 
 -- Keep a copy of clean frames around for use in the next page
 function frames:defineSet(parent, set_id)
-   SU.debug("frames", "Turning all frames in current to date part of set")
+   SU.debug("frames", "Turning all registered frames into set")
    local set = {}
    for frame_id, frame in self:iterate(parent) do
       set[frame_id] = frame:clone()
@@ -93,12 +94,11 @@ end
 
 function frames:enterSet(parent, id)
    if #self.sets == 0 then
-      SU.warn("No frame sets detected, making current frames into a set")
+      SU.debug("frames", "No sets detected, making current frames into a set")
       self:defineSet(parent)
    end
    local id = id or #self.sets
    local set = self.sets[id]
-   SU.debug("frames", "Entering first content frame of set", id)
    self:clear()
    -- Bring in the frame set as the current set of frames in the stack
    for _, frame in pairs(set) do
@@ -106,6 +106,7 @@ function frames:enterSet(parent, id)
    end
    -- Find the first content frame
    local frame = self:getDefault(parent)
+   SU.debug("frames", "Entering set", id, "into first content frame", frame)
    frame:solve()
    return frame
 end
