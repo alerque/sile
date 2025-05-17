@@ -324,7 +324,7 @@ function frame:__debug ()
    local str = "<Frame: " .. self.id .. ": "
    str = str .. " next=" .. (self.next or "nil") .. " "
    if not solverNeedsReloading then
-      for method, dimension in pairs(self.constraints) do
+      for method, dimension in self:iterateConstraints() do
          str = str .. method .. "=" .. dimension .. "; "
       end
    else
