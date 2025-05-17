@@ -59,8 +59,6 @@ function class:_post_init ()
    SILE.documentState.documentClass = self
    -- By this time all frames should be setup, so mark our place and start using them
    local frame = self.frames:enterSet()
-   SU.dump(frame)
-   SU.error("STSTSTSTST 00")
    SILE.typesetter = SILE.typesetters.default(frame)
    SILE.typesetter:registerPageEndHook(function ()
       SU.debug("frames", function ()

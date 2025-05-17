@@ -105,9 +105,10 @@ function frames:enterSet(parent, id)
       self:push(parent, frame)
    end
    self:dump()
-   SU.error("GOTERDONE")
    -- Find the first content frame
-   return self:getDefault(parent)
+   local frame = self:getDefault(parent)
+   frame:solve()
+   return frame
 end
 
 local cassowary = require("cassowary")
@@ -140,8 +141,8 @@ function frames:_post_init ()
 end
 
 function frames:dump ()
-   for id, frame in self:iterate() do
-      SU.debug("frames", frame and frame:__debug() or "phantom_"..id)
+   for _, frame in self:iterate() do
+      SU.debug("frames", frame:__debug())
    end
 end
 

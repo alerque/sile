@@ -305,7 +305,7 @@ end
 -- the constraints solved.
 function frame:clone ()
    local spec = pl.tablex.copy(self._spec)
-   local frame = self._base(spec)
+   local frame = self._class(spec)
    for _, k in ipairs({ "balanced", "mirrored", "flipped", "dummy", "direction", "enterHooks", "leaveHooks" }) do
       frame[k] = self[k]
    end
@@ -319,8 +319,12 @@ end
 function frame:__debug ()
    local str = "<Frame: " .. self.id .. ": "
    str = str .. " next=" .. (self.next or "nil") .. " "
-   for method, dimension in pairs(self.constraints) do
-      str = str .. method .. "=" .. dimension .. "; "
+   if not solverNeedsReloading then
+      for method, dimension in pairs(self.constraints) do
+         str = str .. method .. "=" .. dimension .. "; "
+      end
+   else
+      str = str .. "unsolved"
    end
    if self.hanmen then
       str = str .. "tate=" .. (self.tate and "true" or "false") .. "; "
