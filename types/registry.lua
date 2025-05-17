@@ -50,6 +50,20 @@ function registry:push (parent, entry)
    return entry, #self._registry[name]
 end
 
+function registry:clear (parent, name)
+   SU.debug("registries", "Clearing active value for", name and name or "*", "from registry")
+   if name then
+      if not self:exists(parent, name) then
+         SU.error("Attempted to clear an entry from a registry that does not exist")
+      end
+      table.insert(self._registry[name], false)
+   else
+      for id in self:iterate() do
+         self:clear(parent, id)
+      end
+   end
+end
+
 function registry:pull (parent, name, count)
    if not self:exists(parent, name) then
       SU.error(("No entry '%s' exists in %s registry"):format(name, self._name))
@@ -80,7 +94,7 @@ function registry:pop (parent, name, count)
    end
 end
 
-function registry:iterate (_parent)
+function registry:iterate ()
    local ids = pl.tablex.keys(self._registry)
    local i = 0
    return function()

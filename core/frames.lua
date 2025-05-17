@@ -52,7 +52,7 @@ function frames:setDefault (_parent, id)
 end
 
 function frames:getDefault (parent)
-   return self:get(parent, self.default)
+   return self:pull(parent, self.default)
 end
 
 function frames:getNext (parent)
@@ -62,7 +62,7 @@ function frames:getNext (parent)
    end
    local current = parent.frame
    local next = current.next
-   return next and self:get(next)
+   return next and self:pull(next)
 end
 
 function frames:use (parent, frame)
@@ -71,7 +71,7 @@ function frames:use (parent, frame)
    end
    if type(frame) == "string" then
       SU.deprecated("frames:use", "frames:use", "0.16.0", "0.17.0", [[Wants frame, not id]])
-      frame = self:get(parent, frame)
+      frame = self:pull(parent, frame)
    end
    self.current = frame
    frame:connectToTypesetter(parent)
@@ -82,11 +82,9 @@ function frames:defineSet(parent, set_id)
    SU.debug("frames", "Turning all frames in current to date part of set")
    local set = {}
    for frame_id, frame in self:iterate(parent) do
-      if stack[1] then -- The top of the stack might not have a given frame
-         set[frame_id] = frame:clone()
-      end
+      set[frame_id] = frame:clone()
    end
-   table.insert(self.sets, set, #self.sets+1)
+   table.insert(self.sets, set)
    if set_id then
       self.sets[set_id] = #self.sets
    end
@@ -101,20 +99,15 @@ function frames:enterSet(parent, id)
    local id = id or #self.sets
    local set = self.sets[id]
    SU.debug("frames", "Entering first content frame of set", id)
-   SU.dump(set)
-   -- Reset current frame registry to just the page
-   for id in (self._registry) do
-      local value = id == "page" and stack[1]:clone() or nil
-      table.insert(self._registry[id], value)
-   end
+   self:clear()
    -- Bring in the frame set as the current set of frames in the stack
+   for _, frame in pairs(set) do
+      self:push(parent, frame)
+   end
+   self:dump()
+   SU.error("GOTERDONE")
    -- Find the first content frame
-   -- Return it
-   local set = self.sets[id]
-   -- local frame = self:getDefault(parent)
-end
-
-function frames:clear()
+   return self:getDefault(parent)
 end
 
 local cassowary = require("cassowary")
@@ -147,8 +140,8 @@ function frames:_post_init ()
 end
 
 function frames:dump ()
-   for _, stack in pairs(self._registry) do
-      SU.debug("frames", stack[1]:__debug())
+   for id, frame in self:iterate() do
+      SU.debug("frames", frame and frame:__debug() or "phantom_"..id)
    end
 end
 
