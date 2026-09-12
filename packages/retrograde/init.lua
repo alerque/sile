@@ -127,7 +127,7 @@ end
 function package:recede_defaults (target)
    local semvertarget, terminal = self:_prep(target, "defaults")
    for version, settings in pl.tablex.sort(self.default_settings, semver_descending) do
-      version = semver(version)
+      local version = semver(version)
       if version <= semvertarget then
          terminal(version)
          break
@@ -164,7 +164,7 @@ function package:recede_classes (target)
    local semvertarget, terminal = self:_prep(target, "classes")
    local reverters = {}
    for version, callbacks in pl.tablex.sort(self.shim_classes, semver_descending) do
-      version = semver(version)
+      local version = semver(version)
       if version <= semvertarget then
          terminal(version)
          break
@@ -186,7 +186,7 @@ function package:recede_commands (target)
    local semvertarget, terminal = self:_prep(target, "commands")
    local currents = {}
    for version, commands in pl.tablex.sort(self.shim_commands, semver_descending) do
-      version = semver(version)
+      local version = semver(version)
       if version <= semvertarget then
          terminal(version)
          break

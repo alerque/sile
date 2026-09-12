@@ -82,7 +82,7 @@ function package:registerCommands ()
       words = words - times * nwords
       local pos = 0
       for _ = 1, words do
-         _, pos = lorem:find("%S+", pos + 1)
+         __, pos = lorem:find("%S+", pos + 1)
       end
       local text = string.rep(lorem, times) .. lorem:sub(1, pos)
       if counter then
